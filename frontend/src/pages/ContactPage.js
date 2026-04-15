@@ -72,12 +72,18 @@ export default function ContactPage() {
                 ))}
               </div>
 
-              {/* Map Placeholder */}
-              <div className="w-full h-64 bg-slate-100 border border-slate-200 flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                  <p className="text-sm text-slate-400">Belo Horizonte, MG</p>
-                </div>
+              {/* Google Maps */}
+              <div className="w-full h-64 border border-slate-200 overflow-hidden" data-testid="contact-map">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3750.8!2d-43.95!3d-19.92!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xa69a71909c0d7f%3A0xad207904465d2acf!2sConserto%20de%20Geladeiras%20BH-%20Servi%C3%A7o%20Autorizado!5e0!3m2!1spt-BR!2sbr!4v1"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Localizacao Mastermaq"
+                />
               </div>
             </motion.div>
 
