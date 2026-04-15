@@ -16,16 +16,34 @@ html {
 #emergent-badge {
   display: none !important;
 }
+
+/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #f8fafc;
 }
 ::-webkit-scrollbar-thumb {
   background: #94a3b8;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #64748b;
+}
+
+/* Premium selection */
+::selection {
+  background: #2563EB;
+  color: white;
+}
+
+/* Transition durations */
+.duration-400 {
+  transition-duration: 400ms;
+}
+
+/* Scale on active for premium feel */
+.active\:scale-\[0\.98\]:active {
+  transform: scale(0.98);
 }
