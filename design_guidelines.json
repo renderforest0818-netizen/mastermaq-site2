@@ -1,0 +1,146 @@
+{
+  "project_name": "Mastermaq Assistência",
+  "domain": "Premium Appliance Repair Service",
+  "theme": "Light",
+  "archetype": "4_swiss_high_contrast_premium",
+  "design_rationale": "The user requested a light site with black text, navy/cobalt, and red accents. Archetype 4 (Swiss & High Contrast) adapted for premium services is perfect here. It creates an aura of authority, precision, and trust—essential for high-end appliance repair (Liebherr, Bertazzoni). We will use deep navy for trust/structure, bright cobalt for interactive elements, and sharp red for urgent CTAs or alerts. The layout will rely on generous white space, strict grids, and high-quality photography.",
+  "colors": {
+    "background": {
+      "default": "#FFFFFF",
+      "muted": "#F8FAFC",
+      "subtle": "#F1F5F9"
+    },
+    "text": {
+      "primary": "#0F172A",
+      "secondary": "#475569",
+      "inverse": "#FFFFFF",
+      "accent": "#DC2626"
+    },
+    "brand": {
+      "navy": "#1E3A8A",
+      "cobalt": "#2563EB",
+      "red": "#DC2626",
+      "red_hover": "#B91C1C",
+      "cobalt_hover": "#1D4ED8"
+    },
+    "border": {
+      "default": "#E2E8F0",
+      "focus": "#2563EB"
+    }
+  },
+  "typography": {
+    "headings_font": "Outfit",
+    "body_font": "Manrope",
+    "rules": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-900",
+      "h2": "text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-slate-900",
+      "h3": "text-xl sm:text-2xl font-medium text-slate-900",
+      "body": "text-base leading-relaxed text-slate-600",
+      "overline": "text-xs font-bold uppercase tracking-[0.2em] text-blue-600"
+    }
+  },
+  "spacing_and_layout": {
+    "section_padding": "py-24 sm:py-32",
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "grid_bento": "grid grid-cols-1 md:grid-cols-12 gap-8",
+    "grid_dashboard": "grid grid-cols-1 lg:grid-cols-4 gap-6"
+  },
+  "components": {
+    "header": {
+      "style": "sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-slate-200",
+      "links_color": "text-slate-600 hover:text-blue-600 font-medium transition-colors"
+    },
+    "hero": {
+      "overlay": "bg-gradient-to-r from-slate-900/80 to-slate-900/40",
+      "text_color": "text-white"
+    },
+    "buttons": {
+      "primary": "bg-blue-600 text-white hover:bg-blue-700 transition-colors rounded-none px-6 py-3 font-medium",
+      "urgent": "bg-red-600 text-white hover:bg-red-700 transition-colors rounded-none px-6 py-3 font-medium",
+      "outline": "border-2 border-slate-200 text-slate-900 hover:border-blue-600 hover:text-blue-600 transition-colors rounded-none px-6 py-3 font-medium"
+    },
+    "cards": {
+      "default": "bg-white border border-slate-200 p-8 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 rounded-none",
+      "dashboard": "bg-white border border-slate-200 p-6 rounded-none shadow-sm"
+    },
+    "inputs": {
+      "style": "border border-slate-300 rounded-none px-4 py-2 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all w-full"
+    }
+  },
+  "pages_and_features": [
+    {
+      "name": "Homepage",
+      "sections": [
+        "Hero section with background image, strong CTA (Schedule Repair)",
+        "Brand Logos Bar (Marquee with typographic treatment of Panasonic, Liebherr, Bertazzoni, Hisense, Samsung, LG, Brastemp, Electrolux)",
+        "Interactive Equipment Carousel (Shadcn Carousel displaying: Geladeiras, Trituradores, Lava e seca, etc.)",
+        "How it works (3-step bento grid: Request, Diagnose, Repair)",
+        "Competitive Differentials (Grid of features: Original parts, Warranty, Fast service)",
+        "Customer Testimonials",
+        "Final CTA"
+      ]
+    },
+    {
+      "name": "Scheduling Modal (Multi-step)",
+      "flow": [
+        "Step 1: Select Brand",
+        "Step 2: Select Service Type (Installation/Repair)",
+        "Step 3: Equipment Details (Model, Serial, Warranty, Defect)",
+        "Step 4: Auto OS Generation & Confirmation"
+      ]
+    },
+    {
+      "name": "Customer Portal",
+      "features": [
+        "JWT Login/Register view",
+        "Dashboard layout with sidebar",
+        "Active Service Orders tracking (Status pipeline)",
+        "Service History list",
+        "Profile Management"
+      ]
+    },
+    {
+      "name": "Internal Pages",
+      "pages": ["Services", "About", "Contact (with Map)", "Blog"]
+    }
+  ],
+  "media": {
+    "images": [
+      {
+        "category": "hero_background",
+        "url": "https://images.unsplash.com/photo-1758548157275-d939cf0f0e32?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODF8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBwcmVtaXVtJTIwa2l0Y2hlbiUyMGFwcGxpYW5jZXN8ZW58MHx8fHwxNzc2MTI1Njg1fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Modern high-end kitchen. Use with dark gradient overlay to ensure white/light text readability."
+      },
+      {
+        "category": "about_technician",
+        "url": "https://images.unsplash.com/photo-1615467500370-0395bf8932e4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzl8MHwxfHNlYXJjaHwyfHxwcm9mZXNzaW9uYWwlMjB0ZWNobmljaWFuJTIwcmVwYWlyaW5nJTIwYXBwbGlhbmNlfGVufDB8fHx8MTc3NjEyNTY4NXww&ixlib=rb-4.1.0&q=85",
+        "description": "Technician working on appliance, conveys trust and expertise."
+      },
+      {
+        "category": "equipment_washer",
+        "url": "https://images.unsplash.com/photo-1761079976271-3a78f547ca67?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzV8MHwxfHNlYXJjaHwxfHx3YXNoaW5nJTIwbWFjaGluZSUyMG1vZGVybnxlbnwwfHx8fDE3NzYxMjU2OTZ8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Inside of a modern washing machine."
+      },
+      {
+        "category": "equipment_fridge",
+        "url": "https://images.unsplash.com/photo-1758488438758-5e2eedf769ce?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjV8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjByZWZyaWdlcmF0b3IlMjBpbnRlcmlvcnxlbnwwfHx8fDE3NzYxMjU2OTZ8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Premium light blue smeg refrigerator."
+      }
+    ]
+  },
+  "libraries": {
+    "icons": "lucide-react",
+    "motion": "framer-motion",
+    "carousel": "embla-carousel-react",
+    "marquee": "react-fast-marquee",
+    "ui": "shadcn/ui (radix-ui)"
+  },
+  "critical_instructions_for_main_agent": [
+    "DO NOT use Inter or standard sans fonts for headings. Use Outfit for Headings and Manrope for body text.",
+    "For the Brand Logos Bar, DO NOT use image placeholders. Use typographical representations of the brand names (e.g., `<span className=\"font-bold text-2xl uppercase tracking-wider text-slate-400\">PANASONIC</span>`) using `react-fast-marquee`.",
+    "Use square/sharp corners (`rounded-none` or `rounded-sm`) for a premium, authoritative Swiss-design feel.",
+    "Ensure all buttons, inputs, and interactive elements have `data-testid` attributes.",
+    "For the multi-step scheduling modal, use a clean state-driven wizard layout inside a Shadcn Dialog. It should generate a mock OS number on success.",
+    "The Customer Portal requires a dedicated layout with sidebar navigation, separating it from the main marketing site."
+  ]
+}
