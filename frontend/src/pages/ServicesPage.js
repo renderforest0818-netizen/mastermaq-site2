@@ -1,11 +1,29 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import SchedulingModal from '@/components/SchedulingModal';
-import { ArrowRight, Snowflake, Wind, Shirt, Droplets, Cog, AirVent, Server, Thermometer, Fan, ChevronRight } from 'lucide-react';
+import { ArrowRight, Snowflake, Wind, Shirt, Droplets, Cog, AirVent, Server, Thermometer, Fan, ChevronRight, ChevronLeft } from 'lucide-react';
 
 const ICON_MAP = { Snowflake, Cog, Shirt, Droplets, Wind, AirVent, Server, Thermometer, Fan };
+
+const PRODUCT_GALLERY = {
+  geladeiras: [
+    { brand: "Bertazzoni", image: "/images/geladeiras/bertazzoni.png", logo: "/images/assets/bertazzoni-logo.png" },
+    { brand: "Brastemp", image: "/images/geladeiras/brastemp.png", logo: "/images/assets/brastemp-logo.png" },
+    { brand: "Consul", image: "/images/geladeiras/consul.png", logo: "/images/assets/consul-logo.png" },
+    { brand: "Electrolux", image: "/images/geladeiras/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+    { brand: "Hisense", image: "/images/geladeiras/hisense.png", logo: "/images/assets/hisense-logo.png" },
+    { brand: "LG", image: "/images/geladeiras/lg.png", logo: "/images/assets/LG-logo.png" },
+    { brand: "Liebherr", image: "/images/geladeiras/liebherr.png", logo: "/images/assets/liebherr-logo.png" },
+    { brand: "Panasonic", image: "/images/geladeiras/panasonic.png", logo: "/images/assets/panasonic-logo.png" },
+    { brand: "Samsung", image: "/images/geladeiras/samsung.png", logo: "/images/assets/samsung-logo.png" },
+    { brand: "Philco", image: "/images/geladeiras/philco.png", logo: "/images/assets/Philco-logo.png" },
+  ],
+  trituradores: [
+    { brand: "Franke", image: "/images/trituradores/franke.png", logo: "/images/assets/franke-logo.png" },
+  ],
+};
 
 const SERVICES = [
   { slug: "geladeiras", name: "Geladeiras", icon: "Snowflake", image: "/images/geladeiras/samsung.png", desc: "Conserto e manutencao de geladeiras de todas as marcas. Diagnostico preciso, pecas originais e garantia de 90 dias.", problems: ["Nao esta gelando", "Faz barulho excessivo", "Vazamento de agua", "Formacao de gelo excessiva", "Compressor com defeito"] },
@@ -22,13 +40,68 @@ const SERVICES = [
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } };
 const fadeLeft = { hidden: { opacity: 0, x: -30 }, visible: { opacity: 1, x: 0, transition: { duration: 0.6 } } };
 
+/* ── Product Carousel for detail pages ── */
+function ProductCarousel({ products }) {
+  const scrollRef = useRef(null);
+
+  const scroll = (dir) => {
+    if (scrollRef.current) {
+      const amount = 220;
+      scrollRef.current.scrollBy({ left: dir === 'right' ? amount : -amount, behavior: 'smooth' });
+    }
+  };
+
+  if (!products || products.length === 0) return null;
+
+  return (
+    <div className="relative" data-testid="product-carousel">
+      {/* Navigation arrows */}
+      {products.length > 3 && (
+        <>
+          <button onClick={() => scroll('left')}
+            className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white border border-slate-200 shadow-md flex items-center justify-center hover:border-blue-500 transition-colors"
+            data-testid="carousel-prev">
+            <ChevronLeft className="w-4 h-4 text-slate-600" />
+          </button>
+          <button onClick={() => scroll('right')}
+            className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white border border-slate-200 shadow-md flex items-center justify-center hover:border-blue-500 transition-colors"
+            data-testid="carousel-next">
+            <ChevronRight className="w-4 h-4 text-slate-600" />
+          </button>
+        </>
+      )}
+
+      {/* Scrollable container */}
+      <div ref={scrollRef}
+        className="flex gap-5 overflow-x-auto scrollbar-hide pb-4 px-1 snap-x snap-mandatory"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        {products.map((p) => (
+          <div key={p.brand}
+            className="flex-shrink-0 w-[180px] bg-white border border-slate-200 p-4 flex flex-col items-center gap-3 hover:-translate-y-1 hover:shadow-lg hover:border-blue-500/30 transition-all duration-300 snap-start group"
+            data-testid={`product-${p.brand.toLowerCase()}`}>
+            {/* Product image - standardized size */}
+            <div className="w-[140px] h-[160px] flex items-center justify-center">
+              <img src={p.image} alt={p.brand} className="max-w-[130px] max-h-[150px] object-contain group-hover:scale-105 transition-transform duration-300" />
+            </div>
+            {/* Brand logo - standardized size, full color */}
+            <div className="w-full h-[36px] flex items-center justify-center border-t border-slate-100 pt-3">
+              <img src={p.logo} alt={p.brand} className="max-h-[28px] max-w-[100px] object-contain" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ServiceDetail({ service }) {
   const [modalOpen, setModalOpen] = useState(false);
   const IconComp = ICON_MAP[service.icon];
+  const gallery = PRODUCT_GALLERY[service.slug] || [];
 
   return (
     <div data-testid={`service-detail-${service.slug}`}>
-      {/* Hero for this service */}
+      {/* Hero */}
       <section className="py-20 sm:py-28 bg-slate-950 relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -56,6 +129,19 @@ function ServiceDetail({ service }) {
           </div>
         </div>
       </section>
+
+      {/* Product gallery carousel */}
+      {gallery.length > 0 && (
+        <section className="py-16 sm:py-20 bg-slate-50" data-testid="product-gallery-section">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mb-10">
+              <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-3 block">Marcas Atendidas</span>
+              <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-slate-900">Trabalhamos com as melhores marcas</h2>
+            </motion.div>
+            <ProductCarousel products={gallery} />
+          </div>
+        </section>
+      )}
 
       {/* Problems and details */}
       <section className="py-20 sm:py-28">
@@ -85,11 +171,7 @@ function ServiceDetail({ service }) {
         </div>
       </section>
 
-      <SchedulingModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        equipment={{ id: service.slug, name: service.name, icon: service.icon }}
-      />
+      <SchedulingModal open={modalOpen} onClose={() => setModalOpen(false)} equipment={{ id: service.slug, name: service.name, icon: service.icon }} />
     </div>
   );
 }
@@ -101,11 +183,6 @@ export default function ServicesPage() {
   const service = slug ? SERVICES.find(s => s.slug === slug) : null;
 
   if (service) return <ServiceDetail service={service} />;
-
-  const openModal = (s) => {
-    setSelectedEq({ id: s.slug, name: s.name, icon: s.icon });
-    setModalOpen(true);
-  };
 
   return (
     <div data-testid="services-page">
@@ -130,7 +207,6 @@ export default function ServicesPage() {
               return (
                 <motion.div key={s.slug} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { delay: i * 0.05 } } }}>
                   <Link to={`/servicos/${s.slug}`} className="block bg-white border border-slate-200 hover:-translate-y-1 hover:shadow-[0_16px_32px_-8px_rgba(0,0,0,0.1)] hover:border-blue-500/30 transition-all duration-400 group overflow-hidden" data-testid={`service-card-${s.slug}`}>
-                    {/* Image or icon area */}
                     <div className="h-44 bg-slate-50 flex items-center justify-center relative overflow-hidden">
                       {s.image ? (
                         <img src={s.image} alt={s.name} className="max-h-[140px] max-w-[140px] object-contain group-hover:scale-110 transition-transform duration-500" />
@@ -139,7 +215,6 @@ export default function ServicesPage() {
                           <IconComp className="w-9 h-9 text-blue-600 group-hover:text-white transition-colors duration-300" />
                         </div>
                       )}
-                      {/* Hover overlay */}
                       <div className="absolute top-0 left-0 right-0 h-0.5 bg-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-400 origin-left" />
                     </div>
                     <div className="p-6">

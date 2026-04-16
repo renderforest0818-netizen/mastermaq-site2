@@ -32,10 +32,10 @@ export default function Footer() {
           {/* Brand — 5 col */}
           <div className="lg:col-span-5">
             <div className="flex items-center gap-2 mb-5">
-              <img src="/images/assets/mastermaq-logo.png" alt="Mastermaq" className="h-10 w-auto brightness-0 invert opacity-80" />
+              <img src="/images/assets/mastermaq-logo.png" alt="Mastermaq" className="h-10 w-auto opacity-90" />
             </div>
             <p className="text-slate-500 text-sm leading-relaxed mb-8 max-w-sm">
-              Assistencia Tecnica Premium em Belo Horizonte. Especialistas em refrigeracao e eletrodomesticos de alto padrao com mais de 10 anos de experiencia.
+              Assistencia Tecnica Autorizada em Belo Horizonte. Especialistas em refrigeracao e eletrodomesticos de alto padrao com mais de 30 anos de experiencia.
             </p>
             <div className="flex flex-col gap-3.5 text-sm text-slate-500">
               <a href="tel:+553134225293" className="flex items-center gap-3 hover:text-white transition-colors duration-200">

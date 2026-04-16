@@ -1,5 +1,6 @@
 import "@/App.css";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { Toaster } from "sonner";
 import Header from "@/components/Header";
@@ -14,6 +15,12 @@ import BlogArticlePage from "@/pages/BlogArticlePage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import PortalPage from "@/pages/PortalPage";
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -43,6 +50,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <ScrollToTop />
         <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-1">

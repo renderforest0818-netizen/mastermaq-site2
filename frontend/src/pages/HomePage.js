@@ -71,7 +71,7 @@ const BRAND_LOGOS = [
 
 const DIFFERENTIALS = [
   { icon: Shield, title: "Pecas Originais", desc: "Exclusivamente pecas originais de fabrica, garantindo durabilidade e desempenho ideal do seu equipamento." },
-  { icon: Award, title: "Tecnicos Certificados", desc: "Equipe treinada e homologada pelas principais marcas. Expertise comprovada em equipamentos premium." },
+  { icon: Award, title: "Tecnicos Certificados", desc: "Equipe treinada e homologada pelas principais marcas. Expertise comprovada em equipamentos de alto padrao." },
   { icon: Clock, title: "Garantia de 90 Dias", desc: "Todos os servicos com garantia. Sua tranquilidade e nossa prioridade absoluta." },
   { icon: Home, title: "Atendimento Domiciliar", desc: "Diagnostico preciso e reparo no conforto do seu lar, sem complicacoes." },
   { icon: Phone, title: "Suporte Dedicado", desc: "Canal direto via WhatsApp para acompanhamento em tempo real do seu atendimento." },
@@ -85,6 +85,8 @@ const TESTIMONIALS = [
   { name: "Cristiano Reis de Paiva", city: "Belo Horizonte", text: "Excelente atendimento. Profissional extremamente gentil, educado e atencioso. Parabens!", rating: 5, time: "5 meses atras", source: "google" },
   { name: "Marianna Keller", city: "Belo Horizonte", text: "Excelente profissional e atendimento rapido, indico.", rating: 5, time: "3 meses atras", source: "google" },
   { name: "Toca Espeto", city: "Belo Horizonte", text: "Atendimento muito bom. Resolveram meu problema prontamente, atendimento rapido e eficaz com preco justo! Recomendo!", rating: 5, time: "9 meses atras", source: "google" },
+  { name: "Rodrigo G. Amaral", city: "Belo Horizonte", text: "Acionei a Mastermaq porque a minha geladeira Electrolux estava gelando pouco, fui atendido no mesmo dia e imediatamente constataram um problema no motor da geladeira e ja me passaram o orcamento.", rating: 5, time: "1 ano atras", source: "google" },
+  { name: "Juhh Costa", city: "Belo Horizonte", text: "Nelson um otimo atendente, muito atencioso e explicativo.", rating: 5, time: "1 mes atras", source: "google" },
 ];
 
 const fadeUp = { hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } };
@@ -146,7 +148,7 @@ function HeroCarousel() {
       <div className="mt-6 h-14 w-[150px] flex items-center justify-center">
         <AnimatePresence mode="wait">
           <motion.img key={`logo-${category.id}-${prodIndex}`} src={product.logo} alt={product.brand}
-            className="max-h-[40px] max-w-[120px] object-contain brightness-0 invert opacity-80"
+            className="max-h-[40px] max-w-[120px] object-contain opacity-80"
             initial={{ opacity: 0 }} animate={{ opacity: 0.8 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}
             data-testid="hero-brand-logo" />
         </AnimatePresence>
@@ -190,7 +192,7 @@ export default function HomePage() {
               </span>
               <h1 className="font-heading text-[2.75rem] sm:text-[3.5rem] lg:text-[4.25rem] font-semibold tracking-[-0.03em] text-white leading-[1.05] mb-6" data-testid="hero-title">
                 Assistencia Tecnica<br />
-                <span className="text-red-500">Premium em BH</span>
+                <span className="text-red-500">Autorizada em BH</span>
               </h1>
               <p className="text-base sm:text-lg text-slate-400 leading-relaxed mb-8 max-w-xl">
                 Seu equipamento merece o melhor cuidado. Diagnostico preciso, pecas originais e tecnicos homologados na sua porta.
@@ -365,7 +367,7 @@ export default function HomePage() {
                 Por que confiar na Mastermaq?
               </h2>
               <p className="text-base text-slate-500 leading-relaxed">
-                Seu equipamento premium merece o melhor cuidado. Descubra o que nos diferencia.
+                Seu equipamento merece o melhor cuidado. Descubra o que nos diferencia.
               </p>
             </motion.div>
 
@@ -528,7 +530,7 @@ export default function HomePage() {
                 Nao deixe seu equipamento parado
               </h2>
               <p className="text-base text-blue-200/70 max-w-lg mb-10 leading-relaxed">
-                Agende agora sua visita tecnica e tenha seu equipamento premium funcionando perfeitamente. Atendimento rapido e garantido.
+                Agende agora sua visita tecnica e tenha seu equipamento funcionando perfeitamente. Atendimento rapido e garantido.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button
@@ -549,9 +551,9 @@ export default function HomePage() {
             <motion.div className="lg:col-span-5" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeRight}>
               <div className="grid grid-cols-2 gap-4">
                 {[
-                  { num: "10+", label: "Anos de Experiencia" },
-                  { num: "5000+", label: "Clientes Atendidos" },
-                  { num: "15+", label: "Marcas Atendidas" },
+                  { num: "30+", label: "Anos de Experiencia" },
+                  { num: "28000+", label: "Clientes Atendidos" },
+                  { num: "8+", label: "Marcas Autorizadas" },
                   { num: "98%", label: "Satisfacao" },
                 ].map((s, i) => (
                   <motion.div key={s.label} variants={fadeUp}
@@ -570,3 +572,4 @@ export default function HomePage() {
     </div>
   );
 }
+

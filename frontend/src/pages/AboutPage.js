@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
-import { Shield, Users, Award, Target, Wrench, CheckCircle2 } from 'lucide-react';
+import { Shield, Users, Award, Target } from 'lucide-react';
 
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
+const fadeLeft = { hidden: { opacity: 0, x: -30 }, visible: { opacity: 1, x: 0, transition: { duration: 0.6 } } };
 
 const VALUES = [
   { icon: Shield, title: "Confianca", desc: "Transparencia em todos os processos e orcamentos." },
@@ -14,13 +15,14 @@ export default function AboutPage() {
   return (
     <div data-testid="about-page">
       {/* Hero */}
-      <section className="relative py-24 sm:py-32 bg-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-400 mb-4">Sobre Nos</p>
-            <h1 className="font-heading text-4xl sm:text-5xl font-semibold tracking-tight text-white mb-6">Mastermaq Assistencia Tecnica</h1>
-            <p className="text-base text-slate-300 leading-relaxed">
-              Ha mais de 10 anos oferecendo servicos de excelencia em manutencao e conserto de eletrodomesticos em Belo Horizonte e regiao metropolitana.
+      <section className="relative py-24 sm:py-32 bg-slate-950 overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <motion.div initial="hidden" animate="visible" variants={fadeLeft} className="max-w-2xl">
+            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-400 mb-4 block">Sobre Nos</span>
+            <h1 className="font-heading text-4xl sm:text-5xl font-semibold tracking-[-0.02em] text-white mb-6">Mastermaq Assistencia Tecnica</h1>
+            <p className="text-base text-slate-400 leading-relaxed">
+              Ha mais de 30 anos oferecendo servicos de excelencia em manutencao e conserto de eletrodomesticos em Belo Horizonte e regiao metropolitana.
             </p>
           </motion.div>
         </div>
@@ -31,18 +33,18 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600 mb-3">Nossa Historia</p>
+              <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-4 block">Nossa Historia</span>
               <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-slate-900 mb-6">Uma trajetoria de confianca e qualidade</h2>
               <div className="space-y-4 text-sm text-slate-500 leading-relaxed">
                 <p>A Mastermaq nasceu da paixao por tecnologia e do compromisso em oferecer solucoes rapidas e eficientes para o conserto de eletrodomesticos. Desde o inicio, nossa missao sempre foi clara: devolver a tranquilidade aos nossos clientes.</p>
-                <p>Com uma equipe de tecnicos certificados pelas principais marcas do mercado, nos especializamos no atendimento a equipamentos premium, oferecendo um servico diferenciado que combina expertise tecnica com atendimento humanizado.</p>
-                <p>Hoje, somos referencia em Belo Horizonte no conserto de eletrodomesticos de alto padrao, atendendo marcas como Liebherr, Bertazzoni, Hisense, Samsung e muitas outras.</p>
+                <p>Com uma equipe de tecnicos certificados pelas principais marcas do mercado, nos especializamos no atendimento a equipamentos de alto padrao, oferecendo um servico diferenciado que combina expertise tecnica com atendimento humanizado.</p>
+                <p>Hoje, somos referencia em Belo Horizonte no conserto de eletrodomesticos, atendendo marcas como Liebherr, Bertazzoni, Hisense, Samsung e muitas outras com mais de 30 anos de experiencia.</p>
               </div>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
               <img
-                src="https://images.unsplash.com/photo-1615467500370-0395bf8932e4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzl8MHwxfHNlYXJjaHwyfHxwcm9mZXNzaW9uYWwlMjB0ZWNobmljaWFuJTIwcmVwYWlyaW5nJTIwYXBwbGlhbmNlfGVufDB8fHx8MTc3NjEyNTY4NXww&ixlib=rb-4.1.0&q=85"
-                alt="Tecnico Mastermaq"
+                src="https://images.unsplash.com/photo-1604349779478-ed111effa081?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTN8MHwxfHNlYXJjaHwzfHxhcHBsaWFuY2UlMjByZXBhaXIlMjB3b3Jrc2hvcCUyMHRlY2huaWNpYW4lMjBzZXJ2aWNlJTIwY2VudGVyfGVufDB8fHx8MTc3NjI5OTMzMXww&ixlib=rb-4.1.0&q=85"
+                alt="Loja Mastermaq - Centro de Servicos"
                 className="w-full h-[400px] object-cover"
               />
             </motion.div>
@@ -56,7 +58,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { title: "Missao", desc: "Oferecer solucoes de excelencia em assistencia tecnica, garantindo a satisfacao total dos nossos clientes atraves de um atendimento rapido, transparente e de alta qualidade." },
-              { title: "Visao", desc: "Ser a principal referencia em assistencia tecnica premium de Belo Horizonte, reconhecida pela qualidade, agilidade e inovacao no atendimento." },
+              { title: "Visao", desc: "Ser a principal referencia em assistencia tecnica autorizada de Belo Horizonte, reconhecida pela qualidade, agilidade e inovacao no atendimento." },
               { title: "Valores", desc: "Etica, transparencia, qualidade, comprometimento com o cliente e busca constante pela excelencia em tudo que fazemos." },
             ].map((item, i) => (
               <motion.div key={item.title} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { delay: i * 0.1 } } }}
@@ -74,7 +76,7 @@ export default function AboutPage() {
       <section className="py-24 sm:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-16">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600 mb-3">O Que Nos Move</p>
+            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-4 block">O Que Nos Move</span>
             <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-slate-900">Nossos Pilares</h2>
           </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -98,9 +100,9 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { num: "10+", label: "Anos de Experiencia" },
-              { num: "5000+", label: "Clientes Atendidos" },
-              { num: "15+", label: "Marcas Atendidas" },
+              { num: "30+", label: "Anos de Experiencia" },
+              { num: "28000+", label: "Clientes Atendidos" },
+              { num: "8+", label: "Marcas Autorizadas" },
               { num: "98%", label: "Satisfacao" },
             ].map(s => (
               <div key={s.label}>

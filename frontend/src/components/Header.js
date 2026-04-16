@@ -44,7 +44,7 @@ export default function Header() {
             <img
               src="/images/assets/mastermaq-logo.png"
               alt="Mastermaq"
-              className={`h-9 sm:h-10 w-auto transition-all duration-300 ${headerDark ? 'brightness-0 invert' : ''}`}
+              className={`h-9 sm:h-10 w-auto transition-all duration-300`}
             />
           </Link>
 
