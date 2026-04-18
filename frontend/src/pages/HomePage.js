@@ -74,26 +74,31 @@ const AUTHORIZED_BRANDS = [
     name: "Bertazzoni & Lofra",
     logo: "/images/assets/bertazzoni-logo.png",
     logo2: "/images/assets/lofra-logo.png",
+    title: "Autorizada Bertazzoni & Lofra",
     desc: "Servico autorizado Lofra e Bertazzoni com credenciamento do fabricante. Especialistas no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e cooktops, garantindo reparacao segura e originalidade do equipamento.",
   },
   {
     name: "Gorenje",
     logo: "/images/assets/gorenje-logo.png",
+    title: "Autorizada Gorenje",
     desc: "Servico autorizado Gorenje credenciado pelo fabricante. Expertise no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e cooktops. Oferecemos manutencao correta e segura para preservar seu eletrodomestico.",
   },
   {
     name: "Hisense",
     logo: "/images/assets/hisense-logo.png",
+    title: "Autorizada Hisense",
     desc: "Servico autorizado Hisense com credenciamento oficial. Atuamos no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e ar-condicionado. Garantimos um servico especializado que mantem a originalidade do seu aparelho.",
   },
   {
     name: "Franke",
     logo: "/images/assets/franke-logo.png",
+    title: "Autorizada Franke",
     desc: "Servico autorizado Franke credenciado pelo fabricante. Especialistas em conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e trituradores. Reparacao tecnica segura para maior durabilidade do seu equipamento.",
   },
   {
     name: "Panasonic",
     logo: "/images/assets/panasonic-logo.png",
+    title: "Panasonic",
     desc: "Especializada em conserto de geladeiras e maquinas de lavar Panasonic em BH. Fomos autorizados com credenciamento exclusivo por 11 anos pela Panasonic do Brasil, mantendo hoje a expertise tecnica avancada em todos os produtos da marca.",
   },
 ];
@@ -206,7 +211,7 @@ function AuthorizedCarousel() {
   return (
     <div className="relative" data-testid="authorized-carousel">
       {/* Nav arrows */}
-      <div className="flex gap-2 mb-5 justify-end">
+      <div className="flex gap-2 mb-4 justify-end">
         <button onClick={() => scroll('left')}
           className="w-9 h-9 border border-slate-200 bg-white flex items-center justify-center hover:border-blue-500 hover:text-blue-600 transition-colors text-slate-400"
           data-testid="auth-carousel-prev">
@@ -225,26 +230,22 @@ function AuthorizedCarousel() {
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
         {AUTHORIZED_BRANDS.map((brand) => (
           <div key={brand.name}
-            className="flex-shrink-0 w-[260px] sm:w-[280px] bg-white border border-slate-200 flex flex-col group hover:shadow-xl hover:border-blue-500/30 transition-all duration-400 snap-start"
+            className="flex-shrink-0 w-[260px] sm:w-[280px] bg-white border border-slate-200 flex flex-col group hover:shadow-xl hover:border-blue-500/30 transition-all duration-300 snap-start"
             data-testid={`auth-brand-${brand.name.toLowerCase().replace(/\s+/g, '-')}`}>
             {/* Logo area */}
-            <div className="px-6 pt-8 pb-5 flex flex-col items-center gap-3 border-b border-slate-100">
-              <div className="h-[56px] flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500">
-                <img src={brand.logo} alt={brand.name} className="max-h-[48px] max-w-[140px] object-contain" />
+            <div className="px-6 pt-7 pb-5 flex items-center justify-center gap-4 border-b border-slate-100 min-h-[80px]">
+              <div className="h-[50px] flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500">
+                <img src={brand.logo} alt={brand.name} className="max-h-[44px] max-w-[120px] object-contain" />
               </div>
               {brand.logo2 && (
-                <div className="h-[40px] flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500">
-                  <img src={brand.logo2} alt="" className="max-h-[32px] max-w-[100px] object-contain" />
+                <div className="h-[50px] flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500">
+                  <img src={brand.logo2} alt="" className="max-h-[36px] max-w-[90px] object-contain" />
                 </div>
               )}
-              <div className="flex items-center gap-1.5 text-[10px] font-semibold text-blue-600 uppercase tracking-wider mt-1">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Autorizada</span>
-              </div>
             </div>
             {/* Description */}
             <div className="px-6 py-5 flex-1">
-              <h3 className="font-heading font-semibold text-sm text-slate-900 mb-2">Autorizada {brand.name}</h3>
+              <h3 className="font-heading font-semibold text-sm text-slate-900 mb-2">{brand.title}</h3>
               <p className="text-[12px] text-slate-500 leading-relaxed">{brand.desc}</p>
             </div>
           </div>
@@ -278,9 +279,6 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-4 items-center">
             {/* Left: Text — 7 columns */}
             <motion.div className="lg:col-span-7" initial="hidden" animate="visible" variants={fadeLeft}>
-              <span className="inline-block text-[11px] font-bold uppercase tracking-[0.3em] text-blue-400 mb-6 border border-blue-400/30 px-3 py-1.5">
-                Assistencia Autorizada
-              </span>
               <h1 className="font-heading text-[2.75rem] sm:text-[3.5rem] lg:text-[4.25rem] font-semibold tracking-[-0.03em] text-white leading-[1.05] mb-6" data-testid="hero-title">
                 Assistencia Tecnica<br />
                 <span className="text-red-500">Autorizada em BH</span>
@@ -319,10 +317,9 @@ export default function HomePage() {
       {/* ══════════════════════════════════════════════════════════
           BRAND LOGOS — Carrossel padronizado
          ══════════════════════════════════════════════════════════ */}
-      <section className="relative bg-white py-10 border-b border-slate-100" data-testid="brand-bar">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-600/10 to-transparent" />
+      <section className="relative bg-white py-8 border-b border-slate-100" data-testid="brand-bar">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-[10px] text-center text-slate-400 uppercase tracking-[0.25em] font-semibold mb-6">Especialistas nas Melhores Marcas</p>
+          <p className="text-[10px] text-center text-slate-400 uppercase tracking-[0.25em] font-semibold mb-5">Especialistas nas Melhores Marcas</p>
           <Marquee gradient gradientColor="#ffffff" speed={25} pauseOnHover>
             {BRAND_LOGOS.map(b => (
               <div key={b.name} className="mx-8 sm:mx-10 flex items-center justify-center w-[140px] h-[56px] grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-default">
@@ -336,16 +333,16 @@ export default function HomePage() {
       {/* ══════════════════════════════════════════════════════════
           SERVICO AUTORIZADO — Carrossel horizontal de cards verticais
          ══════════════════════════════════════════════════════════ */}
-      <section className="py-16 sm:py-20 bg-slate-50 relative overflow-hidden" data-testid="authorized-section">
+      <section className="py-12 sm:py-14 bg-slate-50 relative overflow-hidden" data-testid="authorized-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-start">
-            {/* Left — Title 40% */}
-            <motion.div className="lg:col-span-4 lg:sticky lg:top-28" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
-              <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-4 block">Servico Autorizado</span>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-start">
+            {/* Left — Title 40% — aligned to top of cards */}
+            <motion.div className="lg:col-span-4" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
+              <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-3 block">Servico Autorizado</span>
               <h2 className="font-heading text-2xl sm:text-3xl lg:text-[2.25rem] font-semibold tracking-[-0.02em] text-slate-900 leading-[1.15] mb-4">
                 Certificado Pelas Melhores Marcas
               </h2>
-              <p className="text-sm text-slate-500 leading-relaxed mb-8">
+              <p className="text-sm text-slate-500 leading-relaxed mb-6">
                 Expertise reconhecida pelos fabricantes lideres de mercado. Garantia de pecas originais e tecnicos homologados.
               </p>
               <div className="bg-white border-l-4 border-blue-600 p-5 shadow-sm">
@@ -366,15 +363,15 @@ export default function HomePage() {
       {/* ══════════════════════════════════════════════════════════
           EQUIPMENT — Layout Assimetrico 40/60
          ══════════════════════════════════════════════════════════ */}
-      <section id="scheduling-section" className="py-20 sm:py-28 relative overflow-hidden" data-testid="carousel-section">
+      <section id="scheduling-section" className="py-14 sm:py-18 relative overflow-hidden" data-testid="carousel-section">
         {/* Textura de fundo sutil */}
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-slate-50 to-transparent pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
             {/* Left — Titulo e contexto (5 col) */}
-            <motion.div className="lg:col-span-5 lg:sticky lg:top-32" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
-              <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-4 block">Atendimento Expresso</span>
+            <motion.div className="lg:col-span-5" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
+              <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-3 block">Atendimento Expresso</span>
               <h2 className="font-heading text-3xl sm:text-4xl lg:text-[2.75rem] font-semibold tracking-[-0.02em] text-slate-900 leading-[1.1] mb-5">
                 Qual equipamento precisa de cuidado?
               </h2>
@@ -439,7 +436,7 @@ export default function HomePage() {
       {/* ══════════════════════════════════════════════════════════
           COMO FUNCIONA — Steps conectados com linha
          ══════════════════════════════════════════════════════════ */}
-      <section className="py-20 sm:py-28 bg-slate-950 relative overflow-hidden" data-testid="how-it-works">
+      <section className="py-14 sm:py-18 bg-slate-950 relative overflow-hidden" data-testid="how-it-works">
         {/* Background textura */}
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
 
@@ -477,7 +474,7 @@ export default function HomePage() {
       {/* ══════════════════════════════════════════════════════════
           DIFERENCIAIS — Grid variado com profundidade
          ══════════════════════════════════════════════════════════ */}
-      <section className="py-20 sm:py-28 relative" data-testid="differentials">
+      <section className="py-14 sm:py-18 relative" data-testid="differentials">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             {/* Left — Title (4 col) */}
@@ -518,7 +515,7 @@ export default function HomePage() {
       {/* ══════════════════════════════════════════════════════════
           DEPOIMENTOS — Avaliacoes reais do Google
          ══════════════════════════════════════════════════════════ */}
-      <section className="py-20 sm:py-28 bg-slate-50 relative" data-testid="testimonials">
+      <section className="py-14 sm:py-18 bg-slate-50 relative" data-testid="testimonials">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-14">
             <motion.div className="lg:col-span-7" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
@@ -635,7 +632,7 @@ export default function HomePage() {
       {/* ══════════════════════════════════════════════════════════
           CTA FINAL — Assimetrico com personalidade
          ══════════════════════════════════════════════════════════ */}
-      <section className="py-24 sm:py-32 bg-[#0F1D3D] relative overflow-hidden" data-testid="final-cta">
+      <section className="py-16 sm:py-20 bg-[#0F1D3D] relative overflow-hidden" data-testid="final-cta">
         {/* Elementos decorativos */}
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent" />
         <div className="absolute -right-40 -top-40 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-3xl" />
