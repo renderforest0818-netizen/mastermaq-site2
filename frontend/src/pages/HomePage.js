@@ -123,10 +123,10 @@ const TESTIMONIALS = [
   { name: "Juhh Costa", city: "Belo Horizonte", text: "Nelson um otimo atendente, muito atencioso e explicativo.", rating: 5, time: "1 mes atras", source: "google" },
 ];
 
-const fadeUp = { hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } };
-const fadeLeft = { hidden: { opacity: 0, x: -40 }, visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } };
-const fadeRight = { hidden: { opacity: 0, x: 40 }, visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } } };
-const stagger = { visible: { transition: { staggerChildren: 0.1 } } };
+const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } };
+const fadeLeft = { hidden: { opacity: 0, x: -30 }, visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } };
+const fadeRight = { hidden: { opacity: 0, x: 30 }, visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } };
+const stagger = { visible: { transition: { staggerChildren: 0.08 } } };
 
 /* ── Hero Product Carousel ── */
 function HeroCarousel() {
@@ -266,62 +266,75 @@ export default function HomePage() {
     <div data-testid="home-page">
 
       {/* ══════════════════════════════════════════════════════════
-          HERO — Compacto estilo SaaS com glow radial
+          HERO — Carrossel restaurado + glow azul premium
          ══════════════════════════════════════════════════════════ */}
       <section className="relative overflow-hidden bg-[#030014]" data-testid="hero-section">
         {/* Background image */}
         <div className="absolute inset-0 z-0">
-          <img src="/images/hero-bg.png" alt="" className="w-full h-full object-cover opacity-[0.06]" />
+          <img src="/images/hero-bg.png" alt="" className="w-full h-full object-cover opacity-[0.08]" />
         </div>
-        {/* Radial glow — top right */}
-        <div className="absolute -top-[80px] -right-[80px] w-[400px] h-[400px] bg-[#0a84ff] rounded-full z-[1]" style={{ filter: 'blur(120px)', opacity: 0.35 }} />
-        {/* Secondary glow — subtle */}
-        <div className="absolute top-[30%] right-[20%] w-[200px] h-[2px] bg-gradient-to-r from-transparent via-blue-400/40 to-transparent z-[1]" />
+        {/* Radial glow — top right (estilo referencia) */}
+        <div className="absolute -top-[100px] -right-[100px] w-[500px] h-[500px] bg-[#0a84ff] rounded-full z-[1]" style={{ filter: 'blur(140px)', opacity: 0.3 }} />
+        {/* Secondary arc glow — around product */}
+        <div className="absolute top-[20%] right-[10%] w-[400px] h-[400px] border border-blue-500/10 rounded-full z-[1]" />
+        <div className="absolute top-[15%] right-[8%] w-[450px] h-[450px] border border-blue-400/5 rounded-full z-[1]" />
+        {/* Horizontal light streak */}
+        <div className="absolute bottom-[30%] right-0 w-[60%] h-[1px] bg-gradient-to-l from-blue-500/30 via-blue-400/10 to-transparent z-[1]" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-14 lg:py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center">
-            {/* Left: Text — 7 columns */}
-            <motion.div className="lg:col-span-7" initial="hidden" animate="visible" variants={fadeLeft}>
-              <h1 className="font-heading text-[2.25rem] sm:text-[3rem] lg:text-[3.5rem] font-bold tracking-[-0.03em] text-white leading-[1.1] mb-4" data-testid="hero-title">
-                Nao deixe seu equipamento parado
-              </h1>
-              <p className="text-base text-slate-400 leading-relaxed mb-6 max-w-lg">
-                Assistencia tecnica rapida e garantida. Pecas originais e <strong className="text-slate-300">tecnicos homologados</strong> na sua porta.
-              </p>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-18 lg:py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-4 items-center">
+            {/* Left: Text — 7 columns — Layered animation */}
+            <div className="lg:col-span-7">
+              <motion.h1
+                className="font-heading text-[2.5rem] sm:text-[3.25rem] lg:text-[4rem] font-bold tracking-[-0.03em] text-white leading-[1.08] mb-5"
+                data-testid="hero-title"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>
+                Assistencia Tecnica{' '}
+                <span className="text-blue-500">Autorizada em BH</span>
+              </motion.h1>
+              <motion.p
+                className="text-base text-slate-400 leading-relaxed mb-7 max-w-xl"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}>
+                Seu equipamento merece o <strong className="text-slate-300">melhor cuidado</strong>. Diagnostico preciso, pecas originais e <strong className="text-slate-300">tecnicos homologados</strong> na sua porta.
+              </motion.p>
+              <motion.div
+                className="flex flex-col sm:flex-row gap-3 mb-7"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}>
                 <Button
                   onClick={() => document.getElementById('scheduling-section')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-blue-600 text-white hover:bg-blue-700 px-7 py-3.5 text-sm font-semibold h-auto hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-[0_0_20px_rgba(10,132,255,0.3)]"
+                  className="bg-red-600 text-white hover:bg-red-700 px-8 py-4 text-sm font-semibold h-auto hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-red-600/20"
                   data-testid="hero-cta">
-                  Agendar visita tecnica <ArrowRight className="w-4 h-4 ml-2" />
+                  Agendar Visita Tecnica <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-                <a href="tel:+553134225293" className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors">
-                  <Phone className="w-4 h-4" /> (31) 3422-5293
+                <a href="https://wa.me/553134225293" target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" className="border border-white/15 text-white hover:bg-white/5 hover:border-white/30 px-8 py-4 text-sm h-auto bg-transparent w-full sm:w-auto transition-all duration-200" data-testid="hero-whatsapp-btn">
+                    <img src="/images/assets/whatsapp-logo.png" alt="" className="w-5 h-5 mr-2 rounded-full" /> WhatsApp
+                  </Button>
                 </a>
-              </div>
-              <div className="flex items-center gap-6 text-[13px] text-slate-500">
+              </motion.div>
+              <motion.div
+                className="flex items-center gap-6 text-[13px] text-slate-500"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.45 }}>
                 <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> Pecas Originais</span>
                 <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> Garantia 90 Dias</span>
                 <span className="flex items-center gap-1.5 hidden sm:flex"><CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> Tecnicos Especializados</span>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
 
-            {/* Right: Metrics 2x2 — 5 columns */}
-            <motion.div className="lg:col-span-5" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }}>
-              <div className="grid grid-cols-2">
-                {[
-                  { num: "30+", label: "Anos de Experiencia" },
-                  { num: "28000+", label: "Clientes Atendidos" },
-                  { num: "8+", label: "Marcas Autorizadas" },
-                  { num: "98%", label: "Satisfacao" },
-                ].map((s, i) => (
-                  <div key={s.label}
-                    className="border border-white/10 p-6 sm:p-7 text-center hover:bg-white/[0.03] transition-colors duration-300">
-                    <p className="font-heading text-2xl sm:text-3xl font-bold text-white mb-1">{s.num}</p>
-                    <p className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">{s.label}</p>
-                  </div>
-                ))}
-              </div>
+            {/* Right: Product Carousel — 5 columns */}
+            <motion.div className="lg:col-span-5"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.2, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}>
+              <HeroCarousel />
             </motion.div>
           </div>
         </div>
@@ -538,12 +551,7 @@ export default function HomePage() {
 
           {/* Mind map layout — logo center, reviews around */}
           <div className="relative">
-            {/* Central logo */}
-            <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-24 h-24 bg-white rounded-full shadow-lg items-center justify-center border border-slate-200">
-              <img src="/images/assets/mastermaq-logo.png" alt="Mastermaq" className="w-14 h-auto" />
-            </div>
-
-            {/* Reviews grid — 3 columns with center gap for logo */}
+          {/* Reviews grid — 3 columns */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {TESTIMONIALS.slice(0, 3).map((t, i) => (
                 <motion.div key={t.name} initial="hidden" whileInView="visible" viewport={{ once: true }}
@@ -634,12 +642,12 @@ export default function HomePage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          CTA FINAL — Compacto com glow estilo SaaS
+          CTA FINAL — Glow estilo SaaS com metricas
          ══════════════════════════════════════════════════════════ */}
       <section className="py-14 sm:py-16 bg-[#030014] relative overflow-hidden" data-testid="final-cta">
         {/* Glow radial */}
-        <div className="absolute -top-[60px] -right-[60px] w-[350px] h-[350px] bg-[#0a84ff] rounded-full z-0" style={{ filter: 'blur(120px)', opacity: 0.25 }} />
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
+        <div className="absolute -top-[80px] -right-[80px] w-[400px] h-[400px] bg-[#0a84ff] rounded-full z-0" style={{ filter: 'blur(140px)', opacity: 0.2 }} />
+        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/15 to-transparent" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -654,7 +662,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <Button
                   onClick={() => document.getElementById('scheduling-section')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-blue-600 text-white hover:bg-blue-700 px-7 py-3.5 text-sm font-semibold h-auto hover:scale-[1.02] transition-all duration-200 shadow-[0_0_20px_rgba(10,132,255,0.3)]"
+                  className="bg-blue-600/90 border border-blue-500/50 text-white hover:bg-blue-600 px-7 py-3.5 text-sm font-semibold h-auto hover:scale-[1.02] transition-all duration-200 shadow-[0_0_24px_rgba(10,132,255,0.35)]"
                   data-testid="final-cta-btn">
                   Resolver meu equipamento <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -664,18 +672,18 @@ export default function HomePage() {
               </div>
             </motion.div>
 
-            {/* Right — Metrics inline (5 col) */}
+            {/* Right — Metrics 2x2 (5 col) */}
             <motion.div className="lg:col-span-5" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeRight}>
-              <div className="flex items-center justify-between border border-white/10 divide-x divide-white/10">
+              <div className="grid grid-cols-2">
                 {[
-                  { num: "30+", label: "anos" },
-                  { num: "28k", label: "clientes" },
-                  { num: "8+", label: "marcas" },
-                  { num: "98%", label: "satisfacao" },
+                  { num: "30+", label: "Anos de Experiencia" },
+                  { num: "28000+", label: "Clientes Atendidos" },
+                  { num: "8+", label: "Marcas Autorizadas" },
+                  { num: "98%", label: "Satisfacao" },
                 ].map((s) => (
-                  <div key={s.label} className="flex-1 py-5 text-center">
-                    <p className="font-heading text-xl sm:text-2xl font-bold text-white">{s.num}</p>
-                    <p className="text-[9px] text-slate-500 uppercase tracking-wider mt-0.5">{s.label}</p>
+                  <div key={s.label} className="border border-white/10 p-5 sm:p-6 text-center">
+                    <p className="font-heading text-2xl sm:text-3xl font-bold text-white mb-1">{s.num}</p>
+                    <p className="text-[9px] text-slate-500 uppercase tracking-wider font-medium">{s.label}</p>
                   </div>
                 ))}
               </div>
