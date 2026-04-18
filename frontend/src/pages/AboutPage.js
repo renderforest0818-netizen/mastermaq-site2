@@ -37,13 +37,13 @@ export default function AboutPage() {
               <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-slate-900 mb-6">Uma trajetoria de confianca e qualidade</h2>
               <div className="space-y-4 text-sm text-slate-500 leading-relaxed">
                 <p>A Mastermaq nasceu da paixao por tecnologia e do compromisso em oferecer solucoes rapidas e eficientes para o conserto de eletrodomesticos. Desde o inicio, nossa missao sempre foi clara: devolver a tranquilidade aos nossos clientes.</p>
-                <p>Com uma equipe de tecnicos especializados nas principais marcas do mercado, nos especializamos no atendimento a equipamentos de alto padrao, oferecendo um servico diferenciado que combina expertise tecnica com atendimento humanizado.</p>
+                <p>Com uma equipe de tecnicos especializados nas principais marcas do mercado, nos especializamos no atendimento a produtos de alto padrao, oferecendo um servico diferenciado que combina expertise tecnica com atendimento humanizado.</p>
                 <p>Hoje, somos referencia em Belo Horizonte no conserto de eletrodomesticos, atendendo marcas como Liebherr, Bertazzoni, Hisense, Samsung e muitas outras com mais de 30 anos de experiencia.</p>
               </div>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
               <img
-                src="https://images.unsplash.com/photo-1604349779478-ed111effa081?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTN8MHwxfHNlYXJjaHwzfHxhcHBsaWFuY2UlMjByZXBhaXIlMjB3b3Jrc2hvcCUyMHRlY2huaWNpYW4lMjBzZXJ2aWNlJTIwY2VudGVyfGVufDB8fHx8MTc3NjI5OTMzMXww&ixlib=rb-4.1.0&q=85"
+                src="/images/hero-bg.png"
                 alt="Loja Mastermaq - Centro de Servicos"
                 className="w-full h-[400px] object-cover"
               />
@@ -96,7 +96,7 @@ export default function AboutPage() {
       </section>
 
       {/* Numbers */}
-      <section className="py-16 bg-[#1E3A8A]">
+      <section className="py-16 bg-[#03001A]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[

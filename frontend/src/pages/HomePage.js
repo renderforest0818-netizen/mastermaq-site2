@@ -50,6 +50,7 @@ const ALL_EQUIPMENT = [
 ];
 
 const BRAND_LOGOS = [
+  { name: "HQ", src: "/images/assets/hq-logo.png" },
   { name: "Bertazzoni", src: "/images/assets/bertazzoni-logo.png" },
   { name: "Bosch", src: "/images/assets/Bosch-Logo.png" },
   { name: "Brastemp", src: "/images/assets/brastemp-logo.png" },
@@ -71,11 +72,17 @@ const BRAND_LOGOS = [
 
 const AUTHORIZED_BRANDS = [
   {
+    name: "HQ",
+    logo: "/images/assets/hq-logo.png",
+    title: "Autorizada Belmicro HQ",
+    desc: "Servico autorizado Belmicro HQ com credenciamento oficial. Atuamos no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e ar-condicionado. Garantimos um servico especializado que mantem a originalidade do seu aparelho.",
+  },
+  {
     name: "Bertazzoni & Lofra",
     logo: "/images/assets/bertazzoni-logo.png",
     logo2: "/images/assets/lofra-logo.png",
     title: "Autorizada Bertazzoni & Lofra",
-    desc: "Servico autorizado Lofra e Bertazzoni com credenciamento do fabricante. Especialistas no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e cooktops, garantindo reparacao segura e originalidade do equipamento.",
+    desc: "Servico autorizado Lofra e Bertazzoni com credenciamento do fabricante. Especialistas no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e cooktops, garantindo reparacao segura e originalidade do produto.",
   },
   {
     name: "Gorenje",
@@ -93,7 +100,7 @@ const AUTHORIZED_BRANDS = [
     name: "Franke",
     logo: "/images/assets/franke-logo.png",
     title: "Autorizada Franke",
-    desc: "Servico autorizado Franke credenciado pelo fabricante. Especialistas em conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e trituradores. Reparacao tecnica segura para maior durabilidade do seu equipamento.",
+    desc: "Servico autorizado Franke credenciado pelo fabricante. Especialistas em conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e trituradores. Reparacao tecnica segura para maior durabilidade do seu produto.",
   },
   {
     name: "Panasonic",
@@ -104,8 +111,8 @@ const AUTHORIZED_BRANDS = [
 ];
 
 const DIFFERENTIALS = [
-  { icon: Shield, title: "Pecas Originais", desc: "Exclusivamente peças originais de fabrica, garantindo durabilidade e desempenho ideal do seu equipamento." },
-  { icon: Award, title: "Tecnicos Especializados", desc: "Equipe treinada e especializada nas principais marcas. Expertise em equipamentos de alto padrao." },
+  { icon: Shield, title: "Pecas Originais", desc: "Exclusivamente peças originais de fabrica, garantindo durabilidade e desempenho ideal do seu produto." },
+  { icon: Award, title: "Tecnicos Especializados", desc: "Equipe treinada e especializada nas principais marcas. Expertise em produtos de alto padrao." },
   { icon: Clock, title: "Garantia de 90 Dias", desc: "Todos os servicos com garantia. Sua tranquilidade é nossa prioridade absoluta." },
   { icon: Home, title: "Atendimento Domiciliar", desc: "Diagnostico preciso e reparo no conforto do seu lar, sem complicações." },
   { icon: Phone, title: "Suporte Dedicado", desc: "Canal direto via WhatsApp para acompanhamento em tempo real do seu atendimento." },
@@ -284,40 +291,39 @@ export default function HomePage() {
           <img src="/images/hero-bg.png" alt="" className="w-full h-full object-cover opacity-[0.06]" />
         </div>
 
-        {/* === LUZ DIRECIONAL — sem blur, gradientes puros === */}
+        {/* === LUZ DIRECIONAL — gradientes puros, sem beams retos === */}
 
-        {/* Beam diagonal — faixa de luz que sai do canto */}
+        {/* Iluminacao concentrada atras do produto — radial no centro-direita */}
         <div className="absolute z-[1] pointer-events-none"
           style={{
-            top: 0, right: 0, width: '100%', height: '100%',
-            background: 'linear-gradient(225deg, rgba(0,76,255,0.18) 0%, rgba(0,76,255,0.04) 15%, transparent 30%)',
+            top: '10%', right: '5%', width: '450px', height: '500px',
+            background: 'radial-gradient(circle, rgba(0,76,255,0.22) 0%, rgba(0,76,255,0.08) 35%, transparent 60%)',
           }} />
 
-        {/* Beam horizontal — linha de luz nitida, sem blur */}
-        <div className="absolute z-[2] pointer-events-none"
-          style={{
-            top: '80px', right: 0, width: '45%', height: '3px',
-            background: 'linear-gradient(90deg, transparent 0%, rgba(0,76,255,0.15) 20%, #004cff 60%, rgba(100,160,255,0.9) 85%, rgba(200,220,255,0.6) 100%)',
-          }} />
-        {/* Beam horizontal — halo fino */}
-        <div className="absolute z-[2] pointer-events-none"
-          style={{
-            top: '76px', right: 0, width: '40%', height: '10px',
-            background: 'linear-gradient(90deg, transparent 0%, rgba(0,76,255,0.03) 30%, rgba(0,76,255,0.08) 70%, rgba(0,76,255,0.15) 100%)',
-          }} />
-
-        {/* SVG Arco — linhas nitidas, cor #004cff */}
-        <svg className="absolute top-0 right-0 w-[650px] h-full z-[1] pointer-events-none" viewBox="0 0 650 620" fill="none" preserveAspectRatio="xMaxYMid slice">
+        {/* SVG Arco circular — destaque, mais visivel */}
+        <svg className="absolute top-0 right-0 w-[700px] h-full z-[1] pointer-events-none" viewBox="0 0 700 620" fill="none" preserveAspectRatio="xMaxYMid slice">
           <defs>
             <linearGradient id="arc1" x1="0.5" y1="0" x2="0.5" y2="1">
-              <stop offset="0%" stopColor="#004cff" stopOpacity="0.6" />
-              <stop offset="35%" stopColor="#004cff" stopOpacity="0.2" />
-              <stop offset="70%" stopColor="#004cff" stopOpacity="0.05" />
+              <stop offset="0%" stopColor="#004cff" stopOpacity="0.8" />
+              <stop offset="25%" stopColor="#004cff" stopOpacity="0.5" />
+              <stop offset="50%" stopColor="#004cff" stopOpacity="0.2" />
+              <stop offset="80%" stopColor="#004cff" stopOpacity="0.05" />
               <stop offset="100%" stopColor="#004cff" stopOpacity="0" />
             </linearGradient>
+            <radialGradient id="haloFill" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="rgba(0,76,255,0.08)" />
+              <stop offset="60%" stopColor="rgba(0,76,255,0.02)" />
+              <stop offset="100%" stopColor="transparent" />
+            </radialGradient>
           </defs>
-          <ellipse cx="340" cy="310" rx="250" ry="280" stroke="url(#arc1)" strokeWidth="1.5" fill="none" />
-          <ellipse cx="340" cy="310" rx="215" ry="245" stroke="rgba(0,76,255,0.06)" strokeWidth="0.8" fill="none" />
+          {/* Halo fill sutil */}
+          <ellipse cx="360" cy="310" rx="230" ry="260" fill="url(#haloFill)" />
+          {/* Arco principal — forte, visivel */}
+          <ellipse cx="360" cy="310" rx="240" ry="270" stroke="url(#arc1)" strokeWidth="2.5" fill="none" />
+          {/* Arco interno — mais sutil */}
+          <ellipse cx="360" cy="310" rx="200" ry="230" stroke="rgba(0,76,255,0.08)" strokeWidth="1" fill="none" />
+          {/* Arco externo — ghost */}
+          <ellipse cx="360" cy="310" rx="280" ry="310" stroke="rgba(0,76,255,0.04)" strokeWidth="0.8" fill="none" />
         </svg>
 
         {/* Floor light — sem blur, gradiente puro */}
@@ -346,7 +352,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}>
-                Seu equipamento merece o <strong className="text-slate-300">melhor cuidado</strong>. Diagnostico preciso, pecas originais e <strong className="text-slate-300">tecnicos homologados</strong> na sua porta.
+                Seu produto merece o <strong className="text-slate-300">melhor cuidado</strong>. Diagnostico preciso, pecas originais e <strong className="text-slate-300">tecnicos homologados</strong> na sua porta.
               </motion.p>
               <motion.div
                 className="flex flex-col sm:flex-row gap-3 mb-7"
@@ -413,7 +419,7 @@ export default function HomePage() {
             <motion.div className="lg:col-span-4" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
               <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-3 block">Servico Autorizado</span>
               <h2 className="font-heading text-2xl sm:text-3xl lg:text-[2.25rem] font-semibold tracking-[-0.02em] text-slate-900 leading-[1.15] mb-4">
-                Certificado Pelas Melhores Marcas
+                Credenciado Pelas Melhores Marcas
               </h2>
               <p className="text-sm text-slate-500 leading-relaxed mb-6">
                 Expertise reconhecida pelos fabricantes lideres de mercado. Garantia de pecas originais e tecnicos homologados.
@@ -446,10 +452,10 @@ export default function HomePage() {
             <motion.div className="lg:col-span-5" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
               <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-3 block">Atendimento Expresso</span>
               <h2 className="font-heading text-3xl sm:text-4xl lg:text-[2.75rem] font-semibold tracking-[-0.02em] text-slate-900 leading-[1.1] mb-5">
-                Qual equipamento precisa de cuidado?
+                Qual produto precisa de cuidado?
               </h2>
               <p className="text-base text-slate-500 leading-relaxed mb-8 max-w-sm">
-                Selecione o equipamento para iniciar seu atendimento com nossos especialistas.
+                Selecione o produto para iniciar seu atendimento com nossos especialistas.
               </p>
               <div className="hidden lg:block">
                 <p className="text-sm text-slate-400 mb-3">Atendemos tambem:</p>
@@ -524,8 +530,8 @@ export default function HomePage() {
             <div className="hidden md:block absolute top-12 left-[calc(16.66%+12px)] right-[calc(16.66%+12px)] h-px bg-gradient-to-r from-blue-600/50 via-blue-400/30 to-blue-600/50" />
 
             {[
-              { num: "01", title: "Agende Online", desc: "Selecione seu equipamento, escolha a marca e descreva o problema. Uma OS e gerada automaticamente." },
-              { num: "02", title: "Receba o Tecnico", desc: "Tecnico certificado e especializado na sua marca ira ate voce no horario combinado." },
+              { num: "01", title: "Agende Online", desc: "Selecione seu produto, escolha a marca e descreva o problema. Uma OS é gerada automaticamente." },
+              { num: "02", title: "Receba o Tecnico", desc: "O técnico especializado irá até você no horário combinado." },
               { num: "03", title: "Problema Resolvido", desc: "Reparo com pecas originais e garantia de 90 dias. Acompanhe tudo pelo portal." },
             ].map((s, i) => (
               <motion.div key={s.num}
@@ -556,7 +562,7 @@ export default function HomePage() {
               Por que confiar na Mastermaq?
             </h2>
             <p className="text-sm text-slate-500 leading-relaxed">
-              Seu equipamento merece o melhor cuidado. Descubra o que nos diferencia.
+              Seu produto merece o melhor cuidado. Descubra o que nos diferencia.
             </p>
           </motion.div>
 
@@ -701,17 +707,17 @@ export default function HomePage() {
             {/* Left content — 7 col */}
             <motion.div className="lg:col-span-7" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
               <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold tracking-[-0.02em] text-white leading-[1.15] mb-4">
-                Nao deixe seu equipamento parado
+                Nao deixe seu produto parado
               </h2>
               <p className="text-sm text-slate-400 max-w-lg mb-6 leading-relaxed">
-                Agende uma visita tecnica e tenha seu equipamento funcionando perfeitamente.
+                Agende uma visita tecnica e tenha seu produto funcionando perfeitamente.
               </p>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <Button
                   onClick={() => document.getElementById('scheduling-section')?.scrollIntoView({ behavior: 'smooth' })}
                   className="bg-blue-600/90 border border-blue-500/50 text-white hover:bg-blue-600 px-7 py-3.5 text-sm font-semibold h-auto hover:scale-[1.02] transition-all duration-200 shadow-[0_0_24px_rgba(10,132,255,0.35)]"
                   data-testid="final-cta-btn">
-                  Resolver meu equipamento <ArrowRight className="w-4 h-4 ml-2" />
+                  Resolver meu produto <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
                 <a href="tel:+553134225293" className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors">
                   <Phone className="w-4 h-4" /> (31) 3422-5293

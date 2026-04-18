@@ -6,11 +6,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
-import { ArrowLeft, ArrowRight, CheckCircle2, Wrench, Settings, Info, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Wrench, Settings, Info, Check, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import API from '@/lib/api';
 
 const BRANDS = [
+  { name: "HQ", logo: "/images/assets/hq-logo.png" },
   { name: "Panasonic", logo: "/images/assets/panasonic-logo.png" },
   { name: "Liebherr", logo: "/images/assets/liebherr-logo.png" },
   { name: "Bertazzoni", logo: "/images/assets/bertazzoni-logo.png" },
@@ -23,8 +24,12 @@ const BRANDS = [
   { name: "Consul", logo: "/images/assets/consul-logo.png" },
   { name: "Midea", logo: "/images/assets/midea-logo.svg" },
   { name: "Philco", logo: "/images/assets/Philco-logo.png" },
+  { name: "Franke", logo: "/images/assets/franke-logo.png" },
+  { name: "Gorenje", logo: "/images/assets/gorenje-logo.png" },
+  { name: "Lofra", logo: "/images/assets/lofra-logo.png" },
 ];
 
+const AUTHORIZED_BRANDS = ["HQ", "Franke", "Hisense", "Gorenje", "Bertazzoni", "Lofra", "Panasonic"];
 const INSTALLATION_DISABLED = ["geladeiras", "ar-condicionado-portatil", "lava-e-seca", "lavadoras"];
 
 export default function SchedulingModal({ open, onClose, equipment }) {
@@ -36,6 +41,7 @@ export default function SchedulingModal({ open, onClose, equipment }) {
   const [submitting, setSubmitting] = useState(false);
 
   const isInstallDisabled = equipment ? INSTALLATION_DISABLED.includes(equipment.id) : false;
+  const isAuthorizedBrand = AUTHORIZED_BRANDS.includes(brand);
 
   const reset = useCallback(() => {
     setStep(0);
@@ -98,21 +104,19 @@ export default function SchedulingModal({ open, onClose, equipment }) {
     <TooltipProvider>
       <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto p-0" data-testid="scheduling-modal">
-          {/* Header with progress */}
           <div className="px-6 pt-6 pb-4 border-b border-slate-100">
             <DialogHeader>
               <DialogTitle className="font-heading text-xl text-slate-900" data-testid="modal-title">
                 {step === 3 ? 'Solicitacao Confirmada' : `Agendar - ${equipment.name}`}
               </DialogTitle>
               <DialogDescription className="text-slate-500 text-sm mt-1">
-                {step === 0 && 'Selecione a marca do equipamento'}
+                {step === 0 && 'Selecione a marca do produto'}
                 {step === 1 && 'Selecione o tipo de servico'}
-                {step === 2 && 'Preencha os dados do equipamento'}
+                {step === 2 && 'Preencha os dados do produto'}
                 {step === 3 && 'Sua ordem de servico foi criada'}
               </DialogDescription>
             </DialogHeader>
 
-            {/* Step progress indicator */}
             {step < 3 && (
               <div className="flex items-center gap-2 mt-4" data-testid="modal-progress">
                 {stepLabels.slice(0, 3).map((label, i) => (
@@ -133,20 +137,20 @@ export default function SchedulingModal({ open, onClose, equipment }) {
           </div>
 
           <div className="px-6 pb-6 pt-4">
-            {/* Step 0: Brand Selection with Logos */}
+            {/* Step 0: Brand Selection */}
             {step === 0 && (
               <div className="grid grid-cols-3 gap-3" data-testid="brand-selection">
                 {BRANDS.map(b => (
                   <button
                     key={b.name}
                     onClick={() => { setBrand(b.name); setStep(1); }}
-                    className={`relative p-4 border flex flex-col items-center gap-2 transition-all duration-200 group hover:border-blue-500 hover:shadow-md ${
-                      brand === b.name ? 'border-blue-600 bg-blue-50 shadow-md' : 'border-slate-200 hover:bg-slate-50'
+                    className={`relative p-4 border flex flex-col items-center gap-2 transition-all duration-200 group hover:border-slate-400 hover:shadow-md ${
+                      brand === b.name ? 'border-slate-900 bg-slate-50 shadow-md' : 'border-slate-200 hover:bg-slate-50'
                     }`}
                     data-testid={`brand-${b.name.toLowerCase()}`}
                   >
                     {brand === b.name && (
-                      <div className="absolute top-1.5 right-1.5 w-5 h-5 bg-blue-600 flex items-center justify-center">
+                      <div className="absolute top-1.5 right-1.5 w-5 h-5 bg-slate-900 flex items-center justify-center">
                         <Check className="w-3 h-3 text-white" />
                       </div>
                     )}
@@ -159,7 +163,7 @@ export default function SchedulingModal({ open, onClose, equipment }) {
               </div>
             )}
 
-            {/* Step 1: Service Type */}
+            {/* Step 1: Service Type — limpo, sem cores fortes */}
             {step === 1 && (
               <div className="flex flex-col gap-3" data-testid="service-type-selection">
                 <Tooltip>
@@ -171,16 +175,16 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                         className={`w-full p-5 border flex items-center gap-4 text-left transition-all duration-200 ${
                           isInstallDisabled
                             ? 'border-slate-100 bg-slate-50 opacity-50 cursor-not-allowed'
-                            : 'border-slate-200 hover:border-blue-500 hover:shadow-md cursor-pointer'
+                            : 'border-slate-200 hover:border-slate-400 hover:shadow-md cursor-pointer'
                         }`}
                         data-testid="service-instalacao"
                       >
-                        <div className={`w-12 h-12 flex items-center justify-center ${isInstallDisabled ? 'bg-slate-100' : 'bg-blue-50'}`}>
-                          <Settings className={`w-6 h-6 ${isInstallDisabled ? 'text-slate-300' : 'text-blue-600'}`} />
+                        <div className={`w-12 h-12 flex items-center justify-center border ${isInstallDisabled ? 'border-slate-200 bg-slate-50' : 'border-slate-200 bg-white'}`}>
+                          <Settings className={`w-5 h-5 ${isInstallDisabled ? 'text-slate-300' : 'text-slate-600'}`} />
                         </div>
                         <div className="flex-1">
                           <p className="font-heading font-semibold text-sm text-slate-900">Instalacao</p>
-                          <p className="text-xs text-slate-500">Instalacao profissional do equipamento</p>
+                          <p className="text-xs text-slate-500">Instalacao profissional do produto</p>
                         </div>
                         {isInstallDisabled && <Info className="w-4 h-4 text-slate-300" />}
                       </button>
@@ -188,22 +192,22 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                   </TooltipTrigger>
                   {isInstallDisabled && (
                     <TooltipContent>
-                      <p>Instalacao nao disponivel para este equipamento</p>
+                      <p>Instalacao nao disponivel para este produto</p>
                     </TooltipContent>
                   )}
                 </Tooltip>
 
                 <button
                   onClick={() => selectService('conserto')}
-                  className="w-full p-5 border border-slate-200 flex items-center gap-4 text-left hover:border-red-500 hover:shadow-md transition-all duration-200 cursor-pointer"
+                  className="w-full p-5 border border-slate-200 flex items-center gap-4 text-left hover:border-slate-400 hover:shadow-md transition-all duration-200 cursor-pointer"
                   data-testid="service-conserto"
                 >
-                  <div className="w-12 h-12 bg-red-50 flex items-center justify-center">
-                    <Wrench className="w-6 h-6 text-red-600" />
+                  <div className="w-12 h-12 bg-white border border-slate-200 flex items-center justify-center">
+                    <Wrench className="w-5 h-5 text-slate-600" />
                   </div>
                   <div>
                     <p className="font-heading font-semibold text-sm text-slate-900">Conserto</p>
-                    <p className="text-xs text-slate-500">Diagnostico e reparo do equipamento</p>
+                    <p className="text-xs text-slate-500">Diagnostico e reparo do produto</p>
                   </div>
                 </button>
 
@@ -213,26 +217,26 @@ export default function SchedulingModal({ open, onClose, equipment }) {
               </div>
             )}
 
-            {/* Step 2: Repair Form */}
+            {/* Step 2: Repair Form — com bloqueio de garantia para nao-autorizadas */}
             {step === 2 && (
               <div className="flex flex-col gap-4" data-testid="repair-form">
                 <div>
-                  <Label className="text-sm text-slate-700">Modelo (opcional)</Label>
+                  <Label className="text-sm text-slate-700">Modelo</Label>
                   <Input
                     placeholder="Ex: RF49A5202S9"
                     value={formData.model}
                     onChange={e => setFormData(p => ({ ...p, model: e.target.value }))}
-                    className="mt-1.5 border-slate-300 focus:ring-blue-600"
+                    className="mt-1.5 border-slate-300"
                     data-testid="input-model"
                   />
                 </div>
                 <div>
                   <Label className="text-sm text-slate-700">Numero de Serie</Label>
                   <Input
-                    placeholder="Numero de serie do equipamento"
+                    placeholder="Numero de serie do produto"
                     value={formData.serial_number}
                     onChange={e => setFormData(p => ({ ...p, serial_number: e.target.value }))}
-                    className="mt-1.5 border-slate-300 focus:ring-blue-600"
+                    className="mt-1.5 border-slate-300"
                     data-testid="input-serial"
                   />
                 </div>
@@ -244,10 +248,27 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                     className="flex gap-4"
                     data-testid="warranty-radio"
                   >
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem value="dentro_garantia" id="w-in" data-testid="warranty-in" />
-                      <Label htmlFor="w-in" className="text-sm text-slate-700 cursor-pointer">Dentro da garantia</Label>
-                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className={`flex items-center gap-2 ${!isAuthorizedBrand ? 'opacity-50' : ''}`}>
+                          <RadioGroupItem
+                            value="dentro_garantia"
+                            id="w-in"
+                            disabled={!isAuthorizedBrand}
+                            data-testid="warranty-in"
+                          />
+                          <Label htmlFor="w-in" className={`text-sm cursor-pointer flex items-center gap-1 ${!isAuthorizedBrand ? 'text-slate-400 cursor-not-allowed' : 'text-slate-700'}`}>
+                            Dentro da garantia
+                            {!isAuthorizedBrand && <Lock className="w-3 h-3 text-slate-400" />}
+                          </Label>
+                        </div>
+                      </TooltipTrigger>
+                      {!isAuthorizedBrand && (
+                        <TooltipContent>
+                          <p>Disponivel apenas para marcas autorizadas</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
                     <div className="flex items-center gap-2">
                       <RadioGroupItem value="fora_garantia" id="w-out" data-testid="warranty-out" />
                       <Label htmlFor="w-out" className="text-sm text-slate-700 cursor-pointer">Fora da garantia</Label>
@@ -257,10 +278,10 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                 <div>
                   <Label className="text-sm text-slate-700">Defeito Relatado</Label>
                   <Textarea
-                    placeholder="Descreva o problema que o equipamento apresenta..."
+                    placeholder="Descreva o problema que o produto apresenta..."
                     value={formData.defect_description}
                     onChange={e => setFormData(p => ({ ...p, defect_description: e.target.value }))}
-                    className="mt-1.5 min-h-[80px] border-slate-300 focus:ring-blue-600"
+                    className="mt-1.5 min-h-[80px] border-slate-300"
                     data-testid="input-defect"
                   />
                 </div>
@@ -272,7 +293,7 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                   <Button
                     onClick={handleSubmit}
                     disabled={submitting}
-                    className="flex-1 bg-red-600 text-white hover:bg-red-700 text-sm"
+                    className="flex-1 bg-slate-900 text-white hover:bg-slate-800 text-sm"
                     data-testid="submit-repair"
                   >
                     {submitting ? 'Enviando...' : 'Solicitar Conserto'}
@@ -290,7 +311,7 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                 </div>
                 <p className="font-heading font-semibold text-lg text-slate-900 mb-1">Solicitacao Recebida!</p>
                 <p className="text-sm text-slate-500 mb-2">Sua ordem de servico foi criada com sucesso.</p>
-                <p className="text-xs text-slate-400 mb-6">Em breve, um tecnico entrara em contato para confirmar a visita.</p>
+                <p className="text-xs text-slate-400 mb-6">Em breve, um atendente entrara em contato para confirmar a visita do técnico.</p>
 
                 <div className="bg-slate-50 border border-slate-200 p-4 text-left space-y-2.5 mb-5">
                   <div className="flex justify-between">
@@ -298,7 +319,7 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                     <span className="font-mono font-semibold text-blue-600" data-testid="os-number">{osData.os_number}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Equipamento</span>
+                    <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Produto</span>
                     <span className="text-sm text-slate-700">{equipment?.name}</span>
                   </div>
                   <div className="flex justify-between">

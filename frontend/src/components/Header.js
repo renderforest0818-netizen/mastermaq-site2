@@ -77,11 +77,11 @@ export default function Header() {
               {user ? (
                 <div className="flex items-center gap-2">
                   <Link to="/minha-conta">
-                    <Button variant="outline" className="text-[13px] border-slate-200 hover:border-blue-600 hover:text-blue-600" data-testid="header-portal-btn">
+                    <Button variant="outline" className="text-[13px] border-slate-200 text-slate-600 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all" data-testid="header-portal-btn">
                       <User className="w-3.5 h-3.5 mr-1.5" />Minha Conta
                     </Button>
                   </Link>
-                  <Button variant="ghost" size="icon" onClick={logout} className="text-slate-500 hover:text-red-600" data-testid="header-logout-btn">
+                  <Button variant="ghost" size="icon" onClick={logout} className="text-slate-500 hover:text-white hover:bg-red-600 transition-all" data-testid="header-logout-btn">
                     <LogOut className="w-3.5 h-3.5" />
                   </Button>
                 </div>

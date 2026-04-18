@@ -10,6 +10,7 @@ import { ClipboardList, History, UserCog, Plus, Clock, CheckCircle2, Loader, Ale
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import API from '@/lib/api';
+import SchedulingModal from '@/components/SchedulingModal';
 
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
 
@@ -38,7 +39,7 @@ function OrderCard({ order }) {
       </div>
       <div className="grid grid-cols-2 gap-2 text-sm">
         <div>
-          <span className="text-xs text-slate-400 uppercase tracking-wider">Equipamento</span>
+          <span className="text-xs text-slate-400 uppercase tracking-wider">Produto</span>
           <p className="text-slate-700">{order.equipment_type}</p>
         </div>
         <div>
@@ -71,6 +72,7 @@ export default function PortalPage() {
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [profile, setProfile] = useState({});
   const [saving, setSaving] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -108,7 +110,7 @@ export default function PortalPage() {
             </div>
             <div className="flex items-center gap-2">
               <Button
-                onClick={() => navigate('/')}
+                onClick={() => setModalOpen(true)}
                 className="bg-red-600 text-white hover:bg-red-700 text-sm hidden sm:flex"
                 data-testid="new-order-btn"
               >
@@ -117,7 +119,7 @@ export default function PortalPage() {
               <Button
                 variant="outline"
                 onClick={() => { logout(); navigate('/'); }}
-                className="text-sm border-slate-200 hover:border-red-600 hover:text-red-600"
+                className="text-sm border-slate-200 text-slate-600 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all"
                 data-testid="portal-logout-btn"
               >
                 Sair
@@ -145,7 +147,7 @@ export default function PortalPage() {
                 <div className="text-center py-16 bg-slate-50 border border-slate-200">
                   <ClipboardList className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                   <p className="text-slate-500 text-sm">Nenhuma ordem de servico ativa.</p>
-                  <Button onClick={() => navigate('/')} className="mt-4 bg-blue-600 text-white hover:bg-blue-700 text-sm" data-testid="create-first-order">
+                  <Button onClick={() => setModalOpen(true)} className="mt-4 bg-blue-600 text-white hover:bg-blue-700 text-sm" data-testid="create-first-order">
                     Agendar Agora
                   </Button>
                 </div>
@@ -216,6 +218,8 @@ export default function PortalPage() {
           </Tabs>
         </motion.div>
       </div>
+
+      <SchedulingModal open={modalOpen} onClose={() => { setModalOpen(false); API.get('/service-orders').then(({ data }) => setOrders(data)).catch(() => {}); }} equipment={modalOpen ? { id: 'geladeiras', name: 'Geladeiras', icon: 'Snowflake' } : null} />
     </div>
   );
 }

@@ -26,15 +26,15 @@ const PRODUCT_GALLERY = {
 };
 
 const SERVICES = [
-  { slug: "geladeiras", name: "Geladeiras", icon: "Snowflake", image: "/images/geladeiras/samsung.png", desc: "Conserto e manutencao de geladeiras de todas as marcas. Diagnostico preciso, pecas originais e garantia de 90 dias.", problems: ["Nao esta gelando", "Faz barulho excessivo", "Vazamento de agua", "Formacao de gelo excessiva", "Compressor com defeito"] },
-  { slug: "ar-condicionado-split", name: "Ar Condicionado Split", icon: "Wind", image: null, desc: "Instalacao, manutencao e conserto de ar condicionado split. Limpeza, troca de filtro e recarga de gas.", problems: ["Nao liga", "Nao resfria", "Vazamento de agua", "Ruido excessivo", "Mau cheiro"] },
-  { slug: "lava-e-seca", name: "Lava e Seca", icon: "Shirt", image: null, desc: "Reparo especializado em lava e seca. Problemas eletricos, mecanicos e de programacao.", problems: ["Nao centrifuga", "Nao seca", "Vazamento", "Ruidos estranhos", "Erro no painel"] },
-  { slug: "lavadoras", name: "Lavadoras", icon: "Droplets", image: null, desc: "Manutencao e conserto de lavadoras. Atendemos todas as marcas com tecnicos especializados.", problems: ["Nao enche agua", "Nao drena", "Vibra demais", "Nao liga", "Problema na placa"] },
-  { slug: "ar-condicionado-portatil", name: "Ar Condicionado Portatil", icon: "AirVent", image: null, desc: "Conserto de ar condicionado portatil de todas as marcas.", problems: ["Nao resfria", "Barulho alto", "Vazamento", "Desliga sozinho"] },
-  { slug: "trituradores", name: "Trituradores", icon: "Cog", image: "/images/trituradores/franke.png", desc: "Reparo e instalacao de trituradores de alimentos. Servico rapido e garantido.", problems: ["Nao tritura", "Entupido", "Faz barulho", "Vazamento"] },
-  { slug: "vrf-hisense", name: "VRF Hisense", icon: "Server", image: null, desc: "Servico autorizado Hisense para sistemas VRF. Instalacao e manutencao especializada.", problems: ["Falha no sistema", "Nao refrigera", "Erro no controlador", "Vazamento de gas"] },
-  { slug: "freezers", name: "Freezers", icon: "Thermometer", image: null, desc: "Conserto de freezers verticais e horizontais. Todas as marcas e capacidades.", problems: ["Nao congela", "Forma gelo excessivo", "Motor nao desliga", "Barulho excessivo"] },
-  { slug: "coifas", name: "Coifas", icon: "Fan", image: null, desc: "Manutencao e reparo de coifas e depuradores. Limpeza e troca de filtros.", problems: ["Nao aspira", "Motor com defeito", "Iluminacao nao funciona", "Barulho"] },
+  { slug: "geladeiras", name: "Geladeiras", icon: "Snowflake", image: "/images/geladeiras/samsung.png", desc: "Conserto e manutenção de geladeiras de todas as marcas. Diagnóstico preciso, peças direto do fabricante e garantia de 90 dias.", problems: ["Nao está gelando", "Faz barulho excessivo", "Vazamento de água", "Formação de gelo excessiva", "Compressor com defeito"] },
+  { slug: "ar-condicionado-split", name: "Ar Condicionado Split", icon: "Wind", image: null, desc: "Instalacao, manutencao e conserto de ar condicionado split. Limpeza, troca de filtro e recarga de gas.", problems: ["Não liga", "Nao resfria", "Vazamento de água", "Ruído excessivo", "Mau cheiro"] },
+  { slug: "lava-e-seca", name: "Lava e Seca", icon: "Shirt", image: null, desc: "Reparo especializado em lava e seca. Problemas elétricos, mecânicos e de programacão.", problems: ["Não centrifuga", "Não seca", "Vazamento", "Ruídos estranhos", "Erro no painel"] },
+  { slug: "lavadoras", name: "Lavadoras", icon: "Droplets", image: null, desc: "Manutencão e conserto de lavadoras. Atendemos todas as marcas com técnicos especializados.", problems: ["No enche água", "Não drena", "Vibra demais"] },
+  { slug: "ar-condicionado-portatil", name: "Ar Condicionado Portatil", icon: "AirVent", image: null, desc: "Conserto de ar condicionado portátil de todas as marcas.", problems: ["Não resfria", "Barulho alto", "Vazamento", "Desliga sozinho"] },
+  { slug: "trituradores", name: "Trituradores", icon: "Cog", image: "/images/trituradores/franke.png", desc: "Reparo e instalação de trituradores de alimentos. Servico rápido e garantido.", problems: ["Não tritura", "Entupido", "Faz barulho", "Não liga"] },
+  { slug: "vrf-hisense", name: "VRF Hisense", icon: "Server", image: null, desc: "Servico autorizado Hisense para sistemas VRF. Instalacao e manutencao especializada.", problems: ["Falha no sistema", "Nao refrigera"] },
+  { slug: "freezers", name: "Freezers", icon: "Thermometer", image: null, desc: "Conserto de freezers verticais e horizontais. Todas as marcas e capacidades.", problems: ["Não congela", "Forma gelo excessivo", "Motor não desliga", "Barulho excessivo"] },
+  { slug: "coifas", name: "Coifas", icon: "Fan", image: null, desc: "Manutenção, instalação e conserto de coifas de ilha e parede de todas as marcas.", problems: ["Não aspira", "Iluminação não funciona", "Barulho", "Não liga"] },
 ];
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } };
@@ -150,7 +150,7 @@ function ServiceDetail({ service }) {
             <div className="lg:col-span-5">
               <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-4 block">Problemas Comuns</span>
               <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-slate-900 mb-6">Identificou algum desses sintomas?</h2>
-              <p className="text-sm text-slate-500 leading-relaxed mb-6">Se o seu equipamento apresenta algum desses problemas, nossos tecnicos podem diagnosticar e resolver com cuidado e rapidez.</p>
+              <p className="text-sm text-slate-500 leading-relaxed mb-6">Se o seu produto apresenta algum desses problemas, nossos técnicos podem diagnosticar e resolver com cuidado e rapidez.</p>
               <Button onClick={() => setModalOpen(true)} variant="outline" className="border-slate-200 hover:border-blue-600 hover:text-blue-600 text-sm" data-testid="service-secondary-cta">
                 Solicitar Orcamento <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
@@ -193,7 +193,7 @@ export default function ServicesPage() {
           <motion.div initial="hidden" animate="visible" variants={fadeLeft} className="max-w-2xl">
             <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-400 mb-4 block">Nossos Servicos</span>
             <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-[-0.02em] text-white leading-[1.1] mb-5">Servicos Especializados</h1>
-            <p className="text-base text-slate-400 leading-relaxed">Atendemos todas as marcas e tipos de eletrodomesticos com tecnicos certificados e pecas originais.</p>
+            <p className="text-base text-slate-400 leading-relaxed">Atendemos todas as marcas e tipos de eletrodomésticos com técnicos especializados e peças direto do fabricante.</p>
           </motion.div>
         </div>
       </section>

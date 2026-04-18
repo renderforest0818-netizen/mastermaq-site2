@@ -4,7 +4,7 @@ export default function WhatsAppButton() {
       href="https://wa.me/553134225293"
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-4 z-40 w-14 h-14 bg-green rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 flex items-center justify-center"
+      className="fixed bottom-6 right-4 z-40 w-14 h-14 bg-[#1a5c2a] rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 flex items-center justify-center"
       data-testid="whatsapp-btn"
       aria-label="Contato via WhatsApp"
     >
