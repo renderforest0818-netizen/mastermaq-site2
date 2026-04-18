@@ -15,7 +15,7 @@ export default function AboutPage() {
   return (
     <div data-testid="about-page">
       {/* Hero */}
-      <section className="relative py-24 sm:py-32 bg-slate-950 overflow-hidden">
+      <section className="relative py-14 sm:py-16 bg-slate-950 overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div initial="hidden" animate="visible" variants={fadeLeft} className="max-w-2xl">
@@ -29,7 +29,7 @@ export default function AboutPage() {
       </section>
 
       {/* History */}
-      <section className="py-24 sm:py-32">
+      <section className="py-12 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
@@ -53,7 +53,7 @@ export default function AboutPage() {
       </section>
 
       {/* Mission */}
-      <section className="py-24 sm:py-32 bg-slate-50">
+      <section className="py-12 sm:py-14 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -73,7 +73,7 @@ export default function AboutPage() {
       </section>
 
       {/* Values */}
-      <section className="py-24 sm:py-32">
+      <section className="py-12 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-16">
             <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-4 block">O Que Nos Move</span>

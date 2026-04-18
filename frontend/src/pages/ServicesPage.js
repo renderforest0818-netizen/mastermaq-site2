@@ -102,7 +102,7 @@ function ServiceDetail({ service }) {
   return (
     <div data-testid={`service-detail-${service.slug}`}>
       {/* Hero */}
-      <section className="py-20 sm:py-28 bg-slate-950 relative overflow-hidden">
+      <section className="py-12 sm:py-14 bg-slate-950 relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <Link to="/servicos" className="text-sm text-blue-400 hover:text-blue-300 mb-6 inline-flex items-center gap-1 transition-colors">
@@ -132,7 +132,7 @@ function ServiceDetail({ service }) {
 
       {/* Product gallery carousel */}
       {gallery.length > 0 && (
-        <section className="py-16 sm:py-20 bg-slate-50" data-testid="product-gallery-section">
+        <section className="py-10 sm:py-12 bg-slate-50" data-testid="product-gallery-section">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mb-10">
               <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-3 block">Marcas Atendidas</span>
@@ -144,7 +144,7 @@ function ServiceDetail({ service }) {
       )}
 
       {/* Problems and details */}
-      <section className="py-20 sm:py-28">
+      <section className="py-12 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             <div className="lg:col-span-5">
@@ -187,7 +187,7 @@ export default function ServicesPage() {
   return (
     <div data-testid="services-page">
       {/* Hero */}
-      <section className="py-20 sm:py-28 bg-slate-950 relative overflow-hidden">
+      <section className="py-12 sm:py-14 bg-slate-950 relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div initial="hidden" animate="visible" variants={fadeLeft} className="max-w-2xl">
@@ -199,7 +199,7 @@ export default function ServicesPage() {
       </section>
 
       {/* Services Grid */}
-      <section className="py-20 sm:py-28">
+      <section className="py-12 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {SERVICES.map((s, i) => {
