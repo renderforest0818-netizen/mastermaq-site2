@@ -105,8 +105,8 @@ const AUTHORIZED_BRANDS = [
 
 const DIFFERENTIALS = [
   { icon: Shield, title: "Pecas Originais", desc: "Exclusivamente pecas originais de fabrica, garantindo durabilidade e desempenho ideal do seu equipamento." },
-  { icon: Award, title: "Tecnicos Certificados", desc: "Equipe treinada e homologada pelas principais marcas. Expertise comprovada em equipamentos de alto padrao." },
-  { icon: Clock, title: "Garantia de 90 Dias", desc: "Todos os servicos com garantia. Sua tranquilidade e nossa prioridade absoluta." },
+  { icon: Award, title: "Tecnicos Especializados", desc: "Equipe treinada e especializada nas principais marcas. Expertise em equipamentos de alto padrao." },
+  { icon: Clock, title: "Garantia de 90 Dias", desc: "Todos os servicos com garantia. Sua tranquilidade é nossa prioridade absoluta." },
   { icon: Home, title: "Atendimento Domiciliar", desc: "Diagnostico preciso e reparo no conforto do seu lar, sem complicacoes." },
   { icon: Phone, title: "Suporte Dedicado", desc: "Canal direto via WhatsApp para acompanhamento em tempo real do seu atendimento." },
   { icon: CheckCircle2, title: "Portal do Cliente", desc: "Acompanhe ordens de servico, historico e agende novos atendimentos pelo portal exclusivo." },
@@ -281,7 +281,7 @@ export default function HomePage() {
             <motion.div className="lg:col-span-7" initial="hidden" animate="visible" variants={fadeLeft}>
               <h1 className="font-heading text-[2.75rem] sm:text-[3.5rem] lg:text-[4.25rem] font-semibold tracking-[-0.03em] text-white leading-[1.05] mb-6" data-testid="hero-title">
                 Assistencia Tecnica<br />
-                <span className="text-red-500">Autorizada em BH</span>
+                <span className="text-blue-500">Autorizada em BH</span>
               </h1>
               <p className="text-base sm:text-lg text-slate-400 leading-relaxed mb-8 max-w-xl">
                 Seu equipamento merece o melhor cuidado. Diagnostico preciso, pecas originais e tecnicos homologados na sua porta.
@@ -289,7 +289,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-3 mb-8">
                 <Button
                   onClick={() => document.getElementById('scheduling-section')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-red-600 text-white hover:bg-red-700 px-8 py-4 text-sm font-semibold h-auto hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-red-600/20"
+                  className="bg-red-800 text-white hover:bg-red-700 px-8 py-4 text-sm font-semibold h-auto hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-red-600/20"
                   data-testid="hero-cta">
                   Agendar Visita Tecnica <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -302,7 +302,7 @@ export default function HomePage() {
               <div className="flex items-center gap-8 text-sm text-slate-500">
                 <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Pecas Originais</span>
                 <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Garantia 90 Dias</span>
-                <span className="flex items-center gap-2 hidden sm:flex"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Tecnicos Certificados</span>
+                <span className="flex items-center gap-2 hidden sm:flex"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Tecnicos Especializados</span>
               </div>
             </motion.div>
 

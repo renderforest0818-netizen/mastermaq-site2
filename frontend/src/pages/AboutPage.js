@@ -37,7 +37,7 @@ export default function AboutPage() {
               <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-slate-900 mb-6">Uma trajetoria de confianca e qualidade</h2>
               <div className="space-y-4 text-sm text-slate-500 leading-relaxed">
                 <p>A Mastermaq nasceu da paixao por tecnologia e do compromisso em oferecer solucoes rapidas e eficientes para o conserto de eletrodomesticos. Desde o inicio, nossa missao sempre foi clara: devolver a tranquilidade aos nossos clientes.</p>
-                <p>Com uma equipe de tecnicos certificados pelas principais marcas do mercado, nos especializamos no atendimento a equipamentos de alto padrao, oferecendo um servico diferenciado que combina expertise tecnica com atendimento humanizado.</p>
+                <p>Com uma equipe de tecnicos especializados nas principais marcas do mercado, nos especializamos no atendimento a equipamentos de alto padrao, oferecendo um servico diferenciado que combina expertise tecnica com atendimento humanizado.</p>
                 <p>Hoje, somos referencia em Belo Horizonte no conserto de eletrodomesticos, atendendo marcas como Liebherr, Bertazzoni, Hisense, Samsung e muitas outras com mais de 30 anos de experiencia.</p>
               </div>
             </motion.div>

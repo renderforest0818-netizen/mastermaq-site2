@@ -29,7 +29,7 @@ const SERVICES = [
   { slug: "geladeiras", name: "Geladeiras", icon: "Snowflake", image: "/images/geladeiras/samsung.png", desc: "Conserto e manutencao de geladeiras de todas as marcas. Diagnostico preciso, pecas originais e garantia de 90 dias.", problems: ["Nao esta gelando", "Faz barulho excessivo", "Vazamento de agua", "Formacao de gelo excessiva", "Compressor com defeito"] },
   { slug: "ar-condicionado-split", name: "Ar Condicionado Split", icon: "Wind", image: null, desc: "Instalacao, manutencao e conserto de ar condicionado split. Limpeza, troca de filtro e recarga de gas.", problems: ["Nao liga", "Nao resfria", "Vazamento de agua", "Ruido excessivo", "Mau cheiro"] },
   { slug: "lava-e-seca", name: "Lava e Seca", icon: "Shirt", image: null, desc: "Reparo especializado em lava e seca. Problemas eletricos, mecanicos e de programacao.", problems: ["Nao centrifuga", "Nao seca", "Vazamento", "Ruidos estranhos", "Erro no painel"] },
-  { slug: "lavadoras", name: "Lavadoras", icon: "Droplets", image: null, desc: "Manutencao e conserto de lavadoras. Atendemos todas as marcas com tecnicos certificados.", problems: ["Nao enche agua", "Nao drena", "Vibra demais", "Nao liga", "Problema na placa"] },
+  { slug: "lavadoras", name: "Lavadoras", icon: "Droplets", image: null, desc: "Manutencao e conserto de lavadoras. Atendemos todas as marcas com tecnicos especializados.", problems: ["Nao enche agua", "Nao drena", "Vibra demais", "Nao liga", "Problema na placa"] },
   { slug: "ar-condicionado-portatil", name: "Ar Condicionado Portatil", icon: "AirVent", image: null, desc: "Conserto de ar condicionado portatil de todas as marcas.", problems: ["Nao resfria", "Barulho alto", "Vazamento", "Desliga sozinho"] },
   { slug: "trituradores", name: "Trituradores", icon: "Cog", image: "/images/trituradores/franke.png", desc: "Reparo e instalacao de trituradores de alimentos. Servico rapido e garantido.", problems: ["Nao tritura", "Entupido", "Faz barulho", "Vazamento"] },
   { slug: "vrf-hisense", name: "VRF Hisense", icon: "Server", image: null, desc: "Servico autorizado Hisense para sistemas VRF. Instalacao e manutencao especializada.", problems: ["Falha no sistema", "Nao refrigera", "Erro no controlador", "Vazamento de gas"] },
@@ -150,7 +150,7 @@ function ServiceDetail({ service }) {
             <div className="lg:col-span-5">
               <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-4 block">Problemas Comuns</span>
               <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-slate-900 mb-6">Identificou algum desses sintomas?</h2>
-              <p className="text-sm text-slate-500 leading-relaxed mb-6">Se o seu equipamento apresenta algum desses problemas, nossos tecnicos certificados podem diagnosticar e resolver com rapidez e garantia.</p>
+              <p className="text-sm text-slate-500 leading-relaxed mb-6">Se o seu equipamento apresenta algum desses problemas, nossos tecnicos podem diagnosticar e resolver com cuidado e rapidez.</p>
               <Button onClick={() => setModalOpen(true)} variant="outline" className="border-slate-200 hover:border-blue-600 hover:text-blue-600 text-sm" data-testid="service-secondary-cta">
                 Solicitar Orcamento <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
