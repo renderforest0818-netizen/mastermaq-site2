@@ -173,7 +173,8 @@ function HeroCarousel() {
       <div className="relative w-[240px] h-[290px] sm:w-[300px] sm:h-[350px] flex items-center justify-center">
         <AnimatePresence mode="wait">
           <motion.img key={`${category.id}-${prodIndex}`} src={product.image} alt={`${category.name} ${product.brand}`}
-            className="w-[220px] h-[270px] sm:w-[280px] sm:h-[330px] object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
+            className="w-[220px] h-[270px] sm:w-[280px] sm:h-[330px] object-contain"
+            style={{ filter: 'drop-shadow(0 0 30px rgba(0,102,255,0.3))' }}
             initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.6 }} data-testid="hero-product-image" />
         </AnimatePresence>
@@ -266,44 +267,56 @@ export default function HomePage() {
     <div data-testid="home-page">
 
       {/* ══════════════════════════════════════════════════════════
-          HERO — Iluminacao direcional em camadas (cinematografico)
+          HERO — Iluminacao controlada + SVG beam + drop-shadow
          ══════════════════════════════════════════════════════════ */}
       <section className="relative overflow-hidden" data-testid="hero-section"
-        style={{ background: 'radial-gradient(circle at 20% 50%, #0b1220, #05070d)' }}>
+        style={{
+          background: `
+            radial-gradient(circle at 80% 50%, rgba(0,102,255,0.15) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, transparent 0%, rgba(0,0,0,0.4) 100%),
+            radial-gradient(circle at 20% 50%, #0b1220, #05070d)
+          `
+        }}>
 
-        {/* Background photo */}
+        {/* Background photo — faded into gradient */}
         <div className="absolute inset-0 z-0">
           <img src="/images/hero-bg.png" alt="" className="w-full h-full object-cover opacity-[0.07]" />
         </div>
 
-        {/* === CAMADA 1: Radial principal — topo direito, ilumina area do produto === */}
-        <div className="absolute z-[1] pointer-events-none"
-          style={{
-            top: '-150px', right: '-120px', width: '500px', height: '500px',
-            background: 'radial-gradient(circle, rgba(0,140,255,0.35) 0%, rgba(0,140,255,0.15) 30%, transparent 65%)',
-            filter: 'blur(80px)'
-          }} />
+        {/* SVG Beam / Arco de luz — nitido, controlado, estilo energia */}
+        <svg className="absolute top-0 right-0 w-[600px] h-full z-[1] pointer-events-none" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMaxYMid slice">
+          <defs>
+            <linearGradient id="beamGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="rgba(0,120,255,0)" />
+              <stop offset="40%" stopColor="rgba(0,120,255,0.6)" />
+              <stop offset="100%" stopColor="rgba(0,120,255,0)" />
+            </linearGradient>
+            <linearGradient id="arcGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(0,140,255,0.5)" />
+              <stop offset="50%" stopColor="rgba(0,140,255,0.15)" />
+              <stop offset="100%" stopColor="rgba(0,140,255,0)" />
+            </linearGradient>
+          </defs>
+          {/* Arco principal — nitido, nao esfumacado */}
+          <ellipse cx="300" cy="300" rx="250" ry="280" stroke="url(#arcGrad)" strokeWidth="1.5" fill="none" opacity="0.7" />
+          <ellipse cx="300" cy="300" rx="220" ry="250" stroke="rgba(0,140,255,0.1)" strokeWidth="1" fill="none" />
+          {/* Light beam horizontal — linha nitida */}
+          <line x1="0" y1="100" x2="500" y2="100" stroke="url(#beamGrad)" strokeWidth="2" opacity="0.8" />
+          <line x1="50" y1="100" x2="450" y2="100" stroke="rgba(0,140,255,0.4)" strokeWidth="6" opacity="0.15" />
+        </svg>
 
-        {/* === CAMADA 2: Light beam horizontal — conecta luz ao produto === */}
+        {/* Floor reflection — sutil, controlado */}
         <div className="absolute z-[1] pointer-events-none"
           style={{
-            top: '90px', right: '0', width: '320px', height: '2px',
-            background: 'linear-gradient(90deg, transparent, rgba(0,140,255,0.9), transparent)',
-            opacity: 0.8, filter: 'blur(1px)'
-          }} />
-
-        {/* === CAMADA 4: Light floor — reflexo no chao === */}
-        <div className="absolute z-[1] pointer-events-none"
-          style={{
-            bottom: '0', right: '0', width: '400px', height: '120px',
-            background: 'radial-gradient(ellipse at center, rgba(0,140,255,0.35), transparent 70%)',
-            filter: 'blur(30px)'
+            bottom: 0, right: '5%', width: '350px', height: '80px',
+            background: 'radial-gradient(ellipse at center, rgba(0,102,255,0.25), transparent 70%)',
+            filter: 'blur(15px)'
           }} />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-18 lg:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-4 items-center">
 
-            {/* Left: Text — z-index 2, fica na area escura */}
+            {/* Left: Text — z-index 2, area escura para contraste */}
             <div className="lg:col-span-7 relative z-[2]">
               <motion.h1
                 className="font-heading text-[2.5rem] sm:text-[3.25rem] lg:text-[4rem] font-bold tracking-[-0.03em] text-white leading-[1.08] mb-5"
@@ -349,28 +362,11 @@ export default function HomePage() {
               </motion.div>
             </div>
 
-            {/* Right: Product — z-index 3, recebe mais luz */}
+            {/* Right: Product — z-index 3, drop-shadow controlado */}
             <motion.div className="lg:col-span-5 relative z-[3]"
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.2, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}>
-              {/* === CAMADA 3: Halo atras do produto === */}
-              <div className="absolute pointer-events-none"
-                style={{
-                  inset: '-40px',
-                  borderRadius: '50%',
-                  background: 'radial-gradient(circle, rgba(0,140,255,0.4), transparent 70%)',
-                  filter: 'blur(40px)',
-                  zIndex: -1
-                }} />
-              {/* === CAMADA 5: Highlight lateral no produto === */}
-              <div className="absolute pointer-events-none"
-                style={{
-                  top: 0, right: '10%', width: '80px', height: '100%',
-                  background: 'linear-gradient(120deg, transparent, rgba(0,140,255,0.25), transparent)',
-                  filter: 'blur(20px)',
-                  zIndex: 1
-                }} />
+              transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}>
               <HeroCarousel />
             </motion.div>
           </div>
