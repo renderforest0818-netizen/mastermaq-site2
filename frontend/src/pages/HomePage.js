@@ -267,56 +267,80 @@ export default function HomePage() {
     <div data-testid="home-page">
 
       {/* ══════════════════════════════════════════════════════════
-          HERO — Iluminacao controlada + SVG beam + drop-shadow
+          HERO — Iluminacao nitida + brilho canto superior direito
          ══════════════════════════════════════════════════════════ */}
       <section className="relative overflow-hidden" data-testid="hero-section"
         style={{
           background: `
-            radial-gradient(circle at 80% 50%, rgba(0,102,255,0.15) 0%, transparent 50%),
-            radial-gradient(circle at 50% 50%, transparent 0%, rgba(0,0,0,0.4) 100%),
+            radial-gradient(circle at 85% 15%, rgba(0,120,255,0.25) 0%, transparent 40%),
+            radial-gradient(circle at 75% 50%, rgba(0,102,255,0.12) 0%, transparent 45%),
+            radial-gradient(circle at 50% 50%, transparent 0%, rgba(0,0,0,0.5) 100%),
             radial-gradient(circle at 20% 50%, #0b1220, #05070d)
           `
         }}>
 
-        {/* Background photo — faded into gradient */}
+        {/* Background photo */}
         <div className="absolute inset-0 z-0">
           <img src="/images/hero-bg.png" alt="" className="w-full h-full object-cover opacity-[0.07]" />
         </div>
 
-        {/* SVG Beam / Arco de luz — nitido, controlado, estilo energia */}
-        <svg className="absolute top-0 right-0 w-[600px] h-full z-[1] pointer-events-none" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMaxYMid slice">
-          <defs>
-            <linearGradient id="beamGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="rgba(0,120,255,0)" />
-              <stop offset="40%" stopColor="rgba(0,120,255,0.6)" />
-              <stop offset="100%" stopColor="rgba(0,120,255,0)" />
-            </linearGradient>
-            <linearGradient id="arcGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(0,140,255,0.5)" />
-              <stop offset="50%" stopColor="rgba(0,140,255,0.15)" />
-              <stop offset="100%" stopColor="rgba(0,140,255,0)" />
-            </linearGradient>
-          </defs>
-          {/* Arco principal — nitido, nao esfumacado */}
-          <ellipse cx="300" cy="300" rx="250" ry="280" stroke="url(#arcGrad)" strokeWidth="1.5" fill="none" opacity="0.7" />
-          <ellipse cx="300" cy="300" rx="220" ry="250" stroke="rgba(0,140,255,0.1)" strokeWidth="1" fill="none" />
-          {/* Light beam horizontal — linha nitida */}
-          <line x1="0" y1="100" x2="500" y2="100" stroke="url(#beamGrad)" strokeWidth="2" opacity="0.8" />
-          <line x1="50" y1="100" x2="450" y2="100" stroke="rgba(0,140,255,0.4)" strokeWidth="6" opacity="0.15" />
-        </svg>
-
-        {/* Floor reflection — sutil, controlado */}
+        {/* === BRILHO CANTO SUPERIOR DIREITO — nitido, concentrado === */}
         <div className="absolute z-[1] pointer-events-none"
           style={{
-            bottom: 0, right: '5%', width: '350px', height: '80px',
-            background: 'radial-gradient(ellipse at center, rgba(0,102,255,0.25), transparent 70%)',
+            top: '-60px', right: '-40px', width: '300px', height: '300px',
+            background: 'radial-gradient(circle, rgba(0,140,255,0.7) 0%, rgba(0,120,255,0.3) 25%, transparent 60%)',
+            filter: 'blur(25px)'
+          }} />
+        {/* Brilho secundario — mais largo, menos intenso */}
+        <div className="absolute z-[1] pointer-events-none"
+          style={{
+            top: '-20px', right: '50px', width: '200px', height: '200px',
+            background: 'radial-gradient(circle, rgba(100,180,255,0.5) 0%, transparent 50%)',
             filter: 'blur(15px)'
+          }} />
+
+        {/* SVG Arco + Beams — nitidos */}
+        <svg className="absolute top-0 right-0 w-[650px] h-full z-[1] pointer-events-none" viewBox="0 0 650 600" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMaxYMid slice">
+          <defs>
+            <linearGradient id="beamH" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="rgba(0,130,255,0)" />
+              <stop offset="30%" stopColor="rgba(0,130,255,0.8)" />
+              <stop offset="70%" stopColor="rgba(0,140,255,0.9)" />
+              <stop offset="100%" stopColor="rgba(0,130,255,0)" />
+            </linearGradient>
+            <linearGradient id="arcStroke" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(0,160,255,0.7)" />
+              <stop offset="40%" stopColor="rgba(0,140,255,0.35)" />
+              <stop offset="80%" stopColor="rgba(0,120,255,0.1)" />
+              <stop offset="100%" stopColor="rgba(0,100,255,0)" />
+            </linearGradient>
+            <radialGradient id="cornerGlow" cx="90%" cy="10%" r="40%">
+              <stop offset="0%" stopColor="rgba(0,150,255,0.4)" />
+              <stop offset="100%" stopColor="transparent" />
+            </radialGradient>
+          </defs>
+          {/* Glow fill no canto */}
+          <rect width="650" height="600" fill="url(#cornerGlow)" opacity="0.5" />
+          {/* Arco principal — mais nitido, mais visivel */}
+          <ellipse cx="325" cy="300" rx="240" ry="270" stroke="url(#arcStroke)" strokeWidth="2" fill="none" />
+          <ellipse cx="325" cy="300" rx="210" ry="240" stroke="rgba(0,140,255,0.08)" strokeWidth="1" fill="none" />
+          {/* Beam horizontal — nitido, mais brilhante */}
+          <line x1="0" y1="85" x2="550" y2="85" stroke="url(#beamH)" strokeWidth="2.5" />
+          <line x1="100" y1="85" x2="500" y2="85" stroke="rgba(100,180,255,0.15)" strokeWidth="8" />
+        </svg>
+
+        {/* Floor reflection */}
+        <div className="absolute z-[1] pointer-events-none"
+          style={{
+            bottom: 0, right: '5%', width: '350px', height: '60px',
+            background: 'radial-gradient(ellipse at center, rgba(0,120,255,0.3), transparent 70%)',
+            filter: 'blur(10px)'
           }} />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-18 lg:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-4 items-center">
 
-            {/* Left: Text — z-index 2, area escura para contraste */}
+            {/* Left: Text — area escura */}
             <div className="lg:col-span-7 relative z-[2]">
               <motion.h1
                 className="font-heading text-[2.5rem] sm:text-[3.25rem] lg:text-[4rem] font-bold tracking-[-0.03em] text-white leading-[1.08] mb-5"
@@ -362,7 +386,7 @@ export default function HomePage() {
               </motion.div>
             </div>
 
-            {/* Right: Product — z-index 3, drop-shadow controlado */}
+            {/* Right: Product — drop-shadow nitido */}
             <motion.div className="lg:col-span-5 relative z-[3]"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
