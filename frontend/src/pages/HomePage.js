@@ -174,7 +174,7 @@ function HeroCarousel() {
         <AnimatePresence mode="wait">
           <motion.img key={`${category.id}-${prodIndex}`} src={product.image} alt={`${category.name} ${product.brand}`}
             className="w-[220px] h-[270px] sm:w-[280px] sm:h-[330px] object-contain"
-            style={{ filter: 'drop-shadow(0 0 30px rgba(0,102,255,0.3))' }}
+            style={{ filter: 'drop-shadow(0 0 25px rgba(0,76,255,0.35))' }}
             initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.6 }} data-testid="hero-product-image" />
         </AnimatePresence>
@@ -267,80 +267,70 @@ export default function HomePage() {
     <div data-testid="home-page">
 
       {/* ══════════════════════════════════════════════════════════
-          HERO — Iluminacao nitida + brilho canto superior direito
+          HERO — Luz direcional concentrada, zero blur
          ══════════════════════════════════════════════════════════ */}
       <section className="relative overflow-hidden" data-testid="hero-section"
         style={{
           background: `
-            radial-gradient(circle at 85% 15%, rgba(0,120,255,0.25) 0%, transparent 40%),
-            radial-gradient(circle at 75% 50%, rgba(0,102,255,0.12) 0%, transparent 45%),
+            radial-gradient(ellipse at 95% 0%, #004cff 0%, rgba(0,76,255,0.6) 8%, rgba(0,76,255,0.15) 20%, transparent 35%),
+            linear-gradient(135deg, transparent 50%, rgba(0,76,255,0.06) 70%, rgba(0,76,255,0.12) 85%, rgba(0,60,200,0.08) 100%),
             radial-gradient(circle at 50% 50%, transparent 0%, rgba(0,0,0,0.5) 100%),
-            radial-gradient(circle at 20% 50%, #0b1220, #05070d)
+            linear-gradient(180deg, #080e1a 0%, #050810 100%)
           `
         }}>
 
         {/* Background photo */}
         <div className="absolute inset-0 z-0">
-          <img src="/images/hero-bg.png" alt="" className="w-full h-full object-cover opacity-[0.07]" />
+          <img src="/images/hero-bg.png" alt="" className="w-full h-full object-cover opacity-[0.06]" />
         </div>
 
-        {/* === BRILHO CANTO SUPERIOR DIREITO — nitido, concentrado === */}
+        {/* === LUZ DIRECIONAL — sem blur, gradientes puros === */}
+
+        {/* Beam diagonal — faixa de luz que sai do canto */}
         <div className="absolute z-[1] pointer-events-none"
           style={{
-            top: '-60px', right: '-40px', width: '300px', height: '300px',
-            background: 'radial-gradient(circle, rgba(0,140,255,0.7) 0%, rgba(0,120,255,0.3) 25%, transparent 60%)',
-            filter: 'blur(25px)'
-          }} />
-        {/* Brilho secundario — mais largo, menos intenso */}
-        <div className="absolute z-[1] pointer-events-none"
-          style={{
-            top: '-20px', right: '50px', width: '200px', height: '200px',
-            background: 'radial-gradient(circle, rgba(100,180,255,0.5) 0%, transparent 50%)',
-            filter: 'blur(15px)'
+            top: 0, right: 0, width: '100%', height: '100%',
+            background: 'linear-gradient(225deg, rgba(0,76,255,0.18) 0%, rgba(0,76,255,0.04) 15%, transparent 30%)',
           }} />
 
-        {/* SVG Arco + Beams — nitidos */}
-        <svg className="absolute top-0 right-0 w-[650px] h-full z-[1] pointer-events-none" viewBox="0 0 650 600" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMaxYMid slice">
+        {/* Beam horizontal — linha de luz nitida, sem blur */}
+        <div className="absolute z-[2] pointer-events-none"
+          style={{
+            top: '80px', right: 0, width: '45%', height: '3px',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(0,76,255,0.15) 20%, #004cff 60%, rgba(100,160,255,0.9) 85%, rgba(200,220,255,0.6) 100%)',
+          }} />
+        {/* Beam horizontal — halo fino */}
+        <div className="absolute z-[2] pointer-events-none"
+          style={{
+            top: '76px', right: 0, width: '40%', height: '10px',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(0,76,255,0.03) 30%, rgba(0,76,255,0.08) 70%, rgba(0,76,255,0.15) 100%)',
+          }} />
+
+        {/* SVG Arco — linhas nitidas, cor #004cff */}
+        <svg className="absolute top-0 right-0 w-[650px] h-full z-[1] pointer-events-none" viewBox="0 0 650 620" fill="none" preserveAspectRatio="xMaxYMid slice">
           <defs>
-            <linearGradient id="beamH" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="rgba(0,130,255,0)" />
-              <stop offset="30%" stopColor="rgba(0,130,255,0.8)" />
-              <stop offset="70%" stopColor="rgba(0,140,255,0.9)" />
-              <stop offset="100%" stopColor="rgba(0,130,255,0)" />
+            <linearGradient id="arc1" x1="0.5" y1="0" x2="0.5" y2="1">
+              <stop offset="0%" stopColor="#004cff" stopOpacity="0.6" />
+              <stop offset="35%" stopColor="#004cff" stopOpacity="0.2" />
+              <stop offset="70%" stopColor="#004cff" stopOpacity="0.05" />
+              <stop offset="100%" stopColor="#004cff" stopOpacity="0" />
             </linearGradient>
-            <linearGradient id="arcStroke" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(0,160,255,0.7)" />
-              <stop offset="40%" stopColor="rgba(0,140,255,0.35)" />
-              <stop offset="80%" stopColor="rgba(0,120,255,0.1)" />
-              <stop offset="100%" stopColor="rgba(0,100,255,0)" />
-            </linearGradient>
-            <radialGradient id="cornerGlow" cx="90%" cy="10%" r="40%">
-              <stop offset="0%" stopColor="rgba(0,150,255,0.4)" />
-              <stop offset="100%" stopColor="transparent" />
-            </radialGradient>
           </defs>
-          {/* Glow fill no canto */}
-          <rect width="650" height="600" fill="url(#cornerGlow)" opacity="0.5" />
-          {/* Arco principal — mais nitido, mais visivel */}
-          <ellipse cx="325" cy="300" rx="240" ry="270" stroke="url(#arcStroke)" strokeWidth="2" fill="none" />
-          <ellipse cx="325" cy="300" rx="210" ry="240" stroke="rgba(0,140,255,0.08)" strokeWidth="1" fill="none" />
-          {/* Beam horizontal — nitido, mais brilhante */}
-          <line x1="0" y1="85" x2="550" y2="85" stroke="url(#beamH)" strokeWidth="2.5" />
-          <line x1="100" y1="85" x2="500" y2="85" stroke="rgba(100,180,255,0.15)" strokeWidth="8" />
+          <ellipse cx="340" cy="310" rx="250" ry="280" stroke="url(#arc1)" strokeWidth="1.5" fill="none" />
+          <ellipse cx="340" cy="310" rx="215" ry="245" stroke="rgba(0,76,255,0.06)" strokeWidth="0.8" fill="none" />
         </svg>
 
-        {/* Floor reflection */}
+        {/* Floor light — sem blur, gradiente puro */}
         <div className="absolute z-[1] pointer-events-none"
           style={{
-            bottom: 0, right: '5%', width: '350px', height: '60px',
-            background: 'radial-gradient(ellipse at center, rgba(0,120,255,0.3), transparent 70%)',
-            filter: 'blur(10px)'
+            bottom: 0, right: '8%', width: '300px', height: '50px',
+            background: 'radial-gradient(ellipse at 50% 100%, rgba(0,76,255,0.25) 0%, rgba(0,76,255,0.08) 40%, transparent 70%)',
           }} />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-18 lg:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-4 items-center">
 
-            {/* Left: Text — area escura */}
+            {/* Left: Text */}
             <div className="lg:col-span-7 relative z-[2]">
               <motion.h1
                 className="font-heading text-[2.5rem] sm:text-[3.25rem] lg:text-[4rem] font-bold tracking-[-0.03em] text-white leading-[1.08] mb-5"
@@ -386,7 +376,7 @@ export default function HomePage() {
               </motion.div>
             </div>
 
-            {/* Right: Product — drop-shadow nitido */}
+            {/* Right: Product — drop-shadow nitido #004cff */}
             <motion.div className="lg:col-span-5 relative z-[3]"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
