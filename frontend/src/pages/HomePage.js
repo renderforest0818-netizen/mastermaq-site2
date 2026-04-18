@@ -282,7 +282,7 @@ export default function HomePage() {
                 {AUTHORIZED_BRANDS.map((brand, i) => (
                   <motion.div key={brand.name} variants={fadeUp}
                     className="group relative bg-white border border-slate-200 p-5 flex flex-col items-center gap-3 hover:shadow-lg hover:border-blue-500/40 transition-all duration-300 cursor-default"
-                    data-testid={`authorized-${brand.name.toLowerCase()}`}>
+                    data-testid={`auth-brand-${brand.name.toLowerCase()}`}>
                     {/* Logo — grayscale default, color on hover */}
                     <div className="h-[44px] flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-400">
                       <img src={brand.logo} alt={brand.name} className="max-h-[38px] max-w-[100px] object-contain" />
