@@ -69,6 +69,17 @@ const BRAND_LOGOS = [
   { name: "Viking", src: "/images/assets/viking-logo.png" },
 ];
 
+const AUTHORIZED_BRANDS = [
+  { name: "Hisense", logo: "/images/assets/hisense-logo.png", equipment: "Geladeiras, Ar Condicionado, VRF" },
+  { name: "Panasonic", logo: "/images/assets/panasonic-logo.png", equipment: "Geladeiras, Lavadoras, Ar Condicionado" },
+  { name: "Liebherr", logo: "/images/assets/liebherr-logo.png", equipment: "Geladeiras, Freezers, Adegas" },
+  { name: "Bertazzoni", logo: "/images/assets/bertazzoni-logo.png", equipment: "Geladeiras, Fornos, Cooktops" },
+  { name: "Franke", logo: "/images/assets/franke-logo.png", equipment: "Trituradores, Coifas, Cooktops" },
+  { name: "Gorenje", logo: "/images/assets/gorenje-logo.png", equipment: "Geladeiras, Fornos, Lava-loucas" },
+  { name: "Tecno", logo: "/images/assets/tecno-logo.png", equipment: "Cooktops, Fornos, Coifas" },
+  { name: "Lofra", logo: "/images/assets/lofra-logo.png", equipment: "Fogoes, Fornos, Cooktops" },
+];
+
 const DIFFERENTIALS = [
   { icon: Shield, title: "Pecas Originais", desc: "Exclusivamente pecas originais de fabrica, garantindo durabilidade e desempenho ideal do seu equipamento." },
   { icon: Award, title: "Tecnicos Certificados", desc: "Equipe treinada e homologada pelas principais marcas. Expertise comprovada em equipamentos de alto padrao." },
@@ -226,20 +237,73 @@ export default function HomePage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          BRAND LOGOS — Conectado ao hero, grayscale→color hover
+          BRAND LOGOS — Carrossel padronizado
          ══════════════════════════════════════════════════════════ */}
       <section className="relative bg-white py-10 border-b border-slate-100" data-testid="brand-bar">
-        {/* Sutil overlap visual com hero */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-600/20 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-600/10 to-transparent" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-[10px] text-center text-slate-400 uppercase tracking-[0.25em] font-semibold mb-6">Especialistas nas Melhores Marcas</p>
           <Marquee gradient gradientColor="#ffffff" speed={25} pauseOnHover>
             {BRAND_LOGOS.map(b => (
-              <div key={b.name} className="mx-10 sm:mx-12 flex items-center justify-center w-[160px] h-16 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-default">
-                <img src={b.src} alt={b.name} className="max-h-[52px] max-w-[140px] object-contain" loading="lazy" />
+              <div key={b.name} className="mx-8 sm:mx-10 flex items-center justify-center w-[140px] h-[56px] grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-default">
+                <img src={b.src} alt={b.name} className="max-h-[46px] max-w-[120px] object-contain" loading="lazy" />
               </div>
             ))}
           </Marquee>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════
+          SERVICO AUTORIZADO — Credibilidade e autoridade
+         ══════════════════════════════════════════════════════════ */}
+      <section className="py-16 sm:py-20 bg-slate-50 relative" data-testid="authorized-section">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+            {/* Left — Title 40% */}
+            <motion.div className="lg:col-span-5" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
+              <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-4 block">Servico Autorizado</span>
+              <h2 className="font-heading text-2xl sm:text-3xl lg:text-[2.25rem] font-semibold tracking-[-0.02em] text-slate-900 leading-[1.15] mb-4">
+                Certificado Pelas Melhores Marcas
+              </h2>
+              <p className="text-sm text-slate-500 leading-relaxed mb-8">
+                Expertise reconhecida pelos fabricantes lideres de mercado. Garantia de pecas originais e tecnicos homologados.
+              </p>
+              {/* Credibility block */}
+              <div className="bg-white border-l-4 border-blue-600 p-5 shadow-sm">
+                <p className="text-sm text-slate-700 leading-relaxed italic">
+                  "Nao arrisque com seu produto. Somente a Mastermaq Assistencia possui a expertise e o credenciamento direto dos fabricantes para garantir um reparo correto, seguro e com pecas originais. Confie em quem entende de verdade."
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Right — Brand Grid 60% */}
+            <motion.div className="lg:col-span-7" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {AUTHORIZED_BRANDS.map((brand, i) => (
+                  <motion.div key={brand.name} variants={fadeUp}
+                    className="group relative bg-white border border-slate-200 p-5 flex flex-col items-center gap-3 hover:shadow-lg hover:border-blue-500/40 transition-all duration-300 cursor-default"
+                    data-testid={`authorized-${brand.name.toLowerCase()}`}>
+                    {/* Logo — grayscale default, color on hover */}
+                    <div className="h-[44px] flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-400">
+                      <img src={brand.logo} alt={brand.name} className="max-h-[38px] max-w-[100px] object-contain" />
+                    </div>
+                    {/* Authorized badge */}
+                    <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400 group-hover:text-blue-600 transition-colors duration-300">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>Autorizado</span>
+                    </div>
+                    {/* Tooltip on hover */}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-slate-900 text-white text-[11px] p-3 rounded shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-300 z-20">
+                      <p className="font-medium mb-1">Somos servico autorizado {brand.name}</p>
+                      <p className="text-slate-400 text-[10px]">Credenciamento direto do fabricante.</p>
+                      <p className="text-slate-400 text-[10px] mt-1">Equipamentos: {brand.equipment}</p>
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45 -mt-1" />
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
