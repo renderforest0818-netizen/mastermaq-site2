@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Marquee from 'react-fast-marquee';
@@ -70,14 +70,32 @@ const BRAND_LOGOS = [
 ];
 
 const AUTHORIZED_BRANDS = [
-  { name: "Hisense", logo: "/images/assets/hisense-logo.png", equipment: "Geladeiras, Ar Condicionado, VRF" },
-  { name: "Panasonic", logo: "/images/assets/panasonic-logo.png", equipment: "Geladeiras, Lavadoras, Ar Condicionado" },
-  { name: "Liebherr", logo: "/images/assets/liebherr-logo.png", equipment: "Geladeiras, Freezers, Adegas" },
-  { name: "Bertazzoni", logo: "/images/assets/bertazzoni-logo.png", equipment: "Geladeiras, Fornos, Cooktops" },
-  { name: "Franke", logo: "/images/assets/franke-logo.png", equipment: "Trituradores, Coifas, Cooktops" },
-  { name: "Gorenje", logo: "/images/assets/gorenje-logo.png", equipment: "Geladeiras, Fornos, Lava-loucas" },
-  { name: "Tecno", logo: "/images/assets/tecno-logo.png", equipment: "Cooktops, Fornos, Coifas" },
-  { name: "Lofra", logo: "/images/assets/lofra-logo.png", equipment: "Fogoes, Fornos, Cooktops" },
+  {
+    name: "Bertazzoni & Lofra",
+    logo: "/images/assets/bertazzoni-logo.png",
+    logo2: "/images/assets/lofra-logo.png",
+    desc: "Servico autorizado Lofra e Bertazzoni com credenciamento do fabricante. Especialistas no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e cooktops, garantindo reparacao segura e originalidade do equipamento.",
+  },
+  {
+    name: "Gorenje",
+    logo: "/images/assets/gorenje-logo.png",
+    desc: "Servico autorizado Gorenje credenciado pelo fabricante. Expertise no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e cooktops. Oferecemos manutencao correta e segura para preservar seu eletrodomestico.",
+  },
+  {
+    name: "Hisense",
+    logo: "/images/assets/hisense-logo.png",
+    desc: "Servico autorizado Hisense com credenciamento oficial. Atuamos no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e ar-condicionado. Garantimos um servico especializado que mantem a originalidade do seu aparelho.",
+  },
+  {
+    name: "Franke",
+    logo: "/images/assets/franke-logo.png",
+    desc: "Servico autorizado Franke credenciado pelo fabricante. Especialistas em conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e trituradores. Reparacao tecnica segura para maior durabilidade do seu equipamento.",
+  },
+  {
+    name: "Panasonic",
+    logo: "/images/assets/panasonic-logo.png",
+    desc: "Especializada em conserto de geladeiras e maquinas de lavar Panasonic em BH. Fomos autorizados com credenciamento exclusivo por 11 anos pela Panasonic do Brasil, mantendo hoje a expertise tecnica avancada em todos os produtos da marca.",
+  },
 ];
 
 const DIFFERENTIALS = [
@@ -159,8 +177,8 @@ function HeroCarousel() {
       <div className="mt-6 h-14 w-[150px] flex items-center justify-center">
         <AnimatePresence mode="wait">
           <motion.img key={`logo-${category.id}-${prodIndex}`} src={product.logo} alt={product.brand}
-            className="max-h-[40px] max-w-[120px] object-contain opacity-80"
-            initial={{ opacity: 0 }} animate={{ opacity: 0.8 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}
+            className="max-h-[40px] max-w-[120px] object-contain grayscale opacity-50"
+            initial={{ opacity: 0 }} animate={{ opacity: 0.5 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}
             data-testid="hero-brand-logo" />
         </AnimatePresence>
       </div>
@@ -174,6 +192,68 @@ function HeroCarousel() {
     </div>
   );
 }
+
+/* ── Authorized Brands Carousel ── */
+function AuthorizedCarousel() {
+  const scrollRef = useRef(null);
+
+  const scroll = (dir) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: dir === 'right' ? 300 : -300, behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <div className="relative" data-testid="authorized-carousel">
+      {/* Nav arrows */}
+      <div className="flex gap-2 mb-5 justify-end">
+        <button onClick={() => scroll('left')}
+          className="w-9 h-9 border border-slate-200 bg-white flex items-center justify-center hover:border-blue-500 hover:text-blue-600 transition-colors text-slate-400"
+          data-testid="auth-carousel-prev">
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button onClick={() => scroll('right')}
+          className="w-9 h-9 border border-slate-200 bg-white flex items-center justify-center hover:border-blue-500 hover:text-blue-600 transition-colors text-slate-400"
+          data-testid="auth-carousel-next">
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Scrollable cards */}
+      <div ref={scrollRef}
+        className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+        {AUTHORIZED_BRANDS.map((brand) => (
+          <div key={brand.name}
+            className="flex-shrink-0 w-[260px] sm:w-[280px] bg-white border border-slate-200 flex flex-col group hover:shadow-xl hover:border-blue-500/30 transition-all duration-400 snap-start"
+            data-testid={`auth-brand-${brand.name.toLowerCase().replace(/\s+/g, '-')}`}>
+            {/* Logo area */}
+            <div className="px-6 pt-8 pb-5 flex flex-col items-center gap-3 border-b border-slate-100">
+              <div className="h-[56px] flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500">
+                <img src={brand.logo} alt={brand.name} className="max-h-[48px] max-w-[140px] object-contain" />
+              </div>
+              {brand.logo2 && (
+                <div className="h-[40px] flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500">
+                  <img src={brand.logo2} alt="" className="max-h-[32px] max-w-[100px] object-contain" />
+                </div>
+              )}
+              <div className="flex items-center gap-1.5 text-[10px] font-semibold text-blue-600 uppercase tracking-wider mt-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Autorizada</span>
+              </div>
+            </div>
+            {/* Description */}
+            <div className="px-6 py-5 flex-1">
+              <h3 className="font-heading font-semibold text-sm text-slate-900 mb-2">Autorizada {brand.name}</h3>
+              <p className="text-[12px] text-slate-500 leading-relaxed">{brand.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 
 export default function HomePage() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -254,13 +334,13 @@ export default function HomePage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          SERVICO AUTORIZADO — Credibilidade e autoridade
+          SERVICO AUTORIZADO — Carrossel horizontal de cards verticais
          ══════════════════════════════════════════════════════════ */}
-      <section className="py-16 sm:py-20 bg-slate-50 relative" data-testid="authorized-section">
+      <section className="py-16 sm:py-20 bg-slate-50 relative overflow-hidden" data-testid="authorized-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-start">
             {/* Left — Title 40% */}
-            <motion.div className="lg:col-span-5" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
+            <motion.div className="lg:col-span-4 lg:sticky lg:top-28" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
               <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-4 block">Servico Autorizado</span>
               <h2 className="font-heading text-2xl sm:text-3xl lg:text-[2.25rem] font-semibold tracking-[-0.02em] text-slate-900 leading-[1.15] mb-4">
                 Certificado Pelas Melhores Marcas
@@ -268,7 +348,6 @@ export default function HomePage() {
               <p className="text-sm text-slate-500 leading-relaxed mb-8">
                 Expertise reconhecida pelos fabricantes lideres de mercado. Garantia de pecas originais e tecnicos homologados.
               </p>
-              {/* Credibility block */}
               <div className="bg-white border-l-4 border-blue-600 p-5 shadow-sm">
                 <p className="text-sm text-slate-700 leading-relaxed italic">
                   "Nao arrisque com seu produto. Somente a Mastermaq Assistencia possui a expertise e o credenciamento direto dos fabricantes para garantir um reparo correto, seguro e com pecas originais. Confie em quem entende de verdade."
@@ -276,33 +355,10 @@ export default function HomePage() {
               </div>
             </motion.div>
 
-            {/* Right — Brand Grid 60% */}
-            <motion.div className="lg:col-span-7" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {AUTHORIZED_BRANDS.map((brand, i) => (
-                  <motion.div key={brand.name} variants={fadeUp}
-                    className="group relative bg-white border border-slate-200 p-5 flex flex-col items-center gap-3 hover:shadow-lg hover:border-blue-500/40 transition-all duration-300 cursor-default"
-                    data-testid={`auth-brand-${brand.name.toLowerCase()}`}>
-                    {/* Logo — grayscale default, color on hover */}
-                    <div className="h-[44px] flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-400">
-                      <img src={brand.logo} alt={brand.name} className="max-h-[38px] max-w-[100px] object-contain" />
-                    </div>
-                    {/* Authorized badge */}
-                    <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400 group-hover:text-blue-600 transition-colors duration-300">
-                      <CheckCircle2 className="w-3 h-3" />
-                      <span>Autorizado</span>
-                    </div>
-                    {/* Tooltip on hover */}
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-slate-900 text-white text-[11px] p-3 rounded shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-300 z-20">
-                      <p className="font-medium mb-1">Somos servico autorizado {brand.name}</p>
-                      <p className="text-slate-400 text-[10px]">Credenciamento direto do fabricante.</p>
-                      <p className="text-slate-400 text-[10px] mt-1">Equipamentos: {brand.equipment}</p>
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45 -mt-1" />
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+            {/* Right — Carrossel horizontal 60% */}
+            <div className="lg:col-span-8">
+              <AuthorizedCarousel />
+            </div>
           </div>
         </div>
       </section>
