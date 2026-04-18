@@ -104,10 +104,10 @@ const AUTHORIZED_BRANDS = [
 ];
 
 const DIFFERENTIALS = [
-  { icon: Shield, title: "Pecas Originais", desc: "Exclusivamente pecas originais de fabrica, garantindo durabilidade e desempenho ideal do seu equipamento." },
+  { icon: Shield, title: "Pecas Originais", desc: "Exclusivamente peças originais de fabrica, garantindo durabilidade e desempenho ideal do seu equipamento." },
   { icon: Award, title: "Tecnicos Especializados", desc: "Equipe treinada e especializada nas principais marcas. Expertise em equipamentos de alto padrao." },
   { icon: Clock, title: "Garantia de 90 Dias", desc: "Todos os servicos com garantia. Sua tranquilidade é nossa prioridade absoluta." },
-  { icon: Home, title: "Atendimento Domiciliar", desc: "Diagnostico preciso e reparo no conforto do seu lar, sem complicacoes." },
+  { icon: Home, title: "Atendimento Domiciliar", desc: "Diagnostico preciso e reparo no conforto do seu lar, sem complicações." },
   { icon: Phone, title: "Suporte Dedicado", desc: "Canal direto via WhatsApp para acompanhamento em tempo real do seu atendimento." },
   { icon: CheckCircle2, title: "Portal do Cliente", desc: "Acompanhe ordens de servico, historico e agende novos atendimentos pelo portal exclusivo." },
 ];
@@ -266,49 +266,62 @@ export default function HomePage() {
     <div data-testid="home-page">
 
       {/* ══════════════════════════════════════════════════════════
-          HERO — Assimetrico, texto esquerda, carrossel direita
+          HERO — Compacto estilo SaaS com glow radial
          ══════════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden bg-slate-950" data-testid="hero-section">
+      <section className="relative overflow-hidden bg-[#030014]" data-testid="hero-section">
+        {/* Background image */}
         <div className="absolute inset-0 z-0">
-          <img src="/images/hero-bg.png" alt="" className="w-full h-full object-cover opacity-[0.08]" />
+          <img src="/images/hero-bg.png" alt="" className="w-full h-full object-cover opacity-[0.06]" />
         </div>
-        {/* Diagonal accent */}
-        <div className="absolute -right-32 top-0 w-[600px] h-full bg-gradient-to-l from-blue-900/20 to-transparent skew-x-[-8deg] z-[1]" />
+        {/* Radial glow — top right */}
+        <div className="absolute -top-[80px] -right-[80px] w-[400px] h-[400px] bg-[#0a84ff] rounded-full z-[1]" style={{ filter: 'blur(120px)', opacity: 0.35 }} />
+        {/* Secondary glow — subtle */}
+        <div className="absolute top-[30%] right-[20%] w-[200px] h-[2px] bg-gradient-to-r from-transparent via-blue-400/40 to-transparent z-[1]" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 lg:py-24">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-4 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-14 lg:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center">
             {/* Left: Text — 7 columns */}
             <motion.div className="lg:col-span-7" initial="hidden" animate="visible" variants={fadeLeft}>
-              <h1 className="font-heading text-[2.75rem] sm:text-[3.5rem] lg:text-[4.25rem] font-semibold tracking-[-0.03em] text-white leading-[1.05] mb-6" data-testid="hero-title">
-                Assistencia Tecnica<br />
-                <span className="text-blue-500">Autorizada em BH</span>
+              <h1 className="font-heading text-[2.25rem] sm:text-[3rem] lg:text-[3.5rem] font-bold tracking-[-0.03em] text-white leading-[1.1] mb-4" data-testid="hero-title">
+                Nao deixe seu equipamento parado
               </h1>
-              <p className="text-base sm:text-lg text-slate-400 leading-relaxed mb-8 max-w-xl">
-                Seu equipamento merece o melhor cuidado. Diagnostico preciso, pecas originais e tecnicos homologados na sua porta.
+              <p className="text-base text-slate-400 leading-relaxed mb-6 max-w-lg">
+                Assistencia tecnica rapida e garantida. Pecas originais e <strong className="text-slate-300">tecnicos homologados</strong> na sua porta.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">
                 <Button
                   onClick={() => document.getElementById('scheduling-section')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-red-800 text-white hover:bg-red-700 px-8 py-4 text-sm font-semibold h-auto hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-red-600/20"
+                  className="bg-blue-600 text-white hover:bg-blue-700 px-7 py-3.5 text-sm font-semibold h-auto hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-[0_0_20px_rgba(10,132,255,0.3)]"
                   data-testid="hero-cta">
-                  Agendar Visita Tecnica <ArrowRight className="w-4 h-4 ml-2" />
+                  Agendar visita tecnica <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-                <a href="https://wa.me/553134225293" target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline" className="border-2 border-white/15 text-white hover:bg-white/5 hover:border-white/30 px-8 py-4 text-sm h-auto bg-transparent w-full sm:w-auto transition-all duration-200" data-testid="hero-whatsapp-btn">
-                    <img src="/images/assets/whatsapp-logo.png" alt="" className="w-5 h-5 mr-2 rounded-full" /> WhatsApp
-                  </Button>
+                <a href="tel:+553134225293" className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors">
+                  <Phone className="w-4 h-4" /> (31) 3422-5293
                 </a>
               </div>
-              <div className="flex items-center gap-8 text-sm text-slate-500">
-                <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Pecas Originais</span>
-                <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Garantia 90 Dias</span>
-                <span className="flex items-center gap-2 hidden sm:flex"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Tecnicos Especializados</span>
+              <div className="flex items-center gap-6 text-[13px] text-slate-500">
+                <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> Pecas Originais</span>
+                <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> Garantia 90 Dias</span>
+                <span className="flex items-center gap-1.5 hidden sm:flex"><CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> Tecnicos Especializados</span>
               </div>
             </motion.div>
 
-            {/* Right: Product Carousel — 5 columns */}
-            <motion.div className="lg:col-span-5" initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.3 }}>
-              <HeroCarousel />
+            {/* Right: Metrics 2x2 — 5 columns */}
+            <motion.div className="lg:col-span-5" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }}>
+              <div className="grid grid-cols-2">
+                {[
+                  { num: "30+", label: "Anos de Experiencia" },
+                  { num: "28000+", label: "Clientes Atendidos" },
+                  { num: "8+", label: "Marcas Autorizadas" },
+                  { num: "98%", label: "Satisfacao" },
+                ].map((s, i) => (
+                  <div key={s.label}
+                    className="border border-white/10 p-6 sm:p-7 text-center hover:bg-white/[0.03] transition-colors duration-300">
+                    <p className="font-heading text-2xl sm:text-3xl font-bold text-white mb-1">{s.num}</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">{s.label}</p>
+                  </div>
+                ))}
+              </div>
             </motion.div>
           </div>
         </div>
@@ -472,119 +485,137 @@ export default function HomePage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          DIFERENCIAIS — Grid variado com profundidade
+          DIFERENCIAIS — Centralizado com chips compactos
          ══════════════════════════════════════════════════════════ */}
-      <section className="py-14 sm:py-18 relative" data-testid="differentials">
+      <section className="py-12 sm:py-14 relative" data-testid="differentials">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-            {/* Left — Title (4 col) */}
-            <motion.div className="lg:col-span-4" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
-              <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-4 block">Diferenciais</span>
-              <h2 className="font-heading text-3xl sm:text-4xl font-semibold tracking-[-0.02em] text-slate-900 leading-[1.1] mb-5">
-                Por que confiar na Mastermaq?
-              </h2>
-              <p className="text-base text-slate-500 leading-relaxed">
-                Seu equipamento merece o melhor cuidado. Descubra o que nos diferencia.
-              </p>
-            </motion.div>
+          {/* Centered text */}
+          <motion.div className="text-center max-w-2xl mx-auto mb-10" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-3 block">Diferenciais</span>
+            <h2 className="font-heading text-2xl sm:text-3xl font-semibold tracking-[-0.02em] text-slate-900 leading-[1.1] mb-3">
+              Por que confiar na Mastermaq?
+            </h2>
+            <p className="text-sm text-slate-500 leading-relaxed">
+              Seu equipamento merece o melhor cuidado. Descubra o que nos diferencia.
+            </p>
+          </motion.div>
 
-            {/* Right — Grid 2x3 com tamanhos variados (8 col) */}
-            <motion.div className="lg:col-span-8" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {DIFFERENTIALS.map((d, i) => {
-                  const isLarge = i === 0 || i === 3;
-                  return (
-                    <motion.div key={d.title} variants={fadeUp}
-                      className={`group relative bg-white border border-slate-200 hover:border-blue-500/30 hover:shadow-[0_16px_32px_-8px_rgba(0,0,0,0.08)] transition-all duration-400 overflow-hidden ${isLarge ? 'p-8 sm:p-10' : 'p-7'}`}>
-                      {/* Accent line */}
-                      <div className="absolute top-0 left-0 w-0.5 h-0 group-hover:h-full bg-blue-600 transition-all duration-500" />
-                      <div className={`${isLarge ? 'w-14 h-14' : 'w-12 h-12'} bg-slate-50 group-hover:bg-blue-600 flex items-center justify-center mb-5 transition-colors duration-300`}>
-                        <d.icon className={`${isLarge ? 'w-7 h-7' : 'w-6 h-6'} text-blue-600 group-hover:text-white transition-colors duration-300`} />
-                      </div>
-                      <h3 className="font-heading font-semibold text-base text-slate-900 mb-2">{d.title}</h3>
-                      <p className="text-sm text-slate-500 leading-relaxed">{d.desc}</p>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          </div>
+          {/* Chips grid — compact */}
+          <motion.div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+            {DIFFERENTIALS.map((d) => (
+              <motion.div key={d.title} variants={fadeUp}
+                className="group flex items-center gap-3 bg-white border border-slate-200 px-5 py-3 hover:border-blue-500/40 hover:shadow-md transition-all duration-300">
+                <div className="w-9 h-9 bg-slate-50 group-hover:bg-blue-600 flex items-center justify-center shrink-0 transition-colors duration-300">
+                  <d.icon className="w-4.5 h-4.5 text-blue-600 group-hover:text-white transition-colors duration-300" />
+                </div>
+                <div>
+                  <p className="font-heading font-semibold text-sm text-slate-900 leading-tight">{d.title}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          DEPOIMENTOS — Avaliacoes reais do Google
+          DEPOIMENTOS — Layout mapa mental com logo central
          ══════════════════════════════════════════════════════════ */}
-      <section className="py-14 sm:py-18 bg-slate-50 relative" data-testid="testimonials">
+      <section className="py-14 sm:py-18 bg-slate-50 relative overflow-hidden" data-testid="testimonials">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-14">
-            <motion.div className="lg:col-span-7" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
-              <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-4 block">Depoimentos</span>
-              <h2 className="font-heading text-3xl sm:text-4xl font-semibold tracking-[-0.02em] text-slate-900 max-w-md">O que nossos clientes dizem</h2>
-            </motion.div>
-            <motion.div className="lg:col-span-5 flex items-center gap-4" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeRight}>
-              <div className="flex items-center gap-3 bg-white border border-slate-200 px-5 py-3 shadow-sm">
-                <div className="text-center">
-                  <p className="font-heading text-2xl font-bold text-slate-900">4,1</p>
-                  <div className="flex gap-0.5">
-                    {[1,2,3,4].map(i => <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />)}
-                    <Star className="w-3.5 h-3.5 fill-yellow-400/30 text-yellow-400/30" />
-                  </div>
-                </div>
-                <div className="border-l border-slate-200 pl-3">
-                  <p className="text-xs font-semibold text-slate-700">134 avaliacoes</p>
-                  <p className="text-[10px] text-slate-400">Google Meu Negocio</p>
-                </div>
+          {/* Header centered */}
+          <motion.div className="text-center mb-10" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-3 block">Depoimentos</span>
+            <h2 className="font-heading text-2xl sm:text-3xl font-semibold tracking-[-0.02em] text-slate-900 whitespace-nowrap">O que nossos clientes dizem</h2>
+            <div className="flex items-center justify-center gap-3 mt-4">
+              <div className="flex gap-0.5">
+                {[1,2,3,4].map(i => <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />)}
+                <Star className="w-4 h-4 fill-yellow-400/30 text-yellow-400/30" />
               </div>
-            </motion.div>
-          </div>
+              <span className="text-sm font-semibold text-slate-700">4,1</span>
+              <span className="text-xs text-slate-400">134 avaliacoes no Google</span>
+            </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Featured testimonial — 7 col */}
-            <motion.div className="lg:col-span-7" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
-              <div className="bg-white border border-slate-200 p-10 sm:p-12 relative overflow-hidden group hover:shadow-xl transition-shadow duration-400">
-                <Quote className="w-16 h-16 text-blue-100 absolute top-6 right-6 group-hover:text-blue-200 transition-colors duration-300" />
-                <div className="relative z-10">
-                  <div className="flex items-center gap-2 mb-5">
+          {/* Mind map layout — logo center, reviews around */}
+          <div className="relative">
+            {/* Central logo */}
+            <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-24 h-24 bg-white rounded-full shadow-lg items-center justify-center border border-slate-200">
+              <img src="/images/assets/mastermaq-logo.png" alt="Mastermaq" className="w-14 h-auto" />
+            </div>
+
+            {/* Reviews grid — 3 columns with center gap for logo */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {TESTIMONIALS.slice(0, 3).map((t, i) => (
+                <motion.div key={t.name} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                  variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.5, delay: i * 0.08 } } }}
+                  className="bg-white border border-slate-200 p-5 hover:shadow-lg hover:border-blue-200 transition-all duration-300">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex gap-0.5">
-                      {Array.from({ length: TESTIMONIALS[1].rating }).map((_, j) => <Star key={j} className="w-5 h-5 fill-yellow-400 text-yellow-400" />)}
+                      {Array.from({ length: t.rating }).map((_, j) => <Star key={j} className="w-3 h-3 fill-yellow-400 text-yellow-400" />)}
                     </div>
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider">{TESTIMONIALS[1].time}</span>
+                    <span className="text-[10px] text-slate-400">{t.time}</span>
                   </div>
-                  <p className="text-lg sm:text-xl text-slate-700 leading-relaxed mb-8 font-heading font-normal italic">
-                    "{TESTIMONIALS[1].text}"
-                  </p>
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-600 flex items-center justify-center text-white font-heading font-bold text-lg">
-                      {TESTIMONIALS[1].name.charAt(0)}
+                  <p className="text-[13px] text-slate-600 leading-relaxed mb-4 italic line-clamp-3">"{t.text}"</p>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 bg-blue-600 flex items-center justify-center text-white font-heading font-semibold text-[10px] rounded-full">
+                      {t.name.charAt(0)}
                     </div>
                     <div>
-                      <p className="font-heading font-semibold text-sm text-slate-900">{TESTIMONIALS[1].name}</p>
-                      <p className="text-xs text-slate-400 flex items-center gap-1">
-                        <svg className="w-3 h-3" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                      <p className="font-heading font-semibold text-xs text-slate-900">{t.name}</p>
+                      <p className="text-[10px] text-slate-400 flex items-center gap-1">
+                        <svg className="w-2.5 h-2.5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
                         Via Google
                       </p>
                     </div>
                   </div>
-                </div>
-              </div>
-            </motion.div>
+                </motion.div>
+              ))}
+            </div>
 
-            {/* Secondary testimonials — 5 col */}
-            <div className="lg:col-span-5 flex flex-col gap-5">
-              {TESTIMONIALS.filter((_, i) => i !== 1).slice(0, 3).map((t, i) => (
+            {/* Second row — offset */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 lg:px-16">
+              {TESTIMONIALS.slice(3, 6).map((t, i) => (
                 <motion.div key={t.name} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                  variants={{ ...fadeRight, visible: { ...fadeRight.visible, transition: { duration: 0.7, delay: i * 0.12 } } }}
-                  className="bg-white border border-slate-200 p-6 hover:shadow-lg transition-shadow duration-300">
+                  variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.5, delay: 0.3 + i * 0.08 } } }}
+                  className="bg-white border border-slate-200 p-5 hover:shadow-lg hover:border-blue-200 transition-all duration-300">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex gap-0.5">
-                      {Array.from({ length: t.rating }).map((_, j) => <Star key={j} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />)}
+                      {Array.from({ length: t.rating }).map((_, j) => <Star key={j} className="w-3 h-3 fill-yellow-400 text-yellow-400" />)}
                     </div>
                     <span className="text-[10px] text-slate-400">{t.time}</span>
                   </div>
-                  <p className="text-sm text-slate-600 leading-relaxed mb-4 italic">"{t.text}"</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-slate-200 flex items-center justify-center text-slate-600 font-heading font-semibold text-xs">
+                  <p className="text-[13px] text-slate-600 leading-relaxed mb-4 italic line-clamp-3">"{t.text}"</p>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 bg-slate-200 flex items-center justify-center text-slate-600 font-heading font-semibold text-[10px] rounded-full">
+                      {t.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-heading font-semibold text-xs text-slate-900">{t.name}</p>
+                      <p className="text-[10px] text-slate-400 flex items-center gap-1">
+                        <svg className="w-2.5 h-2.5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        Via Google
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Third row — remaining 2 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 max-w-2xl mx-auto">
+              {TESTIMONIALS.slice(6).map((t, i) => (
+                <motion.div key={t.name} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                  variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.5, delay: 0.5 + i * 0.08 } } }}
+                  className="bg-white border border-slate-200 p-5 hover:shadow-lg hover:border-blue-200 transition-all duration-300">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: t.rating }).map((_, j) => <Star key={j} className="w-3 h-3 fill-yellow-400 text-yellow-400" />)}
+                    </div>
+                    <span className="text-[10px] text-slate-400">{t.time}</span>
+                  </div>
+                  <p className="text-[13px] text-slate-600 leading-relaxed mb-4 italic line-clamp-3">"{t.text}"</p>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 bg-slate-200 flex items-center justify-center text-slate-600 font-heading font-semibold text-[10px] rounded-full">
                       {t.name.charAt(0)}
                     </div>
                     <div>
@@ -599,85 +630,53 @@ export default function HomePage() {
               ))}
             </div>
           </div>
-
-          {/* More reviews row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
-            {TESTIMONIALS.filter((_, i) => i !== 1).slice(3).map((t, i) => (
-              <motion.div key={t.name} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.6, delay: i * 0.1 } } }}
-                className="bg-white border border-slate-200 p-6 hover:shadow-lg transition-shadow duration-300">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: t.rating }).map((_, j) => <Star key={j} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />)}
-                  </div>
-                  <span className="text-[10px] text-slate-400">{t.time}</span>
-                </div>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4 italic">"{t.text}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-slate-200 flex items-center justify-center text-slate-600 font-heading font-semibold text-xs">{t.name.charAt(0)}</div>
-                  <div>
-                    <p className="font-heading font-semibold text-xs text-slate-900">{t.name}</p>
-                    <p className="text-[10px] text-slate-400 flex items-center gap-1">
-                      <svg className="w-2.5 h-2.5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                      Via Google
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </section>
 
       {/* ══════════════════════════════════════════════════════════
-          CTA FINAL — Assimetrico com personalidade
+          CTA FINAL — Compacto com glow estilo SaaS
          ══════════════════════════════════════════════════════════ */}
-      <section className="py-16 sm:py-20 bg-[#0F1D3D] relative overflow-hidden" data-testid="final-cta">
-        {/* Elementos decorativos */}
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent" />
-        <div className="absolute -right-40 -top-40 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-3xl" />
-        <div className="absolute -left-40 -bottom-40 w-[400px] h-[400px] bg-red-600/5 rounded-full blur-3xl" />
+      <section className="py-14 sm:py-16 bg-[#030014] relative overflow-hidden" data-testid="final-cta">
+        {/* Glow radial */}
+        <div className="absolute -top-[60px] -right-[60px] w-[350px] h-[350px] bg-[#0a84ff] rounded-full z-0" style={{ filter: 'blur(120px)', opacity: 0.25 }} />
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             {/* Left content — 7 col */}
             <motion.div className="lg:col-span-7" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
-              <img src="/images/assets/mastermaq-logo.png" alt="Mastermaq" className="h-10 w-auto brightness-0 invert opacity-60 mb-8" />
-              <h2 className="font-heading text-3xl sm:text-4xl lg:text-[2.75rem] font-semibold tracking-[-0.02em] text-white leading-[1.1] mb-5">
+              <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold tracking-[-0.02em] text-white leading-[1.15] mb-4">
                 Nao deixe seu equipamento parado
               </h2>
-              <p className="text-base text-blue-200/70 max-w-lg mb-10 leading-relaxed">
-                Agende agora sua visita tecnica e tenha seu equipamento funcionando perfeitamente. Atendimento rapido e garantido.
+              <p className="text-sm text-slate-400 max-w-lg mb-6 leading-relaxed">
+                Agende uma visita tecnica e tenha seu equipamento funcionando perfeitamente.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <Button
                   onClick={() => document.getElementById('scheduling-section')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-red-600 text-white hover:bg-red-700 px-10 py-4 text-sm font-semibold h-auto hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-red-600/25"
+                  className="bg-blue-600 text-white hover:bg-blue-700 px-7 py-3.5 text-sm font-semibold h-auto hover:scale-[1.02] transition-all duration-200 shadow-[0_0_20px_rgba(10,132,255,0.3)]"
                   data-testid="final-cta-btn">
-                  Agendar Visita Agora <ArrowRight className="w-4 h-4 ml-2" />
+                  Resolver meu equipamento <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-                <a href="tel:+553134225293">
-                  <Button variant="outline" className="border-2 border-white/15 text-white hover:bg-white/5 hover:border-white/30 px-10 py-4 text-sm h-auto bg-transparent transition-all duration-200" data-testid="final-call-btn">
-                    <Phone className="w-4 h-4 mr-2" /> (31) 3422-5293
-                  </Button>
+                <a href="tel:+553134225293" className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors">
+                  <Phone className="w-4 h-4" /> (31) 3422-5293
                 </a>
               </div>
             </motion.div>
 
-            {/* Right — Stats compactos (5 col) */}
+            {/* Right — Metrics inline (5 col) */}
             <motion.div className="lg:col-span-5" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeRight}>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center justify-between border border-white/10 divide-x divide-white/10">
                 {[
-                  { num: "30+", label: "Anos de Experiencia" },
-                  { num: "28000+", label: "Clientes Atendidos" },
-                  { num: "8+", label: "Marcas Autorizadas" },
-                  { num: "98%", label: "Satisfacao" },
-                ].map((s, i) => (
-                  <motion.div key={s.label} variants={fadeUp}
-                    className="border border-white/10 bg-white/[0.03] backdrop-blur-sm p-6 text-center hover:bg-white/[0.06] hover:border-white/20 transition-all duration-300">
-                    <p className="font-heading text-2xl sm:text-3xl font-bold text-white mb-1">{s.num}</p>
-                    <p className="text-[11px] text-blue-200/50 uppercase tracking-wider">{s.label}</p>
-                  </motion.div>
+                  { num: "30+", label: "anos" },
+                  { num: "28k", label: "clientes" },
+                  { num: "8+", label: "marcas" },
+                  { num: "98%", label: "satisfacao" },
+                ].map((s) => (
+                  <div key={s.label} className="flex-1 py-5 text-center">
+                    <p className="font-heading text-xl sm:text-2xl font-bold text-white">{s.num}</p>
+                    <p className="text-[9px] text-slate-500 uppercase tracking-wider mt-0.5">{s.label}</p>
+                  </div>
                 ))}
               </div>
             </motion.div>
