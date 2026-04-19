@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import SchedulingModal from '@/components/SchedulingModal';
+import VRFHisensePage from '@/pages/VRFHisensePage';
 import { ArrowRight, Snowflake, Wind, Shirt, Droplets, Cog, AirVent, Server, Thermometer, Fan, ChevronRight, ChevronLeft } from 'lucide-react';
 
 const ICON_MAP = { Snowflake, Cog, Shirt, Droplets, Wind, AirVent, Server, Thermometer, Fan };
@@ -180,6 +181,10 @@ export default function ServicesPage() {
   const { slug } = useParams();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEq, setSelectedEq] = useState(null);
+
+  // Dedicated VRF page
+  if (slug === 'vrf-hisense') return <VRFHisensePage />;
+
   const service = slug ? SERVICES.find(s => s.slug === slug) : null;
 
   if (service) return <ServiceDetail service={service} />;
