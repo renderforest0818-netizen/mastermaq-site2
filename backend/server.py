@@ -427,17 +427,25 @@ async def startup():
         await db.blog_articles.insert_many(articles)
         logger.info("Blog articles seeded")
 
-    # Write test credentials
-    os.makedirs("/app/memory", exist_ok=True)
-    with open("/app/memory/test_credentials.md", "w") as f:
-        f.write(f"# Test Credentials\n\n## Admin\n- Email: {admin_email}\n- Password: {admin_password}\n- Role: admin\n\n## Auth Endpoints\n- POST /api/auth/register\n- POST /api/auth/login\n- POST /api/auth/logout\n- GET /api/auth/me\n- POST /api/auth/refresh\n- PUT /api/auth/profile\n")
+    # Write test credentials (only in development)
+    try:
+        os.makedirs("/app/memory", exist_ok=True)
+        with open("/app/memory/test_credentials.md", "w") as f:
+            f.write(f"# Test Credentials\n\n## Admin\n- Email: {admin_email}\n- Password: {admin_password}\n- Role: admin\n\n## Auth Endpoints\n- POST /api/auth/register\n- POST /api/auth/login\n- POST /api/auth/logout\n- GET /api/auth/me\n- POST /api/auth/refresh\n- PUT /api/auth/profile\n")
+    except Exception:
+        pass
 
 app.include_router(api_router)
 
+cors_origins = os.environ.get("CORS_ORIGINS", "http://localhost:3000")
+origins_list = [o.strip() for o in cors_origins.split(",") if o.strip()]
+if "*" in origins_list:
+    origins_list = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.environ.get("FRONTEND_URL", "http://localhost:3000")],
-    allow_credentials=True,
+    allow_origins=origins_list,
+    allow_credentials=True if "*" not in origins_list else False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
