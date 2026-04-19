@@ -7,13 +7,13 @@ import {
   Snowflake, Wifi, Leaf, Shield, Zap, Wind, ThermometerSun, Building2, Wrench, CheckCircle2
 } from 'lucide-react';
 
-/* ── Reveal component — fade + translateY, no glow ── */
+/* ── Reveal ── */
 function R({ children, className, delay = 0 }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
   return (
     <motion.div ref={ref} className={className}
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}>
       {children}
@@ -35,22 +35,21 @@ function FAQ({ q, a }) {
   );
 }
 
-/* ── Product carousel ── */
-const PRODUCTS = [
-  { img: "/images/vrf/product_34.png", name: "Unidade Externa Hi-FLEXi S5", cat: "Condensadora" },
-  { img: "/images/vrf/product_25.png", name: "Cassete 4 Vias", cat: "Unidade Interna" },
-  { img: "/images/vrf/product_27.png", name: "Duto Alta Pressao", cat: "Unidade Interna" },
-  { img: "/images/vrf/product_28.png", name: "Piso Teto", cat: "Unidade Interna" },
-  { img: "/images/vrf/product_29.png", name: "Cassete 1 Via", cat: "Unidade Interna" },
-  { img: "/images/vrf/product_30.png", name: "Hi-Wall Inverter", cat: "Unidade Interna" },
-  { img: "/images/vrf/product_32.png", name: "Cassete Compacto", cat: "Unidade Interna" },
-  { img: "/images/vrf/product_35.png", name: "Duto Slim", cat: "Unidade Interna" },
-  { img: "/images/vrf/product_26.png", name: "Console", cat: "Unidade Interna" },
+/* ── Products — series VRF reais ── */
+const VRF_SERIES = [
+  { img: "/images/vrf/product_34.png", name: "Hi-Smart C+ Series", desc: "Unidade externa VRF para aplicacoes comerciais com foco em estabilidade, integracao e flexibilidade de projeto." },
+  { img: "/images/vrf/product_25.png", name: "Hi-FLEXi S5 Series", desc: "Serie VRF para projetos de medio e grande porte, com arquitetura preparada para expansao e controle eficiente." },
+  { img: "/images/vrf/product_27.png", name: "Hi-FLEXi S Series Heat Recovery", desc: "Sistema VRF com recuperacao de calor, ideal para maior eficiencia energetica e operacao simultanea em multiplas zonas." },
+  { img: "/images/vrf/product_29.png", name: "Hi-FLEXi X3", desc: "Solucao VRF robusta e modular para aplicacoes comerciais de alta exigencia." },
+  { img: "/images/vrf/product_30.png", name: "Hi-Smart H5 Series", desc: "Sistema VRF voltado para eficiencia e integracao em ambientes comerciais." },
+  { img: "/images/vrf/product_28.png", name: "Hi-Smart H+ Series High Ambient", desc: "Projetado para operacao estavel em ambientes de alta temperatura." },
+  { img: "/images/vrf/product_32.png", name: "Hi-Smart A Series", desc: "Linha VRF focada em confiabilidade e modularidade para projetos comerciais." },
+  { img: "/images/vrf/product_35.png", name: "Hi-FLEXi S Series", desc: "Serie escalavel para climatizacao central com multiplas zonas." },
 ];
 
-function ProductCarousel() {
+function SeriesCarousel() {
   const ref = useRef(null);
-  const scroll = (d) => ref.current?.scrollBy({ left: d === 'r' ? 300 : -300, behavior: 'smooth' });
+  const scroll = (d) => ref.current?.scrollBy({ left: d === 'r' ? 320 : -320, behavior: 'smooth' });
   return (
     <div className="relative">
       <div className="flex justify-end gap-2 mb-6">
@@ -58,13 +57,16 @@ function ProductCarousel() {
         <button onClick={() => scroll('r')} className="w-10 h-10 border border-slate-200 flex items-center justify-center hover:border-slate-400 transition-colors"><ChevronRight className="w-4 h-4 text-slate-500" /></button>
       </div>
       <div ref={ref} className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4" style={{ scrollbarWidth: 'none' }}>
-        {PRODUCTS.map(p => (
-          <div key={p.name} className="flex-shrink-0 w-[240px] snap-start group">
-            <div className="bg-slate-50 border border-slate-200 h-[180px] flex items-center justify-center p-4 mb-4 group-hover:border-slate-300 group-hover:shadow-sm transition-all">
-              <img src={p.img} alt={p.name} className="max-h-[150px] max-w-[200px] object-contain group-hover:scale-105 transition-transform duration-500" />
+        {VRF_SERIES.map(p => (
+          <div key={p.name} className="flex-shrink-0 w-[280px] snap-start group border border-slate-200 bg-white hover:shadow-md hover:border-slate-300 transition-all">
+            <div className="bg-slate-50 h-[180px] flex items-center justify-center p-6">
+              <img src={p.img} alt={p.name} className="max-h-[150px] max-w-[220px] object-contain group-hover:scale-105 transition-transform duration-500" />
             </div>
-            <p className="text-[10px] text-blue-600 font-semibold uppercase tracking-wider mb-1">{p.cat}</p>
-            <p className="font-heading font-semibold text-sm text-slate-900">{p.name}</p>
+            <div className="p-5">
+              <p className="text-[10px] text-blue-600 font-semibold uppercase tracking-widest mb-1.5">Unidade Externa</p>
+              <p className="font-heading font-semibold text-sm text-slate-900 mb-2">{p.name}</p>
+              <p className="text-[12px] text-slate-500 leading-relaxed">{p.desc}</p>
+            </div>
           </div>
         ))}
       </div>
@@ -72,89 +74,76 @@ function ProductCarousel() {
   );
 }
 
-/* ═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════ */
 export default function VRFHisensePage() {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <div data-testid="vrf-hisense-page" className="bg-white">
 
-      {/* ═══ HERO — Produto direita, texto esquerda, iluminacao controlada ═══ */}
-      <section className="relative overflow-hidden" data-testid="vrf-hero"
-        style={{ background: 'radial-gradient(ellipse at 95% 0%, rgba(0,76,255,0.12) 0%, transparent 35%), linear-gradient(180deg, #080e1a 0%, #060d18 100%)' }}>
+      {/* ═══ HERO — Compacta, fundo claro, estilo referencia ═══ */}
+      <section className="relative bg-[#f0f2f5] overflow-hidden" data-testid="vrf-hero">
+        {/* Iluminacao direcional — canto superior direito, sem blur */}
+        <div className="absolute z-[1] pointer-events-none" style={{ top: 0, right: 0, width: '50%', height: '100%', background: 'radial-gradient(ellipse at 90% 20%, rgba(0,76,255,0.06) 0%, transparent 50%)' }} />
 
-        {/* SVG arc around product — controlled, no blur */}
-        <svg className="absolute top-0 right-0 w-[600px] h-full z-[1] pointer-events-none" viewBox="0 0 600 600" fill="none" preserveAspectRatio="xMaxYMid slice">
+        {/* SVG arc around product */}
+        <svg className="absolute top-0 right-0 w-[550px] h-full z-[1] pointer-events-none opacity-60" viewBox="0 0 550 500" fill="none" preserveAspectRatio="xMaxYMid slice">
           <defs>
-            <linearGradient id="vrfArc" x1="0.5" y1="0" x2="0.5" y2="1">
-              <stop offset="0%" stopColor="#004cff" stopOpacity="0.6" />
-              <stop offset="40%" stopColor="#004cff" stopOpacity="0.2" />
-              <stop offset="80%" stopColor="#004cff" stopOpacity="0.03" />
+            <linearGradient id="vrfArcL" x1="0.5" y1="0" x2="0.5" y2="1">
+              <stop offset="0%" stopColor="#004cff" stopOpacity="0.25" />
+              <stop offset="50%" stopColor="#004cff" stopOpacity="0.08" />
               <stop offset="100%" stopColor="#004cff" stopOpacity="0" />
             </linearGradient>
           </defs>
-          <ellipse cx="320" cy="300" rx="230" ry="260" stroke="url(#vrfArc)" strokeWidth="2" fill="none" />
-          <ellipse cx="320" cy="300" rx="195" ry="225" stroke="rgba(0,76,255,0.05)" strokeWidth="0.8" fill="none" />
+          <ellipse cx="300" cy="250" rx="220" ry="230" stroke="url(#vrfArcL)" strokeWidth="1.5" fill="none" />
         </svg>
 
-        {/* Radial light behind product */}
-        <div className="absolute z-[1] pointer-events-none" style={{ top: '10%', right: '5%', width: '400px', height: '450px', background: 'radial-gradient(circle, rgba(0,76,255,0.15) 0%, transparent 55%)' }} />
-
-        {/* Floor reflection */}
-        <div className="absolute z-[1] pointer-events-none" style={{ bottom: 0, right: '8%', width: '300px', height: '40px', background: 'radial-gradient(ellipse at 50% 100%, rgba(0,76,255,0.2) 0%, transparent 70%)' }} />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             {/* Left: Text */}
             <div>
-              <motion.div className="flex items-center gap-3 mb-8"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-                <img src="/images/assets/hisense-logo.png" alt="Hisense" className="h-8" />
-              </motion.div>
-              <motion.h1 className="font-heading text-[2.5rem] sm:text-[3.25rem] lg:text-[3.75rem] font-bold tracking-[0.01em] text-white leading-[1.08] mb-6"
-                initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
+              <motion.img src="/images/assets/hisense-logo.png" alt="Hisense" className="h-7 mb-5"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} />
+              <motion.h1 className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] font-bold tracking-tight text-slate-900 leading-[1.12] mb-3"
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
                 VRF Hisense
               </motion.h1>
-              <motion.p className="text-lg text-slate-400 leading-relaxed mb-10 max-w-md tracking-wide"
-                initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}>
+              <motion.p className="font-heading text-lg sm:text-xl text-slate-700 leading-snug mb-2 tracking-tight"
+                initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.08 }}>
+                Climatizacao de alta eficiencia<br />para projetos comerciais exigentes.
+              </motion.p>
+              <motion.p className="text-sm text-slate-500 leading-relaxed mb-8 max-w-md"
+                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.15 }}>
                 A solucao definitiva em climatizacao para seu negocio. Projeto, instalacao e manutencao especializada.
               </motion.p>
-              <motion.div className="flex flex-col sm:flex-row gap-4"
-                initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }}>
-                <Button onClick={() => setModalOpen(true)} className="bg-blue-600 text-white hover:bg-blue-700 px-8 py-4 text-sm font-semibold h-auto hover:scale-[1.01] transition-all" data-testid="vrf-hero-cta">
+              <motion.div className="flex items-center gap-4"
+                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.22 }}>
+                <Button onClick={() => setModalOpen(true)} className="bg-blue-600 text-white hover:bg-blue-700 px-7 py-3.5 text-sm font-semibold h-auto hover:scale-[1.01] transition-all" data-testid="vrf-hero-cta">
                   Receba um projeto personalizado <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-                <a href="tel:+553134225293" className="flex items-center gap-2 text-sm text-slate-500 hover:text-white transition-colors py-4">
+                <a href="tel:+553134225293" className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition-colors">
                   <Phone className="w-4 h-4" /> (31) 3422-5293
                 </a>
               </motion.div>
             </div>
 
-            {/* Right: Product with hover animation */}
-            <motion.div className="flex justify-center relative z-[3]"
-              initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.15 }}>
-              <motion.img
-                src="/images/vrf/product_34.png"
-                alt="VRF Hisense Hi-FLEXi S5"
-                className="w-[320px] sm:w-[380px] object-contain cursor-pointer"
-                style={{ filter: 'drop-shadow(0 0 25px rgba(0,76,255,0.3))' }}
-                whileHover={{ rotateY: 8, rotateX: -3, scale: 1.03 }}
-                transition={{ type: "spring", stiffness: 200 }}
-                data-testid="vrf-hero-image"
-              />
+            {/* Right: Product */}
+            <motion.div className="flex justify-center lg:justify-end"
+              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.1 }}>
+              <img src="/images/vrf/vrf-hero-product.png" alt="VRF Hisense Hi-Smart C+" className="h-[320px] sm:h-[380px] object-contain" style={{ filter: 'drop-shadow(0 0 20px rgba(0,76,255,0.15))' }} data-testid="vrf-hero-image" />
             </motion.div>
           </div>
 
-          {/* Benefits row */}
-          <motion.div className="grid grid-cols-3 gap-6 mt-16 pt-10 border-t border-white/10"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.6 }}>
+          {/* Stats row */}
+          <motion.div className="grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-slate-300/40"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35, duration: 0.5 }}>
             {[
-              { num: "30%", label: "Economia de energia" },
-              { num: "64", label: "Unidades internas por sistema" },
-              { num: "R-32", label: "Fluido ecologico" },
+              { num: "+30%", label: "Economia de Energia" },
+              { num: "64", label: "Unidades Internas por Sistema" },
+              { num: "R-32", label: "Fluido Ecologico" },
             ].map(s => (
               <div key={s.label} className="text-center">
-                <p className="font-heading text-2xl sm:text-3xl font-bold text-white tracking-tight">{s.num}</p>
+                <p className="font-heading text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{s.num}</p>
                 <p className="text-[11px] text-slate-500 uppercase tracking-widest mt-1">{s.label}</p>
               </div>
             ))}
@@ -162,7 +151,7 @@ export default function VRFHisensePage() {
         </div>
       </section>
 
-      {/* ═══ O QUE E VRF — Clean, spacious ═══ */}
+      {/* ═══ O QUE E VRF ═══ */}
       <section className="py-24 sm:py-32" data-testid="vrf-what-is">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <R className="max-w-2xl mb-20">
@@ -172,7 +161,6 @@ export default function VRFHisensePage() {
               VRF (Volume de Refrigerante Variavel) e a tecnologia mais avancada em climatizacao comercial. Um unico sistema externo alimenta dezenas de unidades internas com controle independente por ambiente.
             </p>
           </R>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { icon: ThermometerSun, title: "Controle Individual", desc: "Cada ambiente com temperatura independente. Conforto total para todos os setores." },
@@ -191,14 +179,13 @@ export default function VRFHisensePage() {
         </div>
       </section>
 
-      {/* ═══ FEATURES — 4 cards, Fizens style ═══ */}
+      {/* ═══ FEATURES ═══ */}
       <section className="py-24 sm:py-32 bg-slate-50" data-testid="vrf-features">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <R className="text-center max-w-2xl mx-auto mb-20">
             <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-4">Diferenciais</p>
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">Tecnologia Hisense Hi-FLEXi</h2>
           </R>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {[
               { icon: Shield, title: "Hi-Nano", desc: "Tecnologia exclusiva que elimina 99,9% de virus e bacterias. Ar purificado para ambientes saudaveis.", img: "/images/vrf/product_25.png" },
@@ -213,7 +200,7 @@ export default function VRFHisensePage() {
                       <f.icon className="w-6 h-6 text-blue-600 mb-4" />
                       <h3 className="font-heading font-semibold text-lg tracking-wide text-slate-900">{f.title}</h3>
                     </div>
-                    <img src={f.img} alt={f.title} className="w-20 h-20 object-contain opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
+                    <img src={f.img} alt={f.title} className="w-20 h-20 object-contain opacity-50 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
                   </div>
                   <p className="text-sm text-slate-500 leading-relaxed flex-1">{f.desc}</p>
                 </div>
@@ -223,18 +210,19 @@ export default function VRFHisensePage() {
         </div>
       </section>
 
-      {/* ═══ PRODUCTS CAROUSEL ═══ */}
+      {/* ═══ SERIES VRF — Carousel corrigido ═══ */}
       <section className="py-24 sm:py-32" data-testid="vrf-products">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <R className="mb-14">
             <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-4">Linha Completa</p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">Produtos VRF Hisense</h2>
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">Series VRF Hisense</h2>
+            <p className="text-sm text-slate-500 mt-3">Unidades externas para cada tipo de projeto comercial e industrial.</p>
           </R>
-          <ProductCarousel />
+          <SeriesCarousel />
         </div>
       </section>
 
-      {/* ═══ ALTERNATING BLOCKS — Por que Mastermaq ═══ */}
+      {/* ═══ POR QUE MASTERMAQ — Alternating blocks ═══ */}
       <section className="py-24 sm:py-32 bg-slate-50" data-testid="vrf-why-mastermaq">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <R className="max-w-2xl mb-20">
@@ -242,10 +230,9 @@ export default function VRFHisensePage() {
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">Por Que Escolher a Mastermaq?</h2>
           </R>
 
-          {/* Block 1 — image left, text right */}
           <R className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-24">
-            <div className="bg-white border border-slate-200 p-8 flex items-center justify-center h-[300px]">
-              <img src="/images/vrf/product_33.png" alt="Projeto VRF" className="max-h-[250px] object-contain" />
+            <div className="bg-white border border-slate-200 p-8 flex items-center justify-center h-[280px]">
+              <img src="/images/vrf/product_33.png" alt="Projeto VRF" className="max-h-[240px] object-contain" />
             </div>
             <div>
               <Wrench className="w-6 h-6 text-blue-600 mb-4" />
@@ -259,34 +246,32 @@ export default function VRFHisensePage() {
             </div>
           </R>
 
-          {/* Block 2 — text left, image right */}
           <R className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-24">
             <div className="order-2 lg:order-1">
               <Shield className="w-6 h-6 text-blue-600 mb-4" />
               <h3 className="font-heading font-semibold text-xl tracking-wide text-slate-900 mb-4">Instalacao Profissional</h3>
-              <p className="text-sm text-slate-500 leading-relaxed mb-6">Tecnicos homologados Hisense com experiencia em Multi Split e projetos de grande porte. Pecas originais garantidas.</p>
+              <p className="text-sm text-slate-500 leading-relaxed mb-6">Tecnicos homologados Hisense com experiencia em Multi Split e projetos de grande porte.</p>
               <ul className="space-y-3">
                 {["Tecnicos certificados pelo fabricante", "Experiencia com projetos complexos", "Comissionamento e testes completos"].map(t => (
                   <li key={t} className="flex items-start gap-2 text-sm text-slate-600"><CheckCircle2 className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" /> {t}</li>
                 ))}
               </ul>
             </div>
-            <div className="order-1 lg:order-2 bg-white border border-slate-200 p-8 flex items-center justify-center h-[300px]">
-              <img src="/images/vrf/hisense_vrf_19.png" alt="Instalacao VRF" className="max-h-[250px] object-contain" />
+            <div className="order-1 lg:order-2 bg-white border border-slate-200 p-8 flex items-center justify-center h-[280px]">
+              <img src="/images/vrf/hisense_vrf_19.png" alt="Instalacao VRF" className="max-h-[240px] object-contain" />
             </div>
           </R>
 
-          {/* Block 3 — image left, text right */}
           <R className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="bg-white border border-slate-200 p-8 flex items-center justify-center h-[300px]">
-              <img src="/images/vrf/product_31.png" alt="Manutencao VRF" className="max-h-[250px] object-contain" />
+            <div className="bg-white border border-slate-200 p-8 flex items-center justify-center h-[280px]">
+              <img src="/images/vrf/product_31.png" alt="Manutencao VRF" className="max-h-[240px] object-contain" />
             </div>
             <div>
               <Wind className="w-6 h-6 text-blue-600 mb-4" />
               <h3 className="font-heading font-semibold text-xl tracking-wide text-slate-900 mb-4">Manutencao Especializada</h3>
-              <p className="text-sm text-slate-500 leading-relaxed mb-6">Planos de manutencao preventiva e corretiva. Suporte pos-venda com atendimento rapido e garantia de funcionamento.</p>
+              <p className="text-sm text-slate-500 leading-relaxed mb-6">Planos de manutencao preventiva e corretiva. Suporte pos-venda com garantia de funcionamento.</p>
               <ul className="space-y-3">
-                {["Planos preventivos personalizados", "Atendimento emergencial 24h", "Pecas originais Hisense"].map(t => (
+                {["Planos preventivos personalizados", "Atendimento emergencial", "Pecas originais Hisense"].map(t => (
                   <li key={t} className="flex items-start gap-2 text-sm text-slate-600"><CheckCircle2 className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" /> {t}</li>
                 ))}
               </ul>
@@ -314,19 +299,18 @@ export default function VRFHisensePage() {
         </div>
       </section>
 
-      {/* ═══ HOW IT WORKS — Steps ═══ */}
+      {/* ═══ COMO FUNCIONA ═══ */}
       <section className="py-24 sm:py-32 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <R className="text-center max-w-2xl mx-auto mb-20">
-            <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-4">Como Funciona</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-4">Processo</p>
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">Do Projeto a Instalacao</h2>
           </R>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { num: "01", title: "Consultoria", desc: "Nossa equipe visita seu espaco, avalia necessidades e dimensiona o sistema ideal para o seu projeto." },
-              { num: "02", title: "Projeto Tecnico", desc: "Elaboramos o projeto completo com memorial de calculo, posicionamento e orcamento detalhado." },
-              { num: "03", title: "Instalacao e Suporte", desc: "Tecnicos homologados instalam o sistema, fazem comissionamento e oferecem suporte continuo." },
+              { num: "01", title: "Consultoria", desc: "Nossa equipe visita seu espaco, avalia necessidades e dimensiona o sistema ideal." },
+              { num: "02", title: "Projeto Tecnico", desc: "Elaboramos o projeto completo com memorial de calculo e orcamento detalhado." },
+              { num: "03", title: "Instalacao e Suporte", desc: "Tecnicos homologados instalam o sistema e oferecem suporte continuo." },
             ].map((s, i) => (
               <R key={s.num} delay={i * 0.12}>
                 <div className="text-center p-8">
@@ -347,23 +331,21 @@ export default function VRFHisensePage() {
             <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-4">Duvidas</p>
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">Perguntas Frequentes</h2>
           </R>
-
           <div>
             {[
-              { q: "O que e um sistema VRF e como funciona?", a: "VRF (Volume de Refrigerante Variavel) e um sistema de ar condicionado central que utiliza um unico circuito de refrigerante para conectar uma unidade externa a multiplas unidades internas. O compressor ajusta automaticamente o fluxo conforme a demanda de cada zona." },
-              { q: "Qual a diferenca entre VRF e Multi Split?", a: "O VRF suporta ate 64 unidades internas (Multi Split geralmente 4-5), oferece maior eficiencia, recuperacao de calor entre zonas e controle mais preciso. E a evolucao natural do Multi Split para projetos maiores." },
-              { q: "Para que tipo de ambiente o VRF e recomendado?", a: "Edificios comerciais, escritorios, hoteis, hospitais, shoppings, condominios de alto padrao. Projetos a partir de 200m2 ja justificam o investimento em VRF." },
-              { q: "Qual o prazo de instalacao?", a: "Projetos menores (ate 10 unidades): 5-10 dias uteis. Projetos maiores: 2 a 8 semanas, incluindo dimensionamento, tubulacao e comissionamento." },
-              { q: "A Mastermaq oferece garantia?", a: "Sim. Todos os servicos possuem garantia. Por sermos autorizados Hisense, tambem atendemos dentro da garantia do fabricante com pecas 100% originais." },
-              { q: "Como solicitar um orcamento?", a: "Pelo formulario nesta pagina, WhatsApp (31) 3422-5293, ou ligando diretamente. Nossa equipe fara uma analise do seu projeto e apresentara a melhor solucao." },
+              { q: "O que e um sistema VRF e como funciona?", a: "VRF (Volume de Refrigerante Variavel) e um sistema de ar condicionado central que conecta uma unidade externa a multiplas internas. O compressor ajusta o fluxo conforme a demanda de cada zona." },
+              { q: "Qual a diferenca entre VRF e Multi Split?", a: "O VRF suporta ate 64 unidades internas (Multi Split geralmente 4-5), oferece maior eficiencia, recuperacao de calor e controle mais preciso." },
+              { q: "Para que tipo de ambiente o VRF e recomendado?", a: "Edificios comerciais, escritorios, hoteis, hospitais, shoppings, condominios. Projetos a partir de 200m2 ja justificam o investimento." },
+              { q: "Qual o prazo de instalacao?", a: "Projetos menores: 5-10 dias uteis. Projetos maiores: 2 a 8 semanas, incluindo dimensionamento, tubulacao e comissionamento." },
+              { q: "A Mastermaq oferece garantia?", a: "Sim. Todos os servicos possuem garantia. Como autorizados Hisense, atendemos dentro da garantia do fabricante com pecas originais." },
+              { q: "Como solicitar um orcamento?", a: "Pelo formulario nesta pagina, WhatsApp (31) 3422-5293, ou ligando diretamente. Nossa equipe fara uma analise do seu projeto." },
             ].map(f => <FAQ key={f.q} q={f.q} a={f.a} />)}
           </div>
         </div>
       </section>
 
       {/* ═══ CTA FINAL ═══ */}
-      <section className="py-24 sm:py-32" data-testid="vrf-final-cta"
-        style={{ background: 'linear-gradient(180deg, #080e1a 0%, #060d18 100%)' }}>
+      <section className="py-24 sm:py-32 bg-slate-900" data-testid="vrf-final-cta">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <R>
             <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-6">
