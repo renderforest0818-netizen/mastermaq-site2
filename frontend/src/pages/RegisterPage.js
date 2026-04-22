@@ -15,6 +15,7 @@ export default function RegisterPage() {
   const [step, setStep] = useState(1);
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [cepLoading, setCepLoading] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
     email: '', password: '', confirmPassword: '',
@@ -28,21 +29,47 @@ export default function RegisterPage() {
   const goStep2 = () => {
     setError('');
     if (!form.email || !form.password || !form.confirmPassword) { setError('Preencha todos os campos'); return; }
-    if (form.password.length < 6) { setError('Senha deve ter no minimo 6 caracteres'); return; }
-    if (form.password !== form.confirmPassword) { setError('Senhas nao conferem'); return; }
+    if (form.password.length < 6) { setError('Senha deve ter no mínimo 6 caracteres'); return; }
+    if (form.password !== form.confirmPassword) { setError('Senhas não conferem'); return; }
     setStep(2);
+  };
+
+  const formatCep = (v) => {
+    const d = v.replace(/\D/g, '').slice(0, 8);
+    if (d.length <= 5) return d;
+    return `${d.slice(0, 5)}-${d.slice(5)}`;
   };
 
   const lookupCep = async (cep) => {
     const clean = cep.replace(/\D/g, '');
     if (clean.length !== 8) return;
+    setCepLoading(true);
     try {
       const { data } = await API.get(`/cep/${clean}`);
-      set('address', data.logradouro || '');
-      set('neighborhood', data.bairro || '');
-      set('city', data.localidade || '');
-      set('state', data.uf || '');
-    } catch { /* ignore */ }
+      if (data.erro) {
+        toast.error('CEP não encontrado');
+        return;
+      }
+      setForm(p => ({
+        ...p,
+        address: data.logradouro || p.address,
+        neighborhood: data.bairro || p.neighborhood,
+        city: data.localidade || p.city,
+        state: data.uf || p.state,
+      }));
+      toast.success('Endereço preenchido');
+    } catch {
+      toast.error('Não foi possivel buscar o CEP');
+    } finally {
+      setCepLoading(false);
+    }
+  };
+
+  const onCepChange = (v) => {
+    const formatted = formatCep(v);
+    set('cep', formatted);
+    const clean = formatted.replace(/\D/g, '');
+    if (clean.length === 8) lookupCep(formatted);
   };
 
   const handleSubmit = async (e) => {
@@ -110,7 +137,7 @@ export default function RegisterPage() {
               <div>
                 <Label className="text-sm text-slate-700">Senha</Label>
                 <div className="relative mt-1">
-                  <Input type={showPw ? 'text' : 'password'} value={form.password} onChange={e => set('password', e.target.value)} className="border-slate-300 pr-10" placeholder="Minimo 6 caracteres" data-testid="register-password" />
+                  <Input type={showPw ? 'text' : 'password'} value={form.password} onChange={e => set('password', e.target.value)} className="border-slate-300 pr-10" placeholder="Mínimo 6 caracteres" data-testid="register-password" />
                   <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                     {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -139,23 +166,25 @@ export default function RegisterPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-sm text-slate-700">CEP</Label>
+                  <Label className="text-sm text-slate-700">CEP {cepLoading && <span className="text-xs text-blue-600 ml-1">buscando...</span>}</Label>
                   <Input
                     value={form.cep}
-                    onChange={e => { set('cep', e.target.value); }}
+                    onChange={e => onCepChange(e.target.value)}
                     onBlur={e => lookupCep(e.target.value)}
+                    maxLength={9}
+                    inputMode="numeric"
                     className="mt-1 border-slate-300"
                     placeholder="00000-000"
                     data-testid="register-cep"
                   />
                 </div>
                 <div>
-                  <Label className="text-sm text-slate-700">Numero</Label>
+                  <Label className="text-sm text-slate-700">Número</Label>
                   <Input value={form.number} onChange={e => set('number', e.target.value)} className="mt-1 border-slate-300" placeholder="123" data-testid="register-number" />
                 </div>
               </div>
               <div>
-                <Label className="text-sm text-slate-700">Endereco</Label>
+                <Label className="text-sm text-slate-700">Endereço</Label>
                 <Input value={form.address} onChange={e => set('address', e.target.value)} className="mt-1 border-slate-300" placeholder="Rua, Avenida..." data-testid="register-address" />
               </div>
               <div className="grid grid-cols-3 gap-3">

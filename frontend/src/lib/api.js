@@ -6,6 +6,34 @@ const API = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+// Auto-refresh access token on 401 (excluding the auth endpoints themselves)
+let refreshPromise = null;
+const isAuthEndpoint = (url = '') =>
+  url.includes('/auth/login') ||
+  url.includes('/auth/register') ||
+  url.includes('/auth/refresh') ||
+  url.includes('/auth/logout');
+
+API.interceptors.response.use(
+  (r) => r,
+  async (error) => {
+    const { config, response } = error;
+    if (!response || response.status !== 401 || !config || config._retry || isAuthEndpoint(config.url || '')) {
+      return Promise.reject(error);
+    }
+    config._retry = true;
+    try {
+      if (!refreshPromise) {
+        refreshPromise = API.post('/auth/refresh').finally(() => { refreshPromise = null; });
+      }
+      await refreshPromise;
+      return API(config);
+    } catch (e) {
+      return Promise.reject(error);
+    }
+  }
+);
+
 export function formatApiError(detail) {
   if (detail == null) return "Algo deu errado. Tente novamente.";
   if (typeof detail === "string") return detail;

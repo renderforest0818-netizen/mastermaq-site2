@@ -29,8 +29,8 @@ const BRANDS = [
   { name: "Lofra", logo: "/images/assets/lofra-logo.png" },
 ];
 
-const AUTHORIZED_BRANDS = ["HQ", "Franke", "Hisense", "Gorenje", "Bertazzoni", "Lofra", "Panasonic"];
-const INSTALLATION_DISABLED = ["geladeiras", "ar-condicionado-portatil", "lava-e-seca", "lavadoras"];
+const AUTHORIZED_BRANDS = ["HQ", "Franke", "Hisense", "Gorenje", "Bertazzoni", "Lofra", "Panasonic", "Liebherr"];
+const INSTALLATION_DISABLED = ["geladeiras", "ar-condicionado-portátil", "lava-e-seca", "lavadoras"];
 
 export default function SchedulingModal({ open, onClose, equipment }) {
   const [step, setStep] = useState(0);
@@ -68,9 +68,9 @@ export default function SchedulingModal({ open, onClose, equipment }) {
       const { data } = await API.post('/service-orders', payload);
       setOsData(data);
       setStep(3);
-      toast.success('Ordem de servico criada com sucesso!');
+      toast.success('Ordem de serviço criada com sucesso!');
     } catch {
-      toast.error('Erro ao criar ordem de servico');
+      toast.error('Erro ao criar ordem de serviço');
     } finally {
       setSubmitting(false);
     }
@@ -89,16 +89,16 @@ export default function SchedulingModal({ open, onClose, equipment }) {
       }).then(({ data }) => {
         setOsData(data);
         setStep(3);
-        toast.success('Ordem de servico criada com sucesso!');
+        toast.success('Ordem de serviço criada com sucesso!');
       }).catch(() => {
-        toast.error('Erro ao criar ordem de servico');
+        toast.error('Erro ao criar ordem de serviço');
       }).finally(() => setSubmitting(false));
     }
   };
 
   if (!equipment) return null;
 
-  const stepLabels = ['Marca', 'Servico', 'Detalhes', 'Confirmacao'];
+  const stepLabels = ['Marca', 'Serviço', 'Detalhes', 'Confirmação'];
 
   return (
     <TooltipProvider>
@@ -111,9 +111,9 @@ export default function SchedulingModal({ open, onClose, equipment }) {
               </DialogTitle>
               <DialogDescription className="text-slate-500 text-sm mt-1">
                 {step === 0 && 'Selecione a marca do produto'}
-                {step === 1 && 'Selecione o tipo de servico'}
+                {step === 1 && 'Selecione o tipo de serviço'}
                 {step === 2 && 'Preencha os dados do produto'}
-                {step === 3 && 'Sua ordem de servico foi criada'}
+                {step === 3 && 'Sua ordem de serviço foi criada'}
               </DialogDescription>
             </DialogHeader>
 
@@ -171,20 +171,20 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                     <div>
                       <button
                         disabled={isInstallDisabled}
-                        onClick={() => !isInstallDisabled && selectService('instalacao')}
+                        onClick={() => !isInstallDisabled && selectService('instalação')}
                         className={`w-full p-5 border flex items-center gap-4 text-left transition-all duration-200 ${
                           isInstallDisabled
                             ? 'border-slate-100 bg-slate-50 opacity-50 cursor-not-allowed'
                             : 'border-slate-200 hover:border-slate-400 hover:shadow-md cursor-pointer'
                         }`}
-                        data-testid="service-instalacao"
+                        data-testid="service-instalação"
                       >
                         <div className={`w-12 h-12 flex items-center justify-center border ${isInstallDisabled ? 'border-slate-200 bg-slate-50' : 'border-slate-200 bg-white'}`}>
                           <Settings className={`w-5 h-5 ${isInstallDisabled ? 'text-slate-300' : 'text-slate-600'}`} />
                         </div>
                         <div className="flex-1">
-                          <p className="font-heading font-semibold text-sm text-slate-900">Instalacao</p>
-                          <p className="text-xs text-slate-500">Instalacao profissional do produto</p>
+                          <p className="font-heading font-semibold text-sm text-slate-900">Instalação</p>
+                          <p className="text-xs text-slate-500">Instalação profissional do produto</p>
                         </div>
                         {isInstallDisabled && <Info className="w-4 h-4 text-slate-300" />}
                       </button>
@@ -192,7 +192,7 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                   </TooltipTrigger>
                   {isInstallDisabled && (
                     <TooltipContent>
-                      <p>Instalacao nao disponivel para este produto</p>
+                      <p>Instalação não disponivel para este produto</p>
                     </TooltipContent>
                   )}
                 </Tooltip>
@@ -217,7 +217,7 @@ export default function SchedulingModal({ open, onClose, equipment }) {
               </div>
             )}
 
-            {/* Step 2: Repair Form — com bloqueio de garantia para nao-autorizadas */}
+            {/* Step 2: Repair Form — com bloqueio de garantia para não-autorizadas */}
             {step === 2 && (
               <div className="flex flex-col gap-4" data-testid="repair-form">
                 <div>
@@ -231,9 +231,9 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                   />
                 </div>
                 <div>
-                  <Label className="text-sm text-slate-700">Numero de Serie</Label>
+                  <Label className="text-sm text-slate-700">Número de Serie</Label>
                   <Input
-                    placeholder="Numero de serie do produto"
+                    placeholder="Número de serie do produto"
                     value={formData.serial_number}
                     onChange={e => setFormData(p => ({ ...p, serial_number: e.target.value }))}
                     className="mt-1.5 border-slate-300"
@@ -310,12 +310,12 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                   <CheckCircle2 className="w-8 h-8 text-green-600" />
                 </div>
                 <p className="font-heading font-semibold text-lg text-slate-900 mb-1">Solicitacao Recebida!</p>
-                <p className="text-sm text-slate-500 mb-2">Sua ordem de servico foi criada com sucesso.</p>
+                <p className="text-sm text-slate-500 mb-2">Sua ordem de serviço foi criada com sucesso.</p>
                 <p className="text-xs text-slate-400 mb-6">Em breve, um atendente entrara em contato para confirmar a visita do técnico.</p>
 
                 <div className="bg-slate-50 border border-slate-200 p-4 text-left space-y-2.5 mb-5">
                   <div className="flex justify-between">
-                    <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Numero da OS</span>
+                    <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Número da OS</span>
                     <span className="font-mono font-semibold text-blue-600" data-testid="os-number">{osData.os_number}</span>
                   </div>
                   <div className="flex justify-between">
@@ -328,7 +328,7 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Status</span>
-                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 font-medium">Aguardando confirmacao</span>
+                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 font-medium">Aguardando confirmação</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Taxa de Visita</span>

@@ -47,3 +47,129 @@ html {
 .active\:scale-\[0\.98\]:active {
   transform: scale(0.98);
 }
+
+
+/* ── Mi Chat Widget ───────────────────────────────────── */
+.mi-fab {
+  animation: miFabIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 10px 30px -8px rgba(37, 99, 235, 0.5), 0 0 0 4px rgba(37, 99, 235, 0.08);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s;
+}
+.mi-fab:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 14px 34px -8px rgba(37, 99, 235, 0.6), 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+.mi-fab:active { transform: translateY(0) scale(0.98); }
+.mi-fab::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(37,99,235,0.3), rgba(59,130,246,0.1));
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s;
+}
+.mi-fab:hover::before { opacity: 1; }
+
+@keyframes miFabIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.mi-sparkle { animation: miSparkle 3s ease-in-out infinite; }
+@keyframes miSparkle {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
+  50% { filter: drop-shadow(0 0 6px rgba(255,255,255,0.7)); }
+}
+
+.mi-chat-modal {
+  animation: miModalIn 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: bottom right;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25), 0 8px 16px -8px rgba(15, 23, 42, 0.15);
+}
+@keyframes miModalIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.mi-msg-enter {
+  animation: miMsgIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes miMsgIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.mi-dot {
+  animation: miDot 1s ease-in-out infinite;
+}
+@keyframes miDot {
+  0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-3px); }
+}
+
+.mi-cursor {
+  display: inline-block;
+  color: #2563eb;
+  font-weight: bold;
+  animation: miBlink 1s steps(2) infinite;
+  margin-left: 1px;
+}
+@keyframes miBlink {
+  50% { opacity: 0; }
+}
+
+.mi-scroll::-webkit-scrollbar { width: 4px; }
+.mi-scroll::-webkit-scrollbar-track { background: transparent; }
+.mi-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+
+.mi-markdown p { margin: 0 0 0.4em 0; }
+.mi-markdown p:last-child { margin-bottom: 0; }
+.mi-markdown ul, .mi-markdown ol { margin: 0.3em 0; padding-left: 1.2em; }
+.mi-markdown li { margin: 0.15em 0; }
+.mi-markdown strong { font-weight: 600; }
+.mi-markdown a { color: #1d4ed8; text-decoration: underline; }
+.mi-markdown code {
+  background: rgba(59,130,246,0.12);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.88em;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+}
+.mi-markdown pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0.5em 0;
+  font-size: 0.82em;
+}
+.mi-markdown pre code { background: transparent; padding: 0; color: inherit; }
+.mi-markdown h1, .mi-markdown h2, .mi-markdown h3 {
+  font-weight: 600;
+  margin: 0.5em 0 0.25em;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1em;
+}
+
+/* Mobile: full screen chat */
+@media (max-width: 520px) {
+  .mi-chat-modal {
+    bottom: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+
+.mi-recording {
+  animation: miRecPulse 1.2s ease-in-out infinite;
+}
+@keyframes miRecPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.55); }
+  50%      { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+}
+
+    border-radius: 0 !important;
+  }
+}

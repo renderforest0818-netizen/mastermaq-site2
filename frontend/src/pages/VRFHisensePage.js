@@ -38,10 +38,10 @@ function FAQ({ q, a }) {
 /* ── Products — series VRF reais ── */
 const VRF_SERIES = [
   { img: "/images/vrf/product_34.png", name: "Hi-Smart C+ Series", desc: "Unidade externa VRF para aplicacoes comerciais com foco em estabilidade, integracao e flexibilidade de projeto." },
-  { img: "/images/vrf/product_25.png", name: "Hi-FLEXi S5 Series", desc: "Serie VRF para projetos de medio e grande porte, com arquitetura preparada para expansao e controle eficiente." },
-  { img: "/images/vrf/product_27.png", name: "Hi-FLEXi S Series Heat Recovery", desc: "Sistema VRF com recuperacao de calor, ideal para maior eficiencia energetica e operacao simultanea em multiplas zonas." },
-  { img: "/images/vrf/product_29.png", name: "Hi-FLEXi X3", desc: "Solucao VRF robusta e modular para aplicacoes comerciais de alta exigencia." },
-  { img: "/images/vrf/product_30.png", name: "Hi-Smart H5 Series", desc: "Sistema VRF voltado para eficiencia e integracao em ambientes comerciais." },
+  { img: "/images/vrf/product_25.png", name: "Hi-FLEXi S5 Series", desc: "Serie VRF para projetos de médio e grande porte, com arquitetura preparada para expansao e controle eficiente." },
+  { img: "/images/vrf/product_27.png", name: "Hi-FLEXi S Series Heat Recovery", desc: "Sistema VRF com recuperacao de calor, ideal para maior eficiência energetica e operacao simultanea em multiplas zonas." },
+  { img: "/images/vrf/product_29.png", name: "Hi-FLEXi X3", desc: "Solução VRF robusta e modular para aplicacoes comerciais de alta exigencia." },
+  { img: "/images/vrf/product_30.png", name: "Hi-Smart H5 Series", desc: "Sistema VRF voltado para eficiência e integracao em ambientes comerciais." },
   { img: "/images/vrf/product_28.png", name: "Hi-Smart H+ Series High Ambient", desc: "Projetado para operacao estavel em ambientes de alta temperatura." },
   { img: "/images/vrf/product_32.png", name: "Hi-Smart A Series", desc: "Linha VRF focada em confiabilidade e modularidade para projetos comerciais." },
   { img: "/images/vrf/product_35.png", name: "Hi-FLEXi S Series", desc: "Serie escalavel para climatizacao central com multiplas zonas." },
@@ -81,7 +81,7 @@ export default function VRFHisensePage() {
   return (
     <div data-testid="vrf-hisense-page" className="bg-white">
 
-      {/* ═══ HERO — Compacta, fundo claro, estilo referencia ═══ */}
+      {/* ═══ HERO — Compacta, fundo claro, estilo referência ═══ */}
       <section className="relative bg-[#f0f2f5] overflow-hidden" data-testid="vrf-hero">
         {/* Iluminacao direcional — canto superior direito, sem blur */}
         <div className="absolute z-[1] pointer-events-none" style={{ top: 0, right: 0, width: '50%', height: '100%', background: 'radial-gradient(ellipse at 90% 20%, rgba(0,76,255,0.06) 0%, transparent 50%)' }} />
@@ -110,11 +110,11 @@ export default function VRFHisensePage() {
               </motion.h1>
               <motion.p className="font-heading text-lg sm:text-xl text-slate-700 leading-snug mb-2 tracking-tight"
                 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.08 }}>
-                Climatizacao de alta eficiencia<br />para projetos comerciais exigentes.
+                Climatizacao de alta eficiência<br />para projetos comerciais exigentes.
               </motion.p>
               <motion.p className="text-sm text-slate-500 leading-relaxed mb-8 max-w-md"
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.15 }}>
-                A solucao definitiva em climatizacao para seu negocio. Projeto, instalacao e manutencao especializada.
+                A solução definitiva em climatizacao para seu negocio. Projeto, instalação e manutenção especializada.
               </motion.p>
               <motion.div className="flex items-center gap-4"
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.22 }}>
@@ -158,14 +158,14 @@ export default function VRFHisensePage() {
             <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-4">Tecnologia</p>
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight mb-5">O que e o Sistema VRF?</h2>
             <p className="text-base text-slate-500 leading-relaxed">
-              VRF (Volume de Refrigerante Variavel) e a tecnologia mais avancada em climatizacao comercial. Um unico sistema externo alimenta dezenas de unidades internas com controle independente por ambiente.
+              VRF (Volume de Refrigerante Variavel) e a tecnologia mais avancada em climatizacao comercial. Um único sistema externo alimenta dezenas de unidades internas com controle independente por ambiente.
             </p>
           </R>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { icon: ThermometerSun, title: "Controle Individual", desc: "Cada ambiente com temperatura independente. Conforto total para todos os setores." },
-              { icon: Zap, title: "Economia de Energia", desc: "Tecnologia Inverter 3D ajusta a potencia em tempo real. Ate 30% de economia." },
-              { icon: Building2, title: "Escala Empresarial", desc: "De pequenos comercios a torres corporativas. Um sistema que cresce com voce." },
+              { icon: Zap, title: "Economia de Energia", desc: "Tecnologia Inverter 3D ajusta a potencia em tempo real. Até 30% de economia." },
+              { icon: Building2, title: "Escala Empresarial", desc: "De pequenos comercios a torres corporativas. Um sistema que cresce com você." },
             ].map((item, i) => (
               <R key={item.title} delay={i * 0.1}>
                 <div className="p-8 border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all group h-full">
@@ -237,9 +237,9 @@ export default function VRFHisensePage() {
             <div>
               <Wrench className="w-6 h-6 text-blue-600 mb-4" />
               <h3 className="font-heading font-semibold text-xl tracking-wide text-slate-900 mb-4">Projeto Sob Medida</h3>
-              <p className="text-sm text-slate-500 leading-relaxed mb-6">Dimensionamento tecnico preciso para cada ambiente. Analise termica, calculo de carga e posicionamento otimizado.</p>
+              <p className="text-sm text-slate-500 leading-relaxed mb-6">Dimensionamento técnico preciso para cada ambiente. Analise termica, cálculo de carga e posicionamento otimizado.</p>
               <ul className="space-y-3">
-                {["Visita tecnica para avaliacao", "Projeto com memorial de calculo", "Orcamento detalhado sem compromisso"].map(t => (
+                {["Autorizada Hisense", "Visita técnica para avaliação", "Projeto com memorial de cálculo", "Orçamento detalhado"].map(t => (
                   <li key={t} className="flex items-start gap-2 text-sm text-slate-600"><CheckCircle2 className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" /> {t}</li>
                 ))}
               </ul>
@@ -249,27 +249,27 @@ export default function VRFHisensePage() {
           <R className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-24">
             <div className="order-2 lg:order-1">
               <Shield className="w-6 h-6 text-blue-600 mb-4" />
-              <h3 className="font-heading font-semibold text-xl tracking-wide text-slate-900 mb-4">Instalacao Profissional</h3>
-              <p className="text-sm text-slate-500 leading-relaxed mb-6">Tecnicos homologados Hisense com experiencia em Multi Split e projetos de grande porte.</p>
+              <h3 className="font-heading font-semibold text-xl tracking-wide text-slate-900 mb-4">Instalação Profissional</h3>
+              <p className="text-sm text-slate-500 leading-relaxed mb-6">Técnicos homologados Hisense com experiência em Multi Split e projetos de grande porte.</p>
               <ul className="space-y-3">
-                {["Tecnicos certificados pelo fabricante", "Experiencia com projetos complexos", "Comissionamento e testes completos"].map(t => (
+                {["Técnicos certificados pelo fabricante", "Experiência com projetos complexos", "Comissionamento e testes completos"].map(t => (
                   <li key={t} className="flex items-start gap-2 text-sm text-slate-600"><CheckCircle2 className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" /> {t}</li>
                 ))}
               </ul>
             </div>
             <div className="order-1 lg:order-2 bg-white border border-slate-200 p-8 flex items-center justify-center h-[280px]">
-              <img src="/images/vrf/hisense_vrf_19.png" alt="Instalacao VRF" className="max-h-[240px] object-contain" />
+              <img src="/images/vrf/hisense_vrf_19.png" alt="Instalação VRF" className="max-h-[240px] object-contain" />
             </div>
           </R>
 
           <R className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="bg-white border border-slate-200 p-8 flex items-center justify-center h-[280px]">
-              <img src="/images/vrf/product_31.png" alt="Manutencao VRF" className="max-h-[240px] object-contain" />
+              <img src="/images/vrf/product_31.png" alt="Manutenção VRF" className="max-h-[240px] object-contain" />
             </div>
             <div>
               <Wind className="w-6 h-6 text-blue-600 mb-4" />
-              <h3 className="font-heading font-semibold text-xl tracking-wide text-slate-900 mb-4">Manutencao Especializada</h3>
-              <p className="text-sm text-slate-500 leading-relaxed mb-6">Planos de manutencao preventiva e corretiva. Suporte pos-venda com garantia de funcionamento.</p>
+              <h3 className="font-heading font-semibold text-xl tracking-wide text-slate-900 mb-4">Manutenção Especializada</h3>
+              <p className="text-sm text-slate-500 leading-relaxed mb-6">Planos de manutenção preventiva e corretiva. Suporte pos-venda com garantia de funcionamento.</p>
               <ul className="space-y-3">
                 {["Planos preventivos personalizados", "Atendimento emergencial", "Pecas originais Hisense"].map(t => (
                   <li key={t} className="flex items-start gap-2 text-sm text-slate-600"><CheckCircle2 className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" /> {t}</li>
@@ -285,10 +285,10 @@ export default function VRFHisensePage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { num: "30+", label: "Anos de experiencia" },
+              { num: "30+", label: "Anos de experiência" },
               { num: "500+", label: "Projetos VRF" },
               { num: "100%", label: "Pecas originais" },
-              { num: "24h", label: "Suporte tecnico" },
+              { num: "24h", label: "Suporte técnico" },
             ].map((s, i) => (
               <R key={s.label} delay={i * 0.08} className="text-center">
                 <p className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">{s.num}</p>
@@ -304,13 +304,13 @@ export default function VRFHisensePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <R className="text-center max-w-2xl mx-auto mb-20">
             <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-4">Processo</p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">Do Projeto a Instalacao</h2>
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">Do Projeto a Instalação</h2>
           </R>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { num: "01", title: "Consultoria", desc: "Nossa equipe visita seu espaco, avalia necessidades e dimensiona o sistema ideal." },
-              { num: "02", title: "Projeto Tecnico", desc: "Elaboramos o projeto completo com memorial de calculo e orcamento detalhado." },
-              { num: "03", title: "Instalacao e Suporte", desc: "Tecnicos homologados instalam o sistema e oferecem suporte continuo." },
+              { num: "02", title: "Projeto Técnico", desc: "Elaboramos o projeto completo com memorial de cálculo e orçamento detalhado." },
+              { num: "03", title: "Instalação e Suporte", desc: "Técnicos homologados instalam o sistema e oferecem suporte continuo." },
             ].map((s, i) => (
               <R key={s.num} delay={i * 0.12}>
                 <div className="text-center p-8">
@@ -328,17 +328,17 @@ export default function VRFHisensePage() {
       <section className="py-24 sm:py-32 bg-white" data-testid="vrf-faq">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <R className="text-center mb-16">
-            <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-4">Duvidas</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-4">Dúvidas</p>
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">Perguntas Frequentes</h2>
           </R>
           <div>
             {[
               { q: "O que e um sistema VRF e como funciona?", a: "VRF (Volume de Refrigerante Variavel) e um sistema de ar condicionado central que conecta uma unidade externa a multiplas internas. O compressor ajusta o fluxo conforme a demanda de cada zona." },
-              { q: "Qual a diferenca entre VRF e Multi Split?", a: "O VRF suporta ate 64 unidades internas (Multi Split geralmente 4-5), oferece maior eficiencia, recuperacao de calor e controle mais preciso." },
+              { q: "Qual a diferenca entre VRF e Multi Split?", a: "O VRF suporta até 64 unidades internas (Multi Split geralmente 4-5), oferece maior eficiência, recuperacao de calor e controle mais preciso." },
               { q: "Para que tipo de ambiente o VRF e recomendado?", a: "Edificios comerciais, escritorios, hoteis, hospitais, shoppings, condominios. Projetos a partir de 200m2 ja justificam o investimento." },
-              { q: "Qual o prazo de instalacao?", a: "Projetos menores: 5-10 dias uteis. Projetos maiores: 2 a 8 semanas, incluindo dimensionamento, tubulacao e comissionamento." },
-              { q: "A Mastermaq oferece garantia?", a: "Sim. Todos os servicos possuem garantia. Como autorizados Hisense, atendemos dentro da garantia do fabricante com pecas originais." },
-              { q: "Como solicitar um orcamento?", a: "Pelo formulario nesta pagina, WhatsApp (31) 3422-5293, ou ligando diretamente. Nossa equipe fara uma analise do seu projeto." },
+              { q: "Qual o prazo de instalação?", a: "Projetos menores: 5-10 dias uteis. Projetos maiores: 2 a 8 semanas, incluindo dimensionamento, tubulacao e comissionamento." },
+              { q: "A Mastermaq oferece garantia?", a: "Sim. Todos os serviços possuem garantia. Como autorizados Hisense, atendemos dentro da garantia do fabricante com pecas originais." },
+              { q: "Como solicitar um orçamento?", a: "Pelo formulario nesta página, WhatsApp (31) 3422-5293, ou ligando diretamente. Nossa equipe fara uma analise do seu projeto." },
             ].map(f => <FAQ key={f.q} q={f.q} a={f.a} />)}
           </div>
         </div>
@@ -352,7 +352,7 @@ export default function VRFHisensePage() {
               Receba um projeto de climatizacao personalizado
             </h2>
             <p className="text-base text-slate-400 max-w-xl mx-auto mb-10 leading-relaxed">
-              Nossa equipe de especialistas VRF esta pronta para dimensionar a melhor solucao. Orcamento sem compromisso.
+              Nossa equipe de especialistas VRF está pronta para dimensionar a melhor solução. Orçamento sem compromisso.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button onClick={() => setModalOpen(true)} className="bg-blue-600 text-white hover:bg-blue-700 px-10 py-4 text-sm font-semibold h-auto hover:scale-[1.01] transition-all" data-testid="vrf-final-cta-btn">

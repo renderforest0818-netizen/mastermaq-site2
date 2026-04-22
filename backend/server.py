@@ -161,9 +161,11 @@ async def register(data: RegisterRequest, response: Response):
     user_id = str(result.inserted_id)
     access_token = create_access_token(user_id, email)
     refresh_token = create_refresh_token(user_id)
-    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=False, samesite="lax", max_age=3600, path="/")
-    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=False, samesite="lax", max_age=604800, path="/")
-    return {"id": user_id, "email": email, "name": data.name, "role": "customer"}
+    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=True, samesite="lax", max_age=3600, path="/")
+    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=True, samesite="lax", max_age=2592000, path="/")
+    full = await db.users.find_one({"_id": ObjectId(user_id)}, {"password_hash": 0})
+    full["_id"] = str(full["_id"])
+    return full
 
 @api_router.post("/auth/login")
 async def login(data: LoginRequest, request: Request, response: Response):
@@ -189,9 +191,11 @@ async def login(data: LoginRequest, request: Request, response: Response):
     user_id = str(user["_id"])
     access_token = create_access_token(user_id, email)
     refresh_token = create_refresh_token(user_id)
-    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=False, samesite="lax", max_age=3600, path="/")
-    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=False, samesite="lax", max_age=604800, path="/")
-    return {"id": user_id, "email": email, "name": user.get("name", ""), "role": user.get("role", "customer")}
+    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=True, samesite="lax", max_age=3600, path="/")
+    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=True, samesite="lax", max_age=2592000, path="/")
+    full = await db.users.find_one({"_id": user["_id"]}, {"password_hash": 0})
+    full["_id"] = str(full["_id"])
+    return full
 
 @api_router.post("/auth/logout")
 async def logout(response: Response):
@@ -217,7 +221,7 @@ async def refresh_token_endpoint(request: Request, response: Response):
             raise HTTPException(status_code=401, detail="User not found")
         user_id = str(user["_id"])
         new_access = create_access_token(user_id, user["email"])
-        response.set_cookie(key="access_token", value=new_access, httponly=True, secure=False, samesite="lax", max_age=3600, path="/")
+        response.set_cookie(key="access_token", value=new_access, httponly=True, secure=True, samesite="lax", max_age=3600, path="/")
         return {"message": "Token refreshed"}
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Refresh token expired")
@@ -358,6 +362,374 @@ async def lookup_cep(cep: str):
         return data
     except requests.RequestException:
         raise HTTPException(status_code=502, detail="Servico de CEP indisponivel")
+
+# ── Chat IA "Mi" ─────────────────────────────────────────────────────
+import litellm
+from fastapi.responses import StreamingResponse
+import json as _json
+
+MI_SYSTEM_PROMPT = """Voce e a "Mi", assistente virtual oficial da Mastermaq Assistencia Tecnica, em Belo Horizonte/MG.
+
+IDENTIDADE DA EMPRESA:
+- Nome: Mastermaq Assistencia Tecnica
+- Endereco: R. Descalvado, 636A - Renascenca, BH/MG, 31130-610
+- Telefone: (31) 3422-5293
+- Email: mastermaqassistencia@gmail.com
+- Horario: Seg-Sex, 09:00 as 18:00
+- Experiencia: 30+ anos, 28.000+ clientes atendidos, 4.1 estrelas no Google
+
+MARCAS AUTORIZADAS (credenciamento oficial):
+HQ (Belmicro), Franke, Hisense, Gorenje, Bertazzoni, Lofra, Panasonic, Liebherr.
+Tambem atendemos marcas gerais: Samsung, LG, Brastemp, Consul, Electrolux, Bosch, Midea, Philco, Tecno, Viking.
+
+EQUIPAMENTOS:
+Geladeiras, Trituradores, Lava e Seca, Lavadoras, Ar Condicionado Split, Ar Condicionado Portatil, VRF Hisense, Freezers, Coifas.
+
+INSTALACAO NAO DISPONIVEL para: Geladeiras, Ar Condicionado Portatil, Lava e Seca, Lavadoras.
+
+COMO VOCE DEVE AGIR:
+1. Seja cordial, objetiva e use linguagem brasileira natural com acentuacao correta.
+2. Ajude com: informacoes da empresa, marcas atendidas, horarios, agendamento, status de OS, duvidas gerais sobre o servico.
+3. NUNCA forneca diagnostico tecnico de problema em eletrodomestico. Se o cliente descrever um defeito (ex: "geladeira nao gela", "lavadora vaza agua"), voce deve:
+   - Reconhecer o problema com empatia (1 linha).
+   - Explicar que diagnostico preciso so pode ser feito presencialmente por tecnico habilitado, por seguranca e eficacia.
+   - Recomendar abertura de Ordem de Servico (OS) para visita tecnica.
+   - Sugerir clicar em "Agendar Visita Tecnica" no site, ou ligar (31) 3422-5293, ou se logado, usar o portal "Minha Conta" > "Novo Agendamento".
+4. Quando o cliente pedir agendamento, colete (se ele ainda nao informou): tipo de equipamento, marca, modelo, breve descricao do problema, e oriente a finalizar pelo modal de agendamento.
+5. Responda em markdown quando fizer sentido (listas, negrito), mas seja sucinta (3-6 linhas de media).
+6. Se perguntarem sobre assuntos fora do escopo (politica, entretenimento, codigo, etc), redirecione gentilmente: "Posso te ajudar com assuntos da Mastermaq - agendamento, marcas, horarios ou duvidas sobre nossos servicos."
+7. Use emojis com parcimonia (no maximo 1 por resposta) e apenas quando realmente agregarem.
+
+NUNCA:
+- Nunca invente precos, prazos exatos ou garanta resultado de conserto.
+- Nunca forneca passo-a-passo tecnico para o cliente consertar sozinho.
+- Nunca cite concorrentes.
+"""
+
+
+class ChatMessage(BaseModel):
+    role: str  # "user" | "assistant" | "system"
+    content: str
+    image: Optional[str] = None  # base64 data URL (data:image/...;base64,...) for user messages with attached image
+
+
+class ChatStreamRequest(BaseModel):
+    messages: list[ChatMessage]
+    session_id: Optional[str] = None  # server-side session id for logged-in persistence
+
+
+class ChatSessionCreate(BaseModel):
+    title: Optional[str] = None
+
+
+class ChatFeedbackRequest(BaseModel):
+    session_id: Optional[str] = None
+    message_idx: Optional[int] = None  # position in conversation
+    rating: str  # "up" | "down"
+    user_text: Optional[str] = ""
+    assistant_text: str = ""
+    comment: Optional[str] = ""
+
+
+async def _get_user_optional(request: Request):
+    try:
+        return await get_current_user(request)
+    except HTTPException:
+        return None
+
+
+def _get_llm_api_key():
+    return os.environ.get("EMERGENT_LLM_KEY", "")
+
+
+def _get_proxy_base():
+    # matches emergentintegrations logic
+    base = os.environ.get("integration_proxy_url") or os.environ.get("INTEGRATION_PROXY_URL") or "https://integrations.emergentagent.com"
+    return base.rstrip("/") + "/llm"
+
+
+@api_router.post("/chat/sessions")
+async def create_chat_session(payload: ChatSessionCreate, request: Request):
+    user = await _get_user_optional(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Login necessario para persistir sessoes")
+    doc = {
+        "user_id": user["_id"],
+        "title": (payload.title or "Nova conversa")[:120],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    res = await db.chat_sessions.insert_one(doc)
+    return {"id": str(res.inserted_id), "title": doc["title"], "created_at": doc["created_at"], "updated_at": doc["updated_at"]}
+
+
+@api_router.get("/chat/sessions")
+async def list_chat_sessions(request: Request):
+    user = await _get_user_optional(request)
+    if not user:
+        return []
+    cursor = db.chat_sessions.find({"user_id": user["_id"]}).sort("updated_at", -1).limit(50)
+    out = []
+    async for s in cursor:
+        out.append({
+            "id": str(s["_id"]),
+            "title": s.get("title", "Conversa"),
+            "created_at": s.get("created_at"),
+            "updated_at": s.get("updated_at"),
+        })
+    return out
+
+
+@api_router.get("/chat/sessions/{session_id}")
+async def get_chat_session(session_id: str, request: Request):
+    user = await _get_user_optional(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Login necessario")
+    try:
+        sess = await db.chat_sessions.find_one({"_id": ObjectId(session_id), "user_id": user["_id"]})
+    except Exception:
+        raise HTTPException(status_code=404, detail="Sessao nao encontrada")
+    if not sess:
+        raise HTTPException(status_code=404, detail="Sessao nao encontrada")
+    msgs_cursor = db.chat_messages.find({"session_id": session_id}).sort("created_at", 1)
+    messages = []
+    async for m in msgs_cursor:
+        item = {"id": str(m["_id"]), "role": m["role"], "content": m["content"], "created_at": m.get("created_at")}
+        if m.get("image"):
+            item["image"] = m["image"]
+        messages.append(item)
+    return {"id": session_id, "title": sess.get("title"), "messages": messages}
+
+
+@api_router.delete("/chat/sessions/{session_id}")
+async def delete_chat_session(session_id: str, request: Request):
+    user = await _get_user_optional(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Login necessario")
+    try:
+        res = await db.chat_sessions.delete_one({"_id": ObjectId(session_id), "user_id": user["_id"]})
+    except Exception:
+        raise HTTPException(status_code=404, detail="Sessao nao encontrada")
+    await db.chat_messages.delete_many({"session_id": session_id})
+    return {"deleted": res.deleted_count}
+
+
+@api_router.post("/chat/stream")
+async def chat_stream(payload: ChatStreamRequest, request: Request):
+    user = await _get_user_optional(request)
+    api_key = _get_llm_api_key()
+    if not api_key:
+        raise HTTPException(status_code=500, detail="LLM key nao configurada")
+
+    # Build messages with system prompt at start
+    msgs = [{"role": "system", "content": MI_SYSTEM_PROMPT}]
+    for m in payload.messages[-30:]:  # cap history
+        if m.role not in ("user", "assistant"):
+            continue
+        if m.role == "user" and m.image:
+            # Multimodal content for GPT-5.2 vision
+            parts = []
+            if m.content:
+                parts.append({"type": "text", "text": m.content})
+            parts.append({"type": "image_url", "image_url": {"url": m.image}})
+            msgs.append({"role": "user", "content": parts})
+        else:
+            msgs.append({"role": m.role, "content": m.content})
+
+    last_user = ""
+    for m in reversed(payload.messages):
+        if m.role == "user":
+            last_user = m.content
+            break
+
+    # Persist user message immediately if logged-in session
+    saved_session_id = None
+    last_user_image = None
+    for m in reversed(payload.messages):
+        if m.role == "user":
+            last_user_image = m.image
+            break
+    if user and payload.session_id:
+        try:
+            sess = await db.chat_sessions.find_one({"_id": ObjectId(payload.session_id), "user_id": user["_id"]})
+            if sess:
+                saved_session_id = payload.session_id
+                user_doc = {
+                    "session_id": saved_session_id,
+                    "role": "user",
+                    "content": last_user,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                }
+                if last_user_image:
+                    user_doc["image"] = last_user_image
+                await db.chat_messages.insert_one(user_doc)
+                # if first user message and no real title, use first 60 chars
+                if (sess.get("title") or "Nova conversa") == "Nova conversa" and last_user:
+                    await db.chat_sessions.update_one({"_id": sess["_id"]}, {"$set": {"title": last_user[:60], "updated_at": datetime.now(timezone.utc).isoformat()}})
+        except Exception as e:
+            logger.warning(f"chat persist user err: {e}")
+
+    async def event_gen():
+        full_text = ""
+        try:
+            stream = litellm.completion(
+                model="gpt-5.2",
+                messages=msgs,
+                api_key=api_key,
+                api_base=_get_proxy_base(),
+                custom_llm_provider="openai",
+                stream=True,
+                max_tokens=400,
+            )
+            for chunk in stream:
+                try:
+                    delta = chunk.choices[0].delta.content if chunk.choices and chunk.choices[0].delta else None
+                except Exception:
+                    delta = None
+                if delta:
+                    full_text += delta
+                    yield f"data: {_json.dumps({'type': 'delta', 'content': delta})}\n\n"
+            # persist assistant response
+            if saved_session_id and full_text:
+                try:
+                    await db.chat_messages.insert_one({
+                        "session_id": saved_session_id,
+                        "role": "assistant",
+                        "content": full_text,
+                        "created_at": datetime.now(timezone.utc).isoformat(),
+                    })
+                    await db.chat_sessions.update_one({"_id": ObjectId(saved_session_id)}, {"$set": {"updated_at": datetime.now(timezone.utc).isoformat()}})
+                except Exception as e:
+                    logger.warning(f"chat persist assistant err: {e}")
+
+            # Detect schedule intent and emit a suggest_schedule event
+            try:
+                text_lower = (full_text + " " + last_user).lower()
+                intent_keywords = [
+                    "ordem de servi", "visita técnica", "visita tecnica",
+                    "agendar visita", "abrir uma os", "abrir os",
+                ]
+                if any(k in text_lower for k in intent_keywords):
+                    # Try to extract equipment + brand from last user message
+                    EQ_MAP = {
+                        "geladeira": "geladeiras",
+                        "freezer": "freezers",
+                        "lavadora": "lavadoras",
+                        "lava e seca": "lava-e-seca",
+                        "coifa": "coifas",
+                        "ar condicionado split": "ar-condicionado-split",
+                        "ar-condicionado split": "ar-condicionado-split",
+                        "split": "ar-condicionado-split",
+                        "ar portátil": "ar-condicionado-portatil",
+                        "ar portatil": "ar-condicionado-portatil",
+                        "vrf": "vrf-hisense",
+                        "triturador": "trituradores",
+                    }
+                    BRANDS_LOWER = [b.lower() for b in BRANDS]
+                    eq_id = None
+                    for k, v in EQ_MAP.items():
+                        if k in text_lower:
+                            eq_id = v
+                            break
+                    # scan recent user messages too
+                    recent_user_blob = " ".join([m.content for m in payload.messages if m.role == "user"][-3:]).lower()
+                    brand = ""
+                    for b in BRANDS_LOWER:
+                        if b in recent_user_blob or b in text_lower:
+                            brand = next(x for x in BRANDS if x.lower() == b)
+                            break
+                    yield f"data: {_json.dumps({'type': 'suggest_schedule', 'equipment': eq_id or '', 'brand': brand})}\n\n"
+            except Exception as e:
+                logger.warning(f"intent detect err: {e}")
+
+            yield f"data: {_json.dumps({'type': 'done', 'content': full_text})}\n\n"
+        except Exception as e:
+            logger.error(f"chat stream err: {e}")
+            yield f"data: {_json.dumps({'type': 'error', 'content': str(e)})}\n\n"
+
+    return StreamingResponse(event_gen(), media_type="text/event-stream", headers={
+        "Cache-Control": "no-cache, no-transform",
+        "X-Accel-Buffering": "no",
+        "Connection": "keep-alive",
+    })
+
+
+# ── STT (Whisper-1) ──────────────────────────────────────────────────
+from fastapi import UploadFile, File
+import io
+
+@api_router.post("/chat/stt")
+async def speech_to_text(audio: UploadFile = File(...)):
+    """Transcribe an audio file to text using Whisper-1 via Emergent key."""
+    api_key = _get_llm_api_key()
+    if not api_key:
+        raise HTTPException(status_code=500, detail="LLM key nao configurada")
+
+    data = await audio.read()
+    if len(data) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Audio muito grande (limite 10MB)")
+
+    # Build a BytesIO that has a .name attribute so OpenAI/Whisper can infer format
+    filename = audio.filename or "audio.webm"
+    bio = io.BytesIO(data)
+    bio.name = filename
+
+    try:
+        from emergentintegrations.llm.openai import OpenAISpeechToText
+        stt = OpenAISpeechToText(api_key=api_key)
+        resp = await stt.transcribe(
+            file=bio,
+            model="whisper-1",
+            response_format="json",
+            language="pt",
+            temperature=0.0,
+        )
+        text = getattr(resp, "text", None) or (resp.get("text") if isinstance(resp, dict) else None) or ""
+        return {"text": text.strip()}
+    except Exception as e:
+        logger.error(f"stt err: {e}")
+        raise HTTPException(status_code=500, detail=f"Falha na transcricao: {str(e)[:200]}")
+
+
+# ── Image upload (returns base64 data URL to attach in chat) ─────────
+@api_router.post("/chat/upload")
+async def chat_upload_image(image: UploadFile = File(...)):
+    """Accept an image and return a data URL (base64) usable by chat stream as multimodal input."""
+    content_type = (image.content_type or "").lower()
+    allowed = {"image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"}
+    if content_type not in allowed:
+        raise HTTPException(status_code=400, detail="Formato nao suportado. Use JPG, PNG, WEBP ou GIF.")
+    data = await image.read()
+    if len(data) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Imagem muito grande (limite 5MB).")
+    import base64 as _b64
+    b64 = _b64.b64encode(data).decode("ascii")
+    return {
+        "data_url": f"data:{content_type};base64,{b64}",
+        "size": len(data),
+        "content_type": content_type,
+    }
+
+
+# ── Feedback 👍👎 ────────────────────────────────────────────────────
+@api_router.post("/chat/feedback")
+async def chat_feedback(body: ChatFeedbackRequest, request: Request):
+    if body.rating not in ("up", "down"):
+        raise HTTPException(status_code=400, detail="rating deve ser 'up' ou 'down'")
+    user = await _get_user_optional(request)
+    doc = {
+        "user_id": user["_id"] if user else None,
+        "session_id": body.session_id,
+        "message_idx": body.message_idx,
+        "rating": body.rating,
+        "user_text": (body.user_text or "")[:2000],
+        "assistant_text": (body.assistant_text or "")[:4000],
+        "comment": (body.comment or "")[:500],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.chat_feedback.insert_one(doc)
+    return {"ok": True}
+
 
 # ── Startup ──────────────────────────────────────────────────────────
 @app.on_event("startup")

@@ -43,7 +43,7 @@ const ALL_EQUIPMENT = [
   { id: "lava-e-seca", name: "Lava e Seca", icon: "Shirt", hasImage: false },
   { id: "lavadoras", name: "Lavadoras", icon: "Droplets", hasImage: false },
   { id: "ar-condicionado-split", name: "Ar Condicionado Split", icon: "Wind", hasImage: false },
-  { id: "ar-condicionado-portatil", name: "Ar Condicionado Portatil", icon: "AirVent", hasImage: false },
+  { id: "ar-condicionado-portátil", name: "Ar Condicionado Portátil", icon: "AirVent", hasImage: false },
   { id: "vrf-hisense", name: "VRF Hisense", icon: "Server", hasImage: false },
   { id: "freezers", name: "Freezers", icon: "Thermometer", hasImage: false },
   { id: "coifas", name: "Coifas", icon: "Fan", hasImage: false },
@@ -75,59 +75,65 @@ const AUTHORIZED_BRANDS = [
     name: "HQ",
     logo: "/images/assets/hq-logo.png",
     title: "Autorizada Belmicro HQ",
-    desc: "Servico autorizado Belmicro HQ com credenciamento oficial. Atuamos no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e ar-condicionado. Garantimos um servico especializado que mantem a originalidade do seu aparelho.",
+    desc: "Serviço autorizado Belmicro HQ com credenciamento oficial. Atuamos no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos elétricos, coifas e ar-condicionado. Garantimos um serviço especializado que mantém a originalidade do seu aparelho.",
   },
   {
     name: "Bertazzoni & Lofra",
     logo: "/images/assets/bertazzoni-logo.png",
     logo2: "/images/assets/lofra-logo.png",
     title: "Autorizada Bertazzoni & Lofra",
-    desc: "Servico autorizado Lofra e Bertazzoni com credenciamento do fabricante. Especialistas no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e cooktops, garantindo reparacao segura e originalidade do produto.",
+    desc: "Serviço autorizado Lofra e Bertazzoni com credenciamento do fabricante. Especialistas no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos elétricos, coifas e cooktops, garantindo reparação segura e originalidade do produto.",
   },
   {
     name: "Gorenje",
     logo: "/images/assets/gorenje-logo.png",
     title: "Autorizada Gorenje",
-    desc: "Servico autorizado Gorenje credenciado pelo fabricante. Expertise no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e cooktops. Oferecemos manutencao correta e segura para preservar seu eletrodomestico.",
+    desc: "Serviço autorizado Gorenje credenciado pelo fabricante. Expertise no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos elétricos, coifas e cooktops. Oferecemos manutenção correta e segura para preservar seu eletrodoméstico.",
   },
   {
     name: "Hisense",
     logo: "/images/assets/hisense-logo.png",
     title: "Autorizada Hisense",
-    desc: "Servico autorizado Hisense com credenciamento oficial. Atuamos no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e ar-condicionado. Garantimos um servico especializado que mantem a originalidade do seu aparelho.",
+    desc: "Serviço autorizado Hisense com credenciamento oficial. Atuamos no conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos elétricos, coifas e ar-condicionado. Garantimos um serviço especializado que mantém a originalidade do seu aparelho.",
+  },
+  {
+    name: "Liebherr",
+    logo: "/images/assets/liebherr-logo.png",
+    title: "Autorizada Liebherr",
+    desc: "Serviço especializado Liebherr, referência alemã em refrigeração de alto padrão. Atuamos no conserto de geladeiras de embutir em BH, adegas climatizadas e equipamentos premium da marca, com diagnóstico preciso e reparação técnica de alto nível. Garantimos máxima preservação da tecnologia, desempenho e sofisticação dos produtos Liebherr, utilizando práticas alinhadas ao padrão europeu de qualidade.",
   },
   {
     name: "Franke",
     logo: "/images/assets/franke-logo.png",
     title: "Autorizada Franke",
-    desc: "Servico autorizado Franke credenciado pelo fabricante. Especialistas em conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos eletricos, coifas e trituradores. Reparacao tecnica segura para maior durabilidade do seu produto.",
+    desc: "Serviço autorizado Franke credenciado pelo fabricante. Especialistas em conserto de geladeiras de embutir em BH, fornos combinados, micro-ondas, fornos elétricos, coifas e trituradores. Reparação técnica segura para maior durabilidade do seu produto.",
   },
   {
     name: "Panasonic",
     logo: "/images/assets/panasonic-logo.png",
     title: "Panasonic",
-    desc: "Especializada em conserto de geladeiras e maquinas de lavar Panasonic em BH. Fomos autorizados com credenciamento exclusivo por 11 anos pela Panasonic do Brasil, mantendo hoje a expertise tecnica avancada em todos os produtos da marca.",
+    desc: "Especializada em conserto de geladeiras e máquinas de lavar Panasonic em BH. Fomos autorizados com credenciamento exclusivo por 11 anos pela Panasonic do Brasil, mantendo hoje a expertise técnica avançada em todos os produtos da marca.",
   },
 ];
 
 const DIFFERENTIALS = [
   { icon: Shield, title: "Pecas Originais", desc: "Exclusivamente peças originais de fabrica, garantindo durabilidade e desempenho ideal do seu produto." },
-  { icon: Award, title: "Tecnicos Especializados", desc: "Equipe treinada e especializada nas principais marcas. Expertise em produtos de alto padrao." },
-  { icon: Clock, title: "Garantia de 90 Dias", desc: "Todos os servicos com garantia. Sua tranquilidade é nossa prioridade absoluta." },
+  { icon: Award, title: "Técnicos Especializados", desc: "Equipe treinada e especializada nas principais marcas. Expertise em produtos de alto padrão." },
+  { icon: Clock, title: "Garantia de 90 Dias", desc: "Todos os serviços com garantia. Sua tranquilidade é nossa prioridade absoluta." },
   { icon: Home, title: "Atendimento Domiciliar", desc: "Diagnostico preciso e reparo no conforto do seu lar, sem complicações." },
   { icon: Phone, title: "Suporte Dedicado", desc: "Canal direto via WhatsApp para acompanhamento em tempo real do seu atendimento." },
-  { icon: CheckCircle2, title: "Portal do Cliente", desc: "Acompanhe ordens de servico, historico e agende novos atendimentos pelo portal exclusivo." },
+  { icon: CheckCircle2, title: "Portal do Cliente", desc: "Acompanhe ordens de serviço, histórico e agende novos atendimentos pelo portal exclusivo." },
 ];
 
 const TESTIMONIALS = [
-  { name: "Rose C Vieira", city: "Belo Horizonte", text: "Fui muito bem atendida por profissionais gabaritados! Minha Panasonic ficou maravilhosa! Gratidao a vcs equipe!", rating: 5, time: "3 meses atras", source: "google" },
-  { name: "Rafael Lucas", city: "Belo Horizonte", text: "A empresa e muito seria e confiavel. Necessitei deles para dois reparos, e foram otimos! Inclusive um dos atendimentos foi a servico de garantia da Panasonic, excelente! Recomendo a todos que precisam.", rating: 5, time: "1 ano atras", source: "google" },
-  { name: "Felipe Porto Aires", city: "Belo Horizonte", text: "Consertaram minha geladeira Panasonic que estava com defeito, servico honesto, rapido e o tecnico mostrou muita seguranca!", rating: 5, time: "4 meses atras", source: "google" },
-  { name: "Cristiano Reis de Paiva", city: "Belo Horizonte", text: "Excelente atendimento. Profissional extremamente gentil, educado e atencioso. Parabens!", rating: 5, time: "5 meses atras", source: "google" },
-  { name: "Marianna Keller", city: "Belo Horizonte", text: "Excelente profissional e atendimento rapido, indico.", rating: 5, time: "3 meses atras", source: "google" },
-  { name: "Toca Espeto", city: "Belo Horizonte", text: "Atendimento muito bom. Resolveram meu problema prontamente, atendimento rapido e eficaz com preco justo! Recomendo!", rating: 5, time: "9 meses atras", source: "google" },
-  { name: "Rodrigo G. Amaral", city: "Belo Horizonte", text: "Acionei a Mastermaq porque a minha geladeira Electrolux estava gelando pouco, fui atendido no mesmo dia e imediatamente constataram um problema no motor da geladeira e ja me passaram o orcamento.", rating: 5, time: "1 ano atras", source: "google" },
-  { name: "Juhh Costa", city: "Belo Horizonte", text: "Nelson um otimo atendente, muito atencioso e explicativo.", rating: 5, time: "1 mes atras", source: "google" },
+  { name: "Rose C Vieira", city: "Belo Horizonte", text: "Fui muito bem atendida por profissionais gabaritados! Minha Panasonic ficou maravilhosa! Gratidao a vcs equipe!", rating: 5, time: "3 meses atrás", source: "google" },
+  { name: "Rafael Lucas", city: "Belo Horizonte", text: "A empresa e muito seria e confiavel. Necessitei deles para dois reparos, e foram otimos! Inclusive um dos atendimentos foi a serviço de garantia da Panasonic, excelente! Recomendo a todos que precisam.", rating: 5, time: "1 ano atrás", source: "google" },
+  { name: "Felipe Porto Aires", city: "Belo Horizonte", text: "Consertaram minha geladeira Panasonic que estava com defeito, serviço honesto, rápido e o técnico mostrou muita segurança!", rating: 5, time: "4 meses atrás", source: "google" },
+  { name: "Cristiano Reis de Paiva", city: "Belo Horizonte", text: "Excelente atendimento. Profissional extremamente gentil, educado e atencioso. Parabens!", rating: 5, time: "5 meses atrás", source: "google" },
+  { name: "Marianna Keller", city: "Belo Horizonte", text: "Excelente profissional e atendimento rápido, indico.", rating: 5, time: "3 meses atrás", source: "google" },
+  { name: "Toca Espeto", city: "Belo Horizonte", text: "Atendimento muito bom. Resolveram meu problema prontamente, atendimento rápido e eficaz com preço justo! Recomendo!", rating: 5, time: "9 meses atrás", source: "google" },
+  { name: "Rodrigo G. Amaral", city: "Belo Horizonte", text: "Acionei a Mastermaq porque a minha geladeira Electrolux estava gelando pouco, fui atendido no mesmo dia e imediatamente constataram um problema no motor da geladeira e ja me passaram o orçamento.", rating: 5, time: "1 ano atrás", source: "google" },
+  { name: "Juhh Costa", city: "Belo Horizonte", text: "Nelson um otimo atendente, muito atencioso e explicativo.", rating: 5, time: "1 mes atrás", source: "google" },
 ];
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } };
@@ -293,7 +299,7 @@ export default function HomePage() {
 
         {/* === LUZ DIRECIONAL — gradientes puros, sem beams retos === */}
 
-        {/* Iluminacao concentrada atras do produto — radial no centro-direita */}
+        {/* Iluminacao concentrada atrás do produto — radial no centro-direita */}
         <div className="absolute z-[1] pointer-events-none"
           style={{
             top: '10%', right: '5%', width: '450px', height: '500px',
@@ -344,7 +350,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>
-                Assistencia Tecnica{' '}
+                Assistência Técnica{' '}
                 <span className="text-blue-500">Autorizada em BH</span>
               </motion.h1>
               <motion.p
@@ -352,7 +358,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}>
-                Seu produto merece o <strong className="text-slate-300">melhor cuidado</strong>. Diagnostico preciso, pecas originais e <strong className="text-slate-300">tecnicos homologados</strong> na sua porta.
+                Seu produto merece o <strong className="text-slate-300">melhor cuidado</strong>. Diagnostico preciso, pecas originais e <strong className="text-slate-300">técnicos homologados</strong> na sua porta.
               </motion.p>
               <motion.div
                 className="flex flex-col sm:flex-row gap-3 mb-7"
@@ -363,7 +369,7 @@ export default function HomePage() {
                   onClick={() => document.getElementById('scheduling-section')?.scrollIntoView({ behavior: 'smooth' })}
                   className="bg-red-600 text-white hover:bg-red-700 px-8 py-4 text-sm font-semibold h-auto hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-red-600/20"
                   data-testid="hero-cta">
-                  Agendar Visita Tecnica <ArrowRight className="w-4 h-4 ml-2" />
+                  Agendar Visita Técnica <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
                 <a href="https://wa.me/553134225293" target="_blank" rel="noopener noreferrer">
                   <Button variant="outline" className="border border-white/15 text-white hover:bg-white/5 hover:border-white/30 px-8 py-4 text-sm h-auto bg-transparent w-full sm:w-auto transition-all duration-200" data-testid="hero-whatsapp-btn">
@@ -378,7 +384,7 @@ export default function HomePage() {
                 transition={{ duration: 0.8, delay: 0.45 }}>
                 <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> Pecas Originais</span>
                 <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> Garantia 90 Dias</span>
-                <span className="flex items-center gap-1.5 hidden sm:flex"><CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> Tecnicos Especializados</span>
+                <span className="flex items-center gap-1.5 hidden sm:flex"><CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> Técnicos Especializados</span>
               </motion.div>
             </div>
 
@@ -417,16 +423,16 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-start">
             {/* Left — Title 40% — aligned to top of cards */}
             <motion.div className="lg:col-span-4" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
-              <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-3 block">Servico Autorizado</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-3 block">Serviço Autorizado</span>
               <h2 className="font-heading text-2xl sm:text-3xl lg:text-[2.25rem] font-semibold tracking-[-0.02em] text-slate-900 leading-[1.15] mb-4">
                 Credenciado Pelas Melhores Marcas
               </h2>
               <p className="text-sm text-slate-500 leading-relaxed mb-6">
-                Expertise reconhecida pelos fabricantes lideres de mercado. Garantia de pecas originais e tecnicos homologados.
+                Expertise reconhecida pelos fabricantes lideres de mercado. Garantia de pecas originais e técnicos homologados.
               </p>
               <div className="bg-white border-l-4 border-blue-600 p-5 shadow-sm">
                 <p className="text-sm text-slate-700 leading-relaxed italic">
-                  "Nao arrisque com seu produto. Somente a Mastermaq Assistencia possui a expertise e o credenciamento direto dos fabricantes para garantir um reparo correto, seguro e com pecas originais. Confie em quem entende de verdade."
+                  "Não arrisque com seu produto. Somente a Mastermaq Assistência possui a expertise e o credenciamento direto dos fabricantes para garantir um reparo correto, seguro e com pecas originais. Confie em quem entende de verdade."
                 </p>
               </div>
             </motion.div>
@@ -506,7 +512,7 @@ export default function HomePage() {
           {/* Mobile: atendemos tambem */}
           <div className="lg:hidden mt-8 text-center">
             <Link to="/servicos" className="text-sm text-blue-600 hover:text-blue-800 font-medium inline-flex items-center gap-1" data-testid="see-all-services">
-              Ver todos os servicos <ArrowRight className="w-3 h-3" />
+              Ver todos os serviços <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
         </div>
@@ -531,7 +537,7 @@ export default function HomePage() {
 
             {[
               { num: "01", title: "Agende Online", desc: "Selecione seu produto, escolha a marca e descreva o problema. Uma OS é gerada automaticamente." },
-              { num: "02", title: "Receba o Tecnico", desc: "O técnico especializado irá até você no horário combinado." },
+              { num: "02", title: "Receba o Técnico", desc: "O técnico especializado irá até você no horário combinado." },
               { num: "03", title: "Problema Resolvido", desc: "Reparo com pecas originais e garantia de 90 dias. Acompanhe tudo pelo portal." },
             ].map((s, i) => (
               <motion.div key={s.num}
@@ -598,7 +604,7 @@ export default function HomePage() {
                 <Star className="w-4 h-4 fill-yellow-400/30 text-yellow-400/30" />
               </div>
               <span className="text-sm font-semibold text-slate-700">4,1</span>
-              <span className="text-xs text-slate-400">134 avaliacoes no Google</span>
+              <span className="text-xs text-slate-400">134 avaliações no Google</span>
             </div>
           </motion.div>
 
@@ -707,10 +713,10 @@ export default function HomePage() {
             {/* Left content — 7 col */}
             <motion.div className="lg:col-span-7" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeLeft}>
               <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold tracking-[-0.02em] text-white leading-[1.15] mb-4">
-                Nao deixe seu produto parado
+                Não deixe seu produto parado
               </h2>
               <p className="text-sm text-slate-400 max-w-lg mb-6 leading-relaxed">
-                Agende uma visita tecnica e tenha seu produto funcionando perfeitamente.
+                Agende uma visita técnica e tenha seu produto funcionando perfeitamente.
               </p>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <Button
@@ -729,10 +735,10 @@ export default function HomePage() {
             <motion.div className="lg:col-span-5" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeRight}>
               <div className="grid grid-cols-2">
                 {[
-                  { num: "30+", label: "Anos de Experiencia" },
+                  { num: "30+", label: "Anos de Experiência" },
                   { num: "28000+", label: "Clientes Atendidos" },
                   { num: "8+", label: "Marcas Autorizadas" },
-                  { num: "98%", label: "Satisfacao" },
+                  { num: "98%", label: "Satisfação" },
                 ].map((s) => (
                   <div key={s.label} className="border border-white/10 p-5 sm:p-6 text-center">
                     <p className="font-heading text-2xl sm:text-3xl font-bold text-white mb-1">{s.num}</p>

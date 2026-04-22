@@ -28,7 +28,7 @@ export default function BlogPage() {
           <motion.div initial="hidden" animate="visible" variants={fadeUp}>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-400 mb-4">Blog</p>
             <h1 className="font-heading text-4xl sm:text-5xl font-semibold tracking-tight text-white mb-4">Artigos e Dicas</h1>
-            <p className="text-base text-slate-300 max-w-lg">Dicas de manutencao, novidades e informacoes uteis sobre seus eletrodomesticos.</p>
+            <p className="text-base text-slate-300 max-w-lg">Dicas de manutenção, novidades e informações uteis sobre seus eletrodomésticos.</p>
           </motion.div>
         </div>
       </section>

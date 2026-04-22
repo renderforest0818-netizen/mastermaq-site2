@@ -5,7 +5,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { Toaster } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import WhatsAppButton from "@/components/WhatsAppButton";
+import MiChatWidget from "@/components/MiChatWidget";
 import HomePage from "@/pages/HomePage";
 import ServicesPage from "@/pages/ServicesPage";
 import AboutPage from "@/pages/AboutPage";
@@ -57,7 +57,7 @@ function App() {
             <AppRoutes />
           </main>
           <Footer />
-          <WhatsAppButton />
+          <MiChatWidget />
         </div>
         <Toaster position="top-right" richColors />
       </AuthProvider>

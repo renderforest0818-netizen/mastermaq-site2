@@ -48,12 +48,12 @@ export default function ContactPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             {/* Contact Info */}
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-              <h2 className="font-heading text-2xl font-semibold text-slate-900 mb-8">Informacoes de Contato</h2>
+              <h2 className="font-heading text-2xl font-semibold text-slate-900 mb-8">Informações de Contato</h2>
               <div className="space-y-6 mb-10">
                 {[
                   { icon: Phone, label: "Telefone", value: "(31) 3422-5293", href: "tel:+553134225293" },
                   { icon: Mail, label: "E-mail", value: "mastermaqassistencia@gmail.com", href: "mailto:mastermaqassistencia@gmail.com" },
-                  { icon: MapPin, label: "Endereco", value: "R. Descalvado, 636A - Renascenca, BH/MG" },
+                  { icon: MapPin, label: "Endereço", value: "R. Descalvado, 636A - Renascenca, BH/MG" },
                   { icon: Clock, label: "Horario", value: "Seg-Sex: 8h-18h | Sab: 8h-12h" },
                 ].map(c => (
                   <div key={c.label} className="flex gap-4">

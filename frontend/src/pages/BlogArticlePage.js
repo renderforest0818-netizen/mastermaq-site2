@@ -16,7 +16,7 @@ export default function BlogArticlePage() {
   }, [slug]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" /></div>;
-  if (!article) return <div className="min-h-screen flex items-center justify-center"><p className="text-slate-500">Artigo nao encontrado.</p></div>;
+  if (!article) return <div className="min-h-screen flex items-center justify-center"><p className="text-slate-500">Artigo não encontrado.</p></div>;
 
   return (
     <div className="py-24 sm:py-32" data-testid="blog-article-page">

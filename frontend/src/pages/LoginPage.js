@@ -67,7 +67,7 @@ export default function LoginPage() {
             {loading ? 'Entrando...' : 'Entrar'}
           </Button>
           <p className="text-center text-sm text-slate-500">
-            Nao tem conta? <Link to="/cadastro" className="text-blue-600 hover:text-blue-800 font-medium" data-testid="register-link">Cadastre-se</Link>
+            Não tem conta? <Link to="/cadastro" className="text-blue-600 hover:text-blue-800 font-medium" data-testid="register-link">Cadastre-se</Link>
           </p>
         </form>
       </motion.div>
