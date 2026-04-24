@@ -167,9 +167,27 @@ html {
 }
 @keyframes miRecPulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.55); }
+
+/* ── Drag scroller (carousel scroll) ──────────────────────────── */
+.drag-scroller::-webkit-scrollbar { display: none; }
+.drag-scroller img { pointer-events: none; }
+
   50%      { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+
+/* Brand logo active (colored in viewport via IntersectionObserver) */
+.brand-logo-active {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
 }
 
     border-radius: 0 !important;
+
+/* Manual scroll colorization for authorized-brand cards */
+.auth-cards-scroll[data-user-scrolling="1"] .auth-brand-card .grayscale {
+  filter: grayscale(0);
+}
+
   }
 }

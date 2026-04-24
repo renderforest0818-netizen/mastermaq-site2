@@ -17,14 +17,19 @@ import remarkGfm from 'remark-gfm';
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
 
 const STATUS_MAP = {
-  aguardando_confirmacao: { label: 'Aguardando', icon: Clock, color: 'bg-yellow-100 text-yellow-800' },
-  em_andamento: { label: 'Em Andamento', icon: Loader, color: 'bg-blue-100 text-blue-800' },
-  concluido: { label: 'Concluido', icon: CheckCircle2, color: 'bg-green-100 text-green-800' },
-  cancelado: { label: 'Cancelado', icon: AlertCircle, color: 'bg-red-100 text-red-800' },
+  "Aguardando Análise A.T":  { label: 'Aguardando Análise A.T',  icon: Clock, color: 'bg-yellow-100 text-yellow-800' },
+  "Aberta Call-Center":     { label: 'Aberta Call-Center',     icon: Clock, color: 'bg-yellow-100 text-yellow-800' },
+  aguardando_confirmacao:   { label: 'Aguardando Análise A.T', icon: Clock, color: 'bg-yellow-100 text-yellow-800' },
+  em_andamento:             { label: 'Em Andamento',           icon: Loader, color: 'bg-blue-100 text-blue-800' },
+  "Em Andamento":           { label: 'Em Andamento',           icon: Loader, color: 'bg-blue-100 text-blue-800' },
+  concluido:                { label: 'Concluído',              icon: CheckCircle2, color: 'bg-green-100 text-green-800' },
+  "Concluído":              { label: 'Concluído',              icon: CheckCircle2, color: 'bg-green-100 text-green-800' },
+  cancelado:                { label: 'Cancelado',              icon: AlertCircle, color: 'bg-red-100 text-red-800' },
+  "Cancelado":              { label: 'Cancelado',              icon: AlertCircle, color: 'bg-red-100 text-red-800' },
 };
 
 function StatusBadge({ status }) {
-  const s = STATUS_MAP[status] || STATUS_MAP.aguardando_confirmacao;
+  const s = STATUS_MAP[status] || { label: status || 'Aguardando Análise A.T', icon: Clock, color: 'bg-yellow-100 text-yellow-800' };
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium ${s.color}`} data-testid={`status-${status}`}>
       <s.icon className="w-3 h-3" /> {s.label}
@@ -78,10 +83,29 @@ export default function PortalPage() {
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      setProfile({ name: user.name || '', phone: user.phone || '', cep: user.cep || '', address: user.address || '', number: user.number || '', neighborhood: user.neighborhood || '', city: user.city || '', state: user.state || '' });
-      API.get('/service-orders').then(({ data }) => setOrders(data)).catch(() => {}).finally(() => setLoadingOrders(false));
-    }
+    if (!user) return;
+    setProfile({ name: user.name || '', phone: user.phone || '', cep: user.cep || '', address: user.address || '', number: user.number || '', neighborhood: user.neighborhood || '', city: user.city || '', state: user.state || '' });
+    let cancelled = false;
+    const refreshOrders = () => {
+      API.get('/service-orders')
+        .then(({ data }) => { if (!cancelled) setOrders(data); })
+        .catch(() => {})
+        .finally(() => { if (!cancelled) setLoadingOrders(false); });
+    };
+    // Initial load + periodic polling so that status updates pushed by the
+    // external system (via the /external/webhook/status endpoint) become
+    // visible without the user having to refresh the page.
+    refreshOrders();
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') refreshOrders();
+    }, 30000);
+    const onVisible = () => { if (document.visibilityState === 'visible') refreshOrders(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, [user]);
 
   const handleProfileSave = async (e) => {

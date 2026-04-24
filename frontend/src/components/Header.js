@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Menu, X, Phone, Mail, MapPin, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import InstallPWAButton from '@/components/InstallPWAButton';
 
 const NAV_LINKS = [
   { to: '/', label: 'Home' },
@@ -74,6 +75,7 @@ export default function Header() {
 
             {/* Desktop Actions */}
             <div className="hidden md:flex items-center gap-3">
+              <InstallPWAButton variant="desktop" />
               {user ? (
                 <div className="flex items-center gap-2">
                   <Link to="/minha-conta">
@@ -94,10 +96,32 @@ export default function Header() {
               )}
             </div>
 
-            {/* Mobile Toggle */}
-            <button className="md:hidden p-2 text-slate-600" onClick={() => setOpen(!open)} data-testid="mobile-menu-toggle">
-              {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+            {/* Mobile Actions: avatar (if logged in) + menu toggle */}
+            <div className="md:hidden flex items-center gap-2">
+              <InstallPWAButton variant="mobile" />
+              {user ? (
+                <Link
+                  to="/minha-conta"
+                  className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-heading font-semibold text-sm shadow-sm hover:bg-blue-700 transition-colors"
+                  aria-label="Minha Conta"
+                  data-testid="mobile-avatar-btn"
+                >
+                  {(user.name || user.email || 'M').trim().charAt(0).toUpperCase()}
+                </Link>
+              ) : (
+                <Link
+                  to="/login"
+                  className="w-9 h-9 rounded-full bg-slate-100 text-slate-600 hover:bg-blue-600 hover:text-white flex items-center justify-center transition-colors"
+                  aria-label="Entrar"
+                  data-testid="mobile-login-btn"
+                >
+                  <User className="w-4 h-4" />
+                </Link>
+              )}
+              <button className="p-2 text-slate-600" onClick={() => setOpen(!open)} data-testid="mobile-menu-toggle">
+                {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
       </div>

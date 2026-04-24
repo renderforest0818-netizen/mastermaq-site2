@@ -1,13 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Sparkles, X, Send, Minus, Copy, RefreshCw, Square, Trash2, Check, Paperclip, Mic, MicOff, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Sparkles, X, Send, Minus, Copy, RefreshCw, Square, Trash2, Check, Paperclip, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import API from '@/lib/api';
 import { toast } from 'sonner';
+import VoiceMode from '@/components/VoiceMode';
+import VoiceBarsIcon from '@/components/VoiceBarsIcon';
 
 const STORAGE_KEY = 'mi_chat_messages_v1';
-const BACKEND = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../lib/api';
+const BACKEND = BACKEND_URL;
 
 const DEFAULT_GREETING = {
   id: 'greeting',
@@ -43,18 +46,14 @@ export default function MiChatWidget() {
   const [copiedId, setCopiedId] = useState(null);
   const [attachedImage, setAttachedImage] = useState(null); // { data_url, name }
   const [uploading, setUploading] = useState(false);
-  const [recording, setRecording] = useState(false);
-  const [transcribing, setTranscribing] = useState(false);
   const [feedbackGiven, setFeedbackGiven] = useState({}); // msgId -> "up"|"down"
   const [equipmentTypes, setEquipmentTypes] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [voiceOpen, setVoiceOpen] = useState(false);
   const abortRef = useRef(null);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
   const fileInputRef = useRef(null);
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
-  const audioStreamRef = useRef(null);
   const shouldAutoScroll = useRef(true);
 
   // Persist to localStorage when messages change (for everyone)
@@ -196,6 +195,8 @@ export default function MiChatWidget() {
                 return [...prev, {
                   id: widgetId, role: 'widget', widget: 'schedule',
                   equipment: ev.equipment || '', brand: ev.brand || '',
+                  defectHint: ev.defect_hint || '',
+                  proactive: !!ev.proactive,
                   timestamp: new Date().toISOString(),
                 }];
               });
@@ -281,63 +282,6 @@ export default function MiChatWidget() {
 
   const removeAttachment = () => setAttachedImage(null);
 
-  // -------- Voice recording (STT) --------
-  const startRecording = async () => {
-    if (recording || transcribing || streaming) return;
-    if (!navigator.mediaDevices?.getUserMedia) {
-      toast.error('Seu navegador nao suporta gravacao de audio.');
-      return;
-    }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      audioStreamRef.current = stream;
-      const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus'
-        : (MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '');
-      const rec = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
-      mediaRecorderRef.current = rec;
-      audioChunksRef.current = [];
-      rec.ondataavailable = (ev) => { if (ev.data.size > 0) audioChunksRef.current.push(ev.data); };
-      rec.onstop = async () => {
-        const blob = new Blob(audioChunksRef.current, { type: rec.mimeType || 'audio/webm' });
-        audioStreamRef.current?.getTracks().forEach(t => t.stop());
-        audioStreamRef.current = null;
-        if (blob.size < 1000) {
-          toast.error('Audio muito curto.');
-          return;
-        }
-        setTranscribing(true);
-        try {
-          const fd = new FormData();
-          fd.append('audio', blob, 'audio.webm');
-          const res = await fetch(`${BACKEND}/api/chat/stt`, { method: 'POST', body: fd, credentials: 'include' });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
-          const text = (data.text || '').trim();
-          if (!text) {
-            toast.error('Nao consegui entender. Tente novamente.');
-          } else {
-            setInput(prev => prev ? (prev + ' ' + text) : text);
-            setTimeout(() => { if (inputRef.current) { inputRef.current.focus(); autoResize(inputRef.current); } }, 50);
-          }
-        } catch {
-          toast.error('Falha na transcricao.');
-        } finally {
-          setTranscribing(false);
-        }
-      };
-      rec.start();
-      setRecording(true);
-    } catch {
-      toast.error('Permissao de microfone negada.');
-    }
-  };
-
-  const stopRecording = () => {
-    if (!recording) return;
-    setRecording(false);
-    try { mediaRecorderRef.current?.stop(); } catch { /* ignore */ }
-  };
-
   // -------- Feedback 👍👎 --------
   const sendFeedback = async (msg, rating) => {
     if (feedbackGiven[msg.id]) return;
@@ -378,8 +322,8 @@ export default function MiChatWidget() {
         brand: data.brand,
         service_type: data.service_type || 'conserto',
         model: data.model || '',
-        serial_number: '',
-        warranty_status: data.warranty_status || 'fora',
+        serial_number: data.serial_number || '',
+        warranty_status: data.warranty_status || 'fora_garantia',
         defect_description: data.defect_description || '',
       });
       // Replace the widget with a "done" state and append a success bubble from Mi
@@ -413,12 +357,17 @@ export default function MiChatWidget() {
       {!fabOpen && (
         <button
           onClick={() => { setOpen(true); setMinimized(false); }}
-          className="fixed bottom-6 right-6 z-[60] w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white shadow-lg flex items-center justify-center group mi-fab"
-          style={{ borderRadius: '14px' }}
+          className="fixed bottom-6 right-6 z-[60] w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white shadow-lg flex items-center justify-center group mi-fab overflow-hidden"
+          style={{ borderRadius: '50%' }}
           aria-label="Abrir chat Mi"
           data-testid="mi-fab"
         >
-          <Sparkles className="w-6 h-6 transition-transform duration-300 group-hover:rotate-12 mi-sparkle" />
+          <img
+            src="/images/assets/mi-avatar.webp"
+            alt="Mi"
+            className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-110"
+            draggable={false}
+          />
           {minimized && (
             <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white" />
           )}
@@ -439,11 +388,28 @@ export default function MiChatWidget() {
           }}
           data-testid="mi-chat-modal"
         >
+          <VoiceMode
+            open={voiceOpen}
+            onClose={() => setVoiceOpen(false)}
+            sessionId={user && sessionId ? sessionId : null}
+            buildPayloadMessages={() => messages
+              .filter(m => m.role === 'user' || m.role === 'assistant')
+              .filter(m => m.id !== 'greeting')
+              .map(m => ({ role: m.role, content: m.content }))}
+            onTranscript={(userText, assistantText) => {
+              // Append both to chat log so user sees them when closing voice mode
+              setMessages(prev => [
+                ...prev,
+                { id: uid(), role: 'user', content: userText, timestamp: new Date().toISOString() },
+                { id: uid(), role: 'assistant', content: assistantText, timestamp: new Date().toISOString() },
+              ]);
+            }}
+          />
           {/* Header */}
           <div className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 bg-white/15 rounded-full flex items-center justify-center">
-                <Sparkles className="w-5 h-5 mi-sparkle" />
+              <div className="w-9 h-9 rounded-full overflow-hidden bg-white/15 border-2 border-white/30 flex-shrink-0">
+                <img src="/images/assets/mi-avatar.webp" alt="Mi" className="w-full h-full object-cover" draggable={false} />
               </div>
               <div>
                 <div className="font-heading font-semibold text-sm leading-tight" style={{ letterSpacing: '0.02em' }}>Mi</div>
@@ -561,7 +527,7 @@ export default function MiChatWidget() {
               <button
                 type="button"
                 onClick={onPickFile}
-                disabled={streaming || uploading || recording || transcribing}
+                disabled={streaming || uploading}
                 className="w-9 h-9 flex-shrink-0 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{ borderRadius: '8px' }}
                 aria-label="Anexar imagem"
@@ -572,15 +538,15 @@ export default function MiChatWidget() {
               </button>
               <button
                 type="button"
-                onClick={recording ? stopRecording : startRecording}
-                disabled={streaming || uploading || transcribing}
-                className={`w-9 h-9 flex-shrink-0 flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${recording ? 'bg-red-600 text-white hover:bg-red-700 mi-recording' : 'text-slate-500 hover:text-blue-600 hover:bg-slate-100'}`}
-                style={{ borderRadius: '8px' }}
-                aria-label={recording ? 'Parar gravacao' : 'Gravar audio'}
-                title={recording ? 'Parar gravacao' : 'Falar com a Mi'}
-                data-testid="mi-mic"
+                onClick={() => setVoiceOpen(true)}
+                disabled={streaming || uploading}
+                className="w-9 h-9 flex-shrink-0 flex items-center justify-center text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                style={{ borderRadius: '9999px' }}
+                aria-label="Falar com a Mi"
+                title="Falar com a Mi"
+                data-testid="mi-voice-btn"
               >
-                {transcribing ? <RefreshCw className="w-4 h-4 animate-spin" /> : (recording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />)}
+                <VoiceBarsIcon className="w-4 h-4" />
               </button>
               <textarea
                 ref={inputRef}
@@ -588,10 +554,10 @@ export default function MiChatWidget() {
                 value={input}
                 onChange={(e) => { setInput(e.target.value); autoResize(e.target); }}
                 onKeyDown={handleKeyDown}
-                placeholder={recording ? 'Gravando audio...' : (transcribing ? 'Transcrevendo...' : 'Digite sua mensagem...')}
+                placeholder="Digite sua mensagem..."
                 className="flex-1 resize-none border border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm px-3 py-2 placeholder:text-slate-400"
                 style={{ borderRadius: '10px', maxHeight: '120px', lineHeight: '1.4' }}
-                disabled={streaming || recording || transcribing}
+                disabled={streaming}
                 data-testid="mi-input"
               />
               {streaming ? (
@@ -718,18 +684,55 @@ function TypingDots() {
 }
 
 const AUTHORIZED_BRANDS_SET = new Set(["HQ", "Franke", "Hisense", "Gorenje", "Bertazzoni", "Lofra", "Panasonic", "Liebherr"]);
+// Authorized for service, but CANNOT accept warranty cases per business rules.
+const WARRANTY_BLOCKED_BRANDS = new Set(["Bertazzoni", "Lofra", "Panasonic"]);
+// Visual order of authorized brands in the combobox.
+const AUTHORIZED_BRANDS_ORDERED = ["HQ", "Franke", "Hisense", "Gorenje", "Bertazzoni", "Lofra", "Panasonic", "Liebherr"];
+const OTHER_BRANDS_PLACEHOLDER = '__other__';
 
 function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, onSubmit, onDismiss }) {
   const [equipment, setEquipment] = useState(widget.equipment || '');
   const [brand, setBrand] = useState(widget.brand || '');
   const [serviceType, setServiceType] = useState('conserto');
-  const [warranty, setWarranty] = useState('fora');
-  const [defect, setDefect] = useState('');
+  const [warranty, setWarranty] = useState('');
+  const [model, setModel] = useState('');
+  const [serial, setSerial] = useState('');
+  const [defect, setDefect] = useState(widget.defectHint || '');
   const [submitting, setSubmitting] = useState(false);
+
+  // Brands not in the authorized list get grouped under the "Outras Marcas" option.
+  const otherBrands = (brands || []).filter(b => !AUTHORIZED_BRANDS_SET.has(b));
+  // If the current brand selection is one of the "other" brands (e.g. detected
+  // automatically from the conversation), keep it but show as "Outras Marcas".
+  const isBrandOther = brand && !AUTHORIZED_BRANDS_SET.has(brand);
 
   const NO_INSTALL = new Set(['geladeiras', 'ar-condicionado-portatil', 'lava-e-seca', 'lavadoras']);
   const canInstall = equipment && !NO_INSTALL.has(equipment);
-  const canWarranty = brand && AUTHORIZED_BRANDS_SET.has(brand);
+  // Warranty is allowed only for authorized brands AND excluding the blocked set.
+  const canWarranty = brand && AUTHORIZED_BRANDS_SET.has(brand) && !WARRANTY_BLOCKED_BRANDS.has(brand);
+
+  // Gate: require login/register BEFORE the visitor fills any data. Once
+  // logged in, the user profile is used to build the external OS payload,
+  // so asking upfront is better UX and avoids losing data on redirect.
+  if (!loggedIn && widget.widget !== 'done') {
+    return (
+      <div className="flex justify-start mi-msg-enter" data-testid="mi-schedule-need-login">
+        <div className="max-w-[92%] bg-amber-50 border border-amber-200 text-amber-900 text-sm px-4 py-3 space-y-2" style={{ borderRadius: '12px 12px 12px 2px' }}>
+          <div className="flex items-center gap-2 font-medium">
+            <div className="w-6 h-6 rounded-full overflow-hidden bg-blue-600 flex-shrink-0">
+              <img src="/images/assets/mi-avatar.webp" alt="Mi" className="w-full h-full object-cover" draggable={false} />
+            </div>
+            Pra abrir sua OS preciso te conhecer
+          </div>
+          <div className="text-[12px] text-amber-800/80">Entre ou cadastre-se rapidinho — leva menos de 1 minuto. Assim você acompanha tudo pelo portal.</div>
+          <div className="flex gap-2 pt-1">
+            <a href="/login" className="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5 px-3 transition-colors" style={{ borderRadius: '8px' }} data-testid="widget-login">Entrar</a>
+            <a href="/cadastro" className="flex-1 text-center border border-blue-600 text-blue-600 hover:bg-blue-50 text-xs py-1.5 px-3 transition-colors bg-white" style={{ borderRadius: '8px' }} data-testid="widget-register">Criar conta</a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Done state
   if (widget.widget === 'done') {
@@ -762,12 +765,23 @@ function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, onSubmit, onDi
   }
 
   const handleSubmit = async () => {
-    if (!equipment || !brand) return;
+    if (!equipment) { toast.error('Selecione o equipamento'); return; }
+    if (!brand) { toast.error('Selecione a marca'); return; }
+    if (!serviceType) { toast.error('Selecione o tipo de serviço'); return; }
+    if (!model.trim()) { toast.error('Informe o modelo do equipamento'); return; }
+    if (!defect.trim()) { toast.error('Descreva o defeito apresentado'); return; }
+    if (!warranty) { toast.error('Informe se está dentro ou fora da garantia'); return; }
+    if (warranty === 'dentro' && !serial.trim()) {
+      toast.error('Número de série é obrigatório para produtos dentro da garantia');
+      return;
+    }
     setSubmitting(true);
     await onSubmit({
       equipment, brand,
       service_type: serviceType,
-      warranty_status: warranty,
+      warranty_status: warranty === 'dentro' ? 'dentro_garantia' : 'fora_garantia',
+      model: model.trim(),
+      serial_number: serial.trim(),
       defect_description: defect.trim(),
     });
     setSubmitting(false);
@@ -777,12 +791,18 @@ function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, onSubmit, onDi
     <div className="flex justify-start mi-msg-enter" data-testid="mi-schedule-card">
       <div className="max-w-[92%] bg-white border border-blue-200 shadow-sm text-slate-900 text-sm px-4 py-3 space-y-2.5" style={{ borderRadius: '12px 12px 12px 2px' }}>
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 bg-blue-600 text-white flex items-center justify-center" style={{ borderRadius: '6px' }}>
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="w-7 h-7 rounded-full overflow-hidden bg-blue-600 flex-shrink-0">
+            <img src="/images/assets/mi-avatar.webp" alt="Mi" className="w-full h-full object-cover" draggable={false} />
           </div>
-          <div className="font-heading font-semibold text-sm text-slate-900 leading-tight">Pré-agendamento rápido</div>
+          <div className="font-heading font-semibold text-sm text-slate-900 leading-tight">
+            {widget.proactive ? 'Vamos abrir a OS?' : 'Pré-agendamento rápido'}
+          </div>
         </div>
-        <p className="text-[12px] text-slate-500 leading-snug">Me conte o básico e eu já abro a OS pra você.</p>
+        <p className="text-[12px] text-slate-500 leading-snug">
+          {widget.proactive
+            ? 'Pelo que você descreveu, já dá pra adiantar uma OS. Confira os dados, ajuste o que precisar e confirme — é rápido.'
+            : 'Me conte o básico e eu já abro a OS pra você.'}
+        </p>
 
         <div className="space-y-2">
           <div>
@@ -801,15 +821,32 @@ function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, onSubmit, onDi
           <div>
             <label className="block text-[11px] font-medium text-slate-600 mb-0.5">Marca</label>
             <select
-              value={brand}
-              onChange={(e) => setBrand(e.target.value)}
+              value={isBrandOther ? OTHER_BRANDS_PLACEHOLDER : brand}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === OTHER_BRANDS_PLACEHOLDER) {
+                  // When the user picks "Outras Marcas", default to the first
+                  // non-authorized brand we know of so the OS can be created.
+                  setBrand(otherBrands[0] || '');
+                } else {
+                  setBrand(v);
+                }
+              }}
               className="w-full border border-slate-300 focus:border-blue-500 outline-none text-sm py-1.5 px-2 bg-white"
               style={{ borderRadius: '6px' }}
               data-testid="widget-brand"
             >
               <option value="">Selecione...</option>
-              {(brands || []).map(b => <option key={b} value={b}>{b}</option>)}
+              {AUTHORIZED_BRANDS_ORDERED.filter(b => (brands || []).includes(b)).map(b => (
+                <option key={b} value={b}>{b}</option>
+              ))}
+              {otherBrands.length > 0 && (
+                <option value={OTHER_BRANDS_PLACEHOLDER}>Outras Marcas</option>
+              )}
             </select>
+            {isBrandOther && (
+              <p className="mt-1 text-[11px] text-slate-500">Sua marca será registrada como <span className="font-medium text-slate-700">{brand}</span> (atendimento apenas fora da garantia).</p>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>
@@ -826,7 +863,7 @@ function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, onSubmit, onDi
               </select>
             </div>
             <div>
-              <label className="block text-[11px] font-medium text-slate-600 mb-0.5">Garantia</label>
+              <label className="block text-[11px] font-medium text-slate-600 mb-0.5">Garantia <span className="text-red-500">*</span></label>
               <select
                 value={warranty}
                 onChange={(e) => setWarranty(e.target.value)}
@@ -834,14 +871,40 @@ function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, onSubmit, onDi
                 style={{ borderRadius: '6px' }}
                 data-testid="widget-warranty"
               >
+                <option value="">Selecione...</option>
                 <option value="fora">Fora da garantia</option>
-                <option value="dentro" disabled={!canWarranty}>Dentro{!canWarranty && ' (marca não autorizada)'}</option>
-                <option value="nao-sei">Não sei</option>
+                <option value="dentro" disabled={!canWarranty}>Dentro{!canWarranty && (WARRANTY_BLOCKED_BRANDS.has(brand) ? ' (marca sem garantia)' : ' (marca não autorizada)')}</option>
               </select>
             </div>
           </div>
           <div>
-            <label className="block text-[11px] font-medium text-slate-600 mb-0.5">Defeito (opcional)</label>
+            <label className="block text-[11px] font-medium text-slate-600 mb-0.5">Modelo <span className="text-red-500">*</span></label>
+            <input
+              type="text"
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+              placeholder="Ex.: RF49A5202S9"
+              className="w-full border border-slate-300 focus:border-blue-500 outline-none text-sm py-1.5 px-2"
+              style={{ borderRadius: '6px' }}
+              data-testid="widget-model"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-medium text-slate-600 mb-0.5">
+              Número de série {warranty === 'dentro' ? <span className="text-red-500">*</span> : <span className="text-slate-400 font-normal">(opcional)</span>}
+            </label>
+            <input
+              type="text"
+              value={serial}
+              onChange={(e) => setSerial(e.target.value)}
+              placeholder="Ex.: SN-A1B2C3"
+              className="w-full border border-slate-300 focus:border-blue-500 outline-none text-sm py-1.5 px-2"
+              style={{ borderRadius: '6px' }}
+              data-testid="widget-serial"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-medium text-slate-600 mb-0.5">Defeito <span className="text-red-500">*</span></label>
             <textarea
               rows={2}
               value={defect}
@@ -864,7 +927,7 @@ function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, onSubmit, onDi
           </button>
           <button
             onClick={handleSubmit}
-            disabled={!equipment || !brand || submitting}
+            disabled={submitting}
             className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-xs font-medium py-1.5 px-3 transition-colors inline-flex items-center justify-center gap-1.5"
             style={{ borderRadius: '6px' }}
             data-testid="widget-submit"

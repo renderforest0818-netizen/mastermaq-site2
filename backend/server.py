@@ -4,11 +4,12 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Response
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, BackgroundTasks
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
 import os
+import asyncio
 import logging
 import bcrypt
 import jwt
@@ -161,8 +162,8 @@ async def register(data: RegisterRequest, response: Response):
     user_id = str(result.inserted_id)
     access_token = create_access_token(user_id, email)
     refresh_token = create_refresh_token(user_id)
-    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=True, samesite="lax", max_age=3600, path="/")
-    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=True, samesite="lax", max_age=2592000, path="/")
+    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=True, samesite="none", max_age=3600, path="/")
+    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=True, samesite="none", max_age=2592000, path="/")
     full = await db.users.find_one({"_id": ObjectId(user_id)}, {"password_hash": 0})
     full["_id"] = str(full["_id"])
     return full
@@ -191,8 +192,8 @@ async def login(data: LoginRequest, request: Request, response: Response):
     user_id = str(user["_id"])
     access_token = create_access_token(user_id, email)
     refresh_token = create_refresh_token(user_id)
-    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=True, samesite="lax", max_age=3600, path="/")
-    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=True, samesite="lax", max_age=2592000, path="/")
+    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=True, samesite="none", max_age=3600, path="/")
+    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=True, samesite="none", max_age=2592000, path="/")
     full = await db.users.find_one({"_id": user["_id"]}, {"password_hash": 0})
     full["_id"] = str(full["_id"])
     return full
@@ -221,7 +222,7 @@ async def refresh_token_endpoint(request: Request, response: Response):
             raise HTTPException(status_code=401, detail="User not found")
         user_id = str(user["_id"])
         new_access = create_access_token(user_id, user["email"])
-        response.set_cookie(key="access_token", value=new_access, httponly=True, secure=True, samesite="lax", max_age=3600, path="/")
+        response.set_cookie(key="access_token", value=new_access, httponly=True, secure=True, samesite="none", max_age=3600, path="/")
         return {"message": "Token refreshed"}
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Refresh token expired")
@@ -254,16 +255,119 @@ async def get_rules():
     return {"installation_disabled": INSTALLATION_DISABLED}
 
 # ── Service Orders ───────────────────────────────────────────────────
+def _service_type_external_label(st: str) -> str:
+    """Map internal service_type to external API expected labels."""
+    m = {
+        "conserto": "Conserto",
+        "orcamento": "Orçamento",
+        "instalacao": "Instalação",
+        "manutencao": "Manutenção",
+    }
+    return m.get((st or "").lower(), st or "Orçamento")
+
+
+def _equipment_name(eq_id: str) -> str:
+    for eq in EQUIPMENT_TYPES:
+        if eq.get("id") == eq_id:
+            return eq.get("name", eq_id)
+    return eq_id or ""
+
+
+async def _push_to_external_system(order_doc: dict, user_doc: Optional[dict]) -> dict:
+    """Send OS to the Mastermaq Systems external API. Non-blocking style errors
+    are swallowed but returned for logging; does not raise."""
+    url = os.environ.get("EXTERNAL_OS_API_URL", "")
+    key = os.environ.get("EXTERNAL_OS_API_KEY", "")
+    if not url or not key:
+        return {"ok": False, "error": "external_api_not_configured"}
+
+    def _digits(v): return "".join(ch for ch in (v or "") if ch.isdigit())
+
+    # Build payload from both order and user profile
+    user = user_doc or {}
+    payload = {
+        "customer_name": order_doc.get("user_name") or user.get("name") or "Cliente Site",
+        "phone1": _digits(user.get("phone") or ""),
+        "address": user.get("address") or "",
+        "number": user.get("number") or "",
+        "neighborhood": user.get("neighborhood") or "",
+        "city": user.get("city") or "Belo Horizonte",
+        "state": user.get("state") or "MG",
+        "cep": _digits(user.get("cep") or ""),
+        "email": order_doc.get("user_email") or user.get("email") or "",
+        "product": _equipment_name(order_doc.get("equipment_type", "")),
+        "brand": order_doc.get("brand") or "",
+        "model": order_doc.get("model") or "",
+        "serial_number": order_doc.get("serial_number") or "",
+        "reported_defect": order_doc.get("defect_description") or "",
+        "observations": f"OS interna: {order_doc.get('os_number','')} | Origem: site Mastermaq",
+        "service_type": _service_type_external_label(order_doc.get("service_type", "")),
+        "reference_point": "",
+        "complement": "",
+    }
+    # Require customer_name and phone1 per external spec
+    if not payload["customer_name"] or not payload["phone1"]:
+        return {"ok": False, "error": "missing_required", "payload": payload}
+
+    try:
+        def _post():
+            import requests as _req
+            return _req.post(
+                url,
+                json=payload,
+                headers={
+                    "Content-Type": "application/json",
+                    "X-API-Key": key,
+                },
+                timeout=12,
+            )
+        loop = asyncio.get_event_loop()
+        resp = await loop.run_in_executor(None, _post)
+        data = {}
+        try:
+            data = resp.json()
+        except Exception:
+            data = {"raw": resp.text[:300]}
+        return {"ok": resp.status_code in (200, 201), "status_code": resp.status_code, "data": data}
+    except Exception as e:
+        return {"ok": False, "error": str(e)[:300]}
+
+
+async def _sync_order_to_external(os_number: str, order_doc: dict, user_doc: Optional[dict]):
+    """Background task: push the OS to the external Mastermaq Systems API and
+    persist the outcome on the local document. Any error is swallowed — the
+    local OS is already created and the user already got their confirmation."""
+    try:
+        ext = await _push_to_external_system(order_doc, user_doc)
+        external_os = None
+        if ext.get("ok") and isinstance(ext.get("data"), dict):
+            external_os = ext["data"].get("os_number") or ext["data"].get("id")
+        await db.service_orders.update_one(
+            {"os_number": os_number},
+            {"$set": {
+                "external_os_number": external_os,
+                "external_status": (ext.get("data") or {}).get("status") if isinstance(ext.get("data"), dict) else None,
+                "external_sync_ok": bool(ext.get("ok")),
+                "external_sync_error": None if ext.get("ok") else (ext.get("error") or f"HTTP {ext.get('status_code')}"),
+                "external_synced_at": datetime.now(timezone.utc).isoformat(),
+            }}
+        )
+    except Exception as e:
+        logger.warning(f"external sync background err: {e}")
+
+
 @api_router.post("/service-orders", status_code=201)
-async def create_service_order(data: ServiceOrderCreate, request: Request):
+async def create_service_order(data: ServiceOrderCreate, request: Request, background_tasks: BackgroundTasks):
     user_id = None
     user_email = None
     user_name = None
+    user_doc = None
     try:
         user = await get_current_user(request)
         user_id = user["_id"]
         user_email = user.get("email")
         user_name = user.get("name")
+        user_doc = user
     except Exception:
         pass
     os_number = generate_os_number()
@@ -279,12 +383,24 @@ async def create_service_order(data: ServiceOrderCreate, request: Request):
         "serial_number": data.serial_number,
         "warranty_status": data.warranty_status,
         "defect_description": data.defect_description,
-        "status": "aguardando_confirmacao",
+        "status": "Aguardando Análise A.T",
         "visit_fee": "A definir",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.service_orders.insert_one(order_doc)
+
+    # Fire-and-forget: push to the external Mastermaq Systems API in the
+    # background so the user receives the OS confirmation immediately, even
+    # if the external API is slow or temporarily unavailable. The outcome is
+    # persisted on the local OS and the client can see it via polling.
+    snapshot = dict(order_doc); snapshot.pop("_id", None)
+    user_snapshot = dict(user_doc) if user_doc else None
+    if user_snapshot:
+        user_snapshot.pop("_id", None)
+        user_snapshot.pop("hashed_password", None)
+    background_tasks.add_task(_sync_order_to_external, os_number, snapshot, user_snapshot)
+
     order_doc.pop("_id", None)
     return order_doc
 
@@ -396,9 +512,15 @@ COMO VOCE DEVE AGIR:
    - Recomendar abertura de Ordem de Servico (OS) para visita tecnica.
    - Sugerir clicar em "Agendar Visita Tecnica" no site, ou ligar (31) 3422-5293, ou se logado, usar o portal "Minha Conta" > "Novo Agendamento".
 4. Quando o cliente pedir agendamento, colete (se ele ainda nao informou): tipo de equipamento, marca, modelo, breve descricao do problema, e oriente a finalizar pelo modal de agendamento.
-5. Responda em markdown quando fizer sentido (listas, negrito), mas seja sucinta (3-6 linhas de media).
-6. Se perguntarem sobre assuntos fora do escopo (politica, entretenimento, codigo, etc), redirecione gentilmente: "Posso te ajudar com assuntos da Mastermaq - agendamento, marcas, horarios ou duvidas sobre nossos servicos."
-7. Use emojis com parcimonia (no maximo 1 por resposta) e apenas quando realmente agregarem.
+5. Quando o cliente pedir atendimento para um dia/data especifica (ex.: "amanha", "sexta-feira", "dia 28", "essa semana"):
+   - Confirme a preferencia com gentileza, mas SEMPRE explique, em linguagem natural, que:
+     a) Apos a abertura da OS, nossa equipe ira verificar a disponibilidade dos tecnicos e organizar conforme o roteiro logistico do dia.
+     b) O horario/data efetivos podem variar conforme a localizacao do atendimento e a agenda dos tecnicos.
+     c) Voce vai receber um contato da nossa equipe para confirmar o melhor horario assim que a OS for analisada.
+   - Nunca prometa data/horario garantidos. Use frases naturais, nao robotizadas (ex.: "Anotei sua preferencia para sexta. Assim que a OS for aberta, nossa equipe vai cruzar com o roteiro dos tecnicos e te confirmar o melhor horario — pode variar um pouco dependendo da regiao.").
+6. Responda em markdown quando fizer sentido (listas, negrito), mas seja sucinta (3-6 linhas de media).
+7. Se perguntarem sobre assuntos fora do escopo (politica, entretenimento, codigo, etc), redirecione gentilmente: "Posso te ajudar com assuntos da Mastermaq - agendamento, marcas, horarios ou duvidas sobre nossos servicos."
+8. Use emojis com parcimonia (no maximo 1 por resposta) e apenas quando realmente agregarem.
 
 NUNCA:
 - Nunca invente precos, prazos exatos ou garanta resultado de conserto.
@@ -609,7 +731,22 @@ async def chat_stream(payload: ChatStreamRequest, request: Request):
                     "ordem de servi", "visita técnica", "visita tecnica",
                     "agendar visita", "abrir uma os", "abrir os",
                 ]
-                if any(k in text_lower for k in intent_keywords):
+                # Problem/defect keywords - also trigger pre-OS proactively (user described a problem)
+                problem_keywords = [
+                    "não liga", "nao liga", "não funciona", "nao funciona",
+                    "não gela", "nao gela", "não esquenta", "nao esquenta",
+                    "não esta ", "nao esta ", "não está ", "quebrou", "quebrada", "quebrado",
+                    "parou", "travou", "vazando", "vaza", "vazamento", "ruido", "ruído", "barulho",
+                    "faisca", "faísca", "mau cheiro", "cheiro ruim", "mancha",
+                    "defeito", "estragou", "estragada", "estragado",
+                    "não está gelando", "nao esta gelando",
+                    "não seca", "nao seca", "não centrifuga", "nao centrifuga",
+                    "não resfria", "nao resfria", "pingando", "sem ar",
+                ]
+                blob = text_lower
+                has_intent = any(k in blob for k in intent_keywords)
+                has_problem = any(k in blob for k in problem_keywords)
+                if has_intent or has_problem:
                     # Try to extract equipment + brand from last user message
                     EQ_MAP = {
                         "geladeira": "geladeiras",
@@ -638,7 +775,13 @@ async def chat_stream(payload: ChatStreamRequest, request: Request):
                         if b in recent_user_blob or b in text_lower:
                             brand = next(x for x in BRANDS if x.lower() == b)
                             break
-                    yield f"data: {_json.dumps({'type': 'suggest_schedule', 'equipment': eq_id or '', 'brand': brand})}\n\n"
+                    # Extract hints for defect description and model from recent user turns
+                    defect_hint = ""
+                    for m in reversed(payload.messages):
+                        if m.role == "user" and m.content:
+                            defect_hint = m.content[:240]
+                            break
+                    yield f"data: {_json.dumps({'type': 'suggest_schedule', 'equipment': eq_id or '', 'brand': brand, 'defect_hint': defect_hint, 'proactive': bool(has_problem and not has_intent)})}\n\n"
             except Exception as e:
                 logger.warning(f"intent detect err: {e}")
 
@@ -712,7 +855,86 @@ async def chat_upload_image(image: UploadFile = File(...)):
 
 
 # ── Feedback 👍👎 ────────────────────────────────────────────────────
-@api_router.post("/chat/feedback")
+# ── Webhook: updates de status vindos do sistema externo (Mastermaq Systems) ─
+class ExternalStatusUpdate(BaseModel):
+    os_number: Optional[str] = None        # internal OS (preferred)
+    external_os_number: Optional[str] = None  # ext OS (EXT-...)
+    status: str
+    technician: Optional[str] = None
+    scheduled_for: Optional[str] = None
+    notes: Optional[str] = None
+    event_type: Optional[str] = "status_update"
+
+
+@api_router.post("/external/webhook/status")
+async def external_status_webhook(body: ExternalStatusUpdate, request: Request):
+    """
+    Receives OS status updates from the external system.
+    Auth: X-API-Key header equal to EXTERNAL_OS_API_KEY env var.
+    Matches OS by os_number (internal) first, then external_os_number.
+    """
+    key = os.environ.get("EXTERNAL_OS_API_KEY", "")
+    recv = request.headers.get("x-api-key") or request.headers.get("X-API-Key")
+    if not key or recv != key:
+        raise HTTPException(status_code=401, detail="API key invalida")
+
+    query = None
+    if body.os_number:
+        query = {"os_number": body.os_number}
+    elif body.external_os_number:
+        query = {"external_os_number": body.external_os_number}
+    if not query:
+        raise HTTPException(status_code=400, detail="os_number ou external_os_number e obrigatorio")
+
+    update = {
+        "status": body.status,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    if body.technician:   update["technician"] = body.technician
+    if body.scheduled_for: update["scheduled_for"] = body.scheduled_for
+    if body.notes:        update["notes_ext"] = body.notes
+
+    res = await db.service_orders.update_one(query, {"$set": update})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="OS nao encontrada")
+
+    # Log event for audit + polling
+    await db.service_order_events.insert_one({
+        **query,
+        "event_type": body.event_type or "status_update",
+        "status": body.status,
+        "technician": body.technician,
+        "scheduled_for": body.scheduled_for,
+        "notes": body.notes,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"ok": True, "matched": res.matched_count, "modified": res.modified_count}
+
+
+@api_router.get("/service-orders/{os_number}/events")
+async def os_events(os_number: str, request: Request):
+    """Polling fallback: retorna eventos da OS (requer login do dono ou admin)."""
+    user = await get_current_user(request)
+    o = await db.service_orders.find_one({"os_number": os_number})
+    if not o:
+        raise HTTPException(status_code=404, detail="OS nao encontrada")
+    if o.get("user_id") != user.get("_id") and user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Sem permissao")
+    cursor = db.service_order_events.find({"os_number": os_number}).sort("created_at", -1).limit(50)
+    out = []
+    async for ev in cursor:
+        out.append({
+            "event_type": ev.get("event_type"),
+            "status": ev.get("status"),
+            "technician": ev.get("technician"),
+            "scheduled_for": ev.get("scheduled_for"),
+            "notes": ev.get("notes"),
+            "created_at": ev.get("created_at"),
+        })
+    return {"os_number": os_number, "current_status": o.get("status"), "events": out}
+
+
+
 async def chat_feedback(body: ChatFeedbackRequest, request: Request):
     if body.rating not in ("up", "down"):
         raise HTTPException(status_code=400, detail="rating deve ser 'up' ou 'down'")
@@ -729,6 +951,83 @@ async def chat_feedback(body: ChatFeedbackRequest, request: Request):
     }
     await db.chat_feedback.insert_one(doc)
     return {"ok": True}
+
+
+# ── TTS (Text-to-Speech) ─────────────────────────────────────────────
+class TTSRequest(BaseModel):
+    text: str
+    voice: Optional[str] = "nova"  # cleaner pt-BR pronunciation
+    speed: Optional[float] = 1.0
+
+
+def _sanitize_tts_text(raw: str) -> str:
+    """Remove markdown, emojis and other artifacts so the TTS engine does not
+    read literal '*', '_', '#', bullets, or emoji-like tokens (which cause
+    robotic pauses and odd pronunciation)."""
+    import re as _re
+    t = raw or ""
+    # strip fenced code blocks
+    t = _re.sub(r"```[\s\S]*?```", " ", t)
+    # inline code `foo`
+    t = _re.sub(r"`([^`]+)`", r"\1", t)
+    # markdown links [text](url) -> text
+    t = _re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", t)
+    # bold/italic/underline markers
+    t = _re.sub(r"[*_~]+", " ", t)
+    # headings / blockquotes markers at line start
+    t = _re.sub(r"(^|\n)\s*[#>]+\s*", r"\1", t)
+    # bullet markers
+    t = _re.sub(r"(^|\n)\s*[-•]\s+", r"\1", t)
+    # strip most emojis / pictographs
+    try:
+        t = _re.sub(
+            r"[\U0001F300-\U0001FAFF\U00002600-\U000027BF\U0001F000-\U0001F0FF]",
+            "",
+            t,
+        )
+    except Exception:
+        pass
+    # collapse whitespace
+    t = _re.sub(r"[ \t]+", " ", t)
+    t = _re.sub(r"\n{3,}", "\n\n", t)
+    # ensure sentence ends for prosody if missing
+    t = t.strip()
+    if t and t[-1] not in ".!?…":
+        t += "."
+    return t
+
+
+@api_router.post("/chat/tts")
+async def chat_tts(body: TTSRequest):
+    """Return mp3 audio for the given text using OpenAI tts-1-hd via Emergent key."""
+    api_key = _get_llm_api_key()
+    if not api_key:
+        raise HTTPException(status_code=500, detail="LLM key nao configurada")
+    text = _sanitize_tts_text((body.text or "").strip())
+    if not text:
+        raise HTTPException(status_code=400, detail="text vazio")
+    # Cap for single TTS call
+    if len(text) > 4000:
+        text = text[:4000]
+    try:
+        from emergentintegrations.llm.openai import OpenAITextToSpeech
+        tts = OpenAITextToSpeech(api_key=api_key)
+        # tts-1-hd gives much more natural prosody in pt-BR; nova is the
+        # voice with cleanest Portuguese pronunciation (coral has US accent).
+        audio_bytes = await tts.generate_speech(
+            text=text,
+            model="tts-1-hd",
+            voice=body.voice or "nova",
+            speed=max(0.5, min(2.0, body.speed or 1.0)),
+            response_format="mp3",
+        )
+        from fastapi.responses import Response as FastResponse
+        return FastResponse(content=audio_bytes, media_type="audio/mpeg", headers={
+            "Cache-Control": "no-store",
+        })
+    except Exception as e:
+        logger.error(f"tts err: {e}")
+        raise HTTPException(status_code=500, detail=f"Falha TTS: {str(e)[:200]}")
 
 
 # ── Startup ──────────────────────────────────────────────────────────

@@ -33,7 +33,7 @@ const SERVICES = [
   { slug: "lavadoras", name: "Lavadoras", icon: "Droplets", image: null, desc: "Manutencão e conserto de lavadoras. Atendemos todas as marcas com técnicos especializados.", problems: ["No enche água", "Não drena", "Vibra demais"] },
   { slug: "ar-condicionado-portátil", name: "Ar Condicionado Portátil", icon: "AirVent", image: null, desc: "Conserto de ar condicionado portátil de todas as marcas.", problems: ["Não resfria", "Barulho alto", "Vazamento", "Desliga sozinho"] },
   { slug: "trituradores", name: "Trituradores", icon: "Cog", image: "/images/trituradores/franke.png", desc: "Reparo e instalação de trituradores de alimentos. Serviço rápido e garantido.", problems: ["Não tritura", "Entupido", "Faz barulho", "Não liga"] },
-  { slug: "vrf-hisense", name: "VRF Hisense", icon: "Server", image: null, desc: "Serviço autorizado Hisense para sistemas VRF. Instalação e manutenção especializada.", problems: ["Falha no sistema", "Não refrigera"] },
+  { slug: "vrf-hisense", name: "VRF Hisense", icon: "Server", image: "/images/vrf/vrf-hero-product.png", desc: "Serviço autorizado Hisense para sistemas VRF. Instalação e manutenção especializada.", problems: ["Falha no sistema", "Não refrigera"] },
   { slug: "freezers", name: "Freezers", icon: "Thermometer", image: null, desc: "Conserto de freezers verticais e horizontais. Todas as marcas e capacidades.", problems: ["Não congela", "Forma gelo excessivo", "Motor não desliga", "Barulho excessivo"] },
   { slug: "coifas", name: "Coifas", icon: "Fan", image: null, desc: "Manutenção, instalação e conserto de coifas de ilha e parede de todas as marcas.", problems: ["Não aspira", "Iluminação não funciona", "Barulho", "Não liga"] },
 ];

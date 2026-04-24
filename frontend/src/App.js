@@ -15,6 +15,7 @@ import BlogArticlePage from "@/pages/BlogArticlePage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import PortalPage from "@/pages/PortalPage";
+import VRFHisensePage from "@/pages/VRFHisensePage";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -39,6 +40,7 @@ function AppRoutes() {
       <Route path="/contato" element={<ContactPage />} />
       <Route path="/blog" element={<BlogPage />} />
       <Route path="/blog/:slug" element={<BlogArticlePage />} />
+      <Route path="/vrf-hisense" element={<VRFHisensePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/minha-conta" element={<ProtectedRoute><PortalPage /></ProtectedRoute>} />

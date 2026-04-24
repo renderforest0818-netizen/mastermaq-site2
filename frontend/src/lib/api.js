@@ -1,7 +1,31 @@
 import axios from 'axios';
 
+/**
+ * Resolve the backend base URL.
+ *
+ * In production (any non-localhost host) we use `window.location.origin` so
+ * that API requests are SAME-ORIGIN with the page. This avoids cross-origin
+ * CORS issues with credentialed requests (cookies), which are critical for
+ * the Mastermaq auth flow. The Emergent platform routes `/api/*` on the
+ * custom domain to the same backend, so this works for any domain the user
+ * connects (eletro-master.emergent.host, mastermaqassistencia.com, www., etc).
+ *
+ * In local development (localhost:3000) we fall back to REACT_APP_BACKEND_URL
+ * so the dev server talks to the local FastAPI.
+ */
+export function resolveBackendUrl() {
+  if (typeof window !== 'undefined' && window.location) {
+    const host = window.location.hostname;
+    const isLocal = host === 'localhost' || host === '127.0.0.1';
+    if (!isLocal) return window.location.origin;
+  }
+  return process.env.REACT_APP_BACKEND_URL || '';
+}
+
+export const BACKEND_URL = resolveBackendUrl();
+
 const API = axios.create({
-  baseURL: `${process.env.REACT_APP_BACKEND_URL}/api`,
+  baseURL: `${BACKEND_URL}/api`,
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 });

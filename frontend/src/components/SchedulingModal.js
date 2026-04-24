@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,9 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
-import { ArrowLeft, ArrowRight, CheckCircle2, Wrench, Settings, Info, Check, Lock } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Wrench, Settings, Info, Check, Lock, UserPlus, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 import API from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 const BRANDS = [
   { name: "HQ", logo: "/images/assets/hq-logo.png" },
@@ -30,9 +32,12 @@ const BRANDS = [
 ];
 
 const AUTHORIZED_BRANDS = ["HQ", "Franke", "Hisense", "Gorenje", "Bertazzoni", "Lofra", "Panasonic", "Liebherr"];
+// Authorized for service, but CANNOT accept warranty cases per business rules.
+const WARRANTY_BLOCKED_BRANDS = new Set(["Bertazzoni", "Lofra", "Panasonic"]);
 const INSTALLATION_DISABLED = ["geladeiras", "ar-condicionado-portátil", "lava-e-seca", "lavadoras"];
 
 export default function SchedulingModal({ open, onClose, equipment }) {
+  const { user } = useAuth();
   const [step, setStep] = useState(0);
   const [brand, setBrand] = useState('');
   const [serviceType, setServiceType] = useState('');
@@ -41,29 +46,40 @@ export default function SchedulingModal({ open, onClose, equipment }) {
   const [submitting, setSubmitting] = useState(false);
 
   const isInstallDisabled = equipment ? INSTALLATION_DISABLED.includes(equipment.id) : false;
-  const isAuthorizedBrand = AUTHORIZED_BRANDS.includes(brand);
+  const isAuthorizedBrand = AUTHORIZED_BRANDS.includes(brand) && !WARRANTY_BLOCKED_BRANDS.has(brand);
 
   const reset = useCallback(() => {
     setStep(0);
     setBrand('');
     setServiceType('');
-    setFormData({ model: '', serial_number: '', warranty_status: 'fora_garantia', defect_description: '' });
+    setFormData({ model: '', serial_number: '', warranty_status: '', defect_description: '' });
     setOsData(null);
   }, []);
 
   const handleClose = () => { reset(); onClose(); };
 
   const handleSubmit = async () => {
+    // Validation: required fields
+    if (!equipment?.id) { toast.error('Selecione um equipamento'); return; }
+    if (!brand) { toast.error('Selecione uma marca'); return; }
+    if (!serviceType) { toast.error('Selecione o tipo de serviço'); return; }
+    if (!formData.model.trim()) { toast.error('Informe o modelo do equipamento'); return; }
+    if (!formData.defect_description.trim()) { toast.error('Descreva o defeito apresentado'); return; }
+    if (!formData.warranty_status) { toast.error('Informe se está dentro ou fora da garantia'); return; }
+    if (formData.warranty_status === 'dentro_garantia' && !formData.serial_number.trim()) {
+      toast.error('Número de série é obrigatório para equipamentos dentro da garantia');
+      return;
+    }
     setSubmitting(true);
     try {
       const payload = {
         equipment_type: equipment?.id || '',
         brand,
         service_type: serviceType,
-        model: formData.model,
-        serial_number: formData.serial_number,
+        model: formData.model.trim(),
+        serial_number: formData.serial_number.trim(),
         warranty_status: formData.warranty_status,
-        defect_description: formData.defect_description,
+        defect_description: formData.defect_description.trim(),
       };
       const { data } = await API.post('/service-orders', payload);
       setOsData(data);
@@ -78,32 +94,54 @@ export default function SchedulingModal({ open, onClose, equipment }) {
 
   const selectService = (type) => {
     setServiceType(type);
-    if (type === 'conserto') {
-      setStep(2);
-    } else {
-      setSubmitting(true);
-      API.post('/service-orders', {
-        equipment_type: equipment?.id || '',
-        brand,
-        service_type: type,
-      }).then(({ data }) => {
-        setOsData(data);
-        setStep(3);
-        toast.success('Ordem de serviço criada com sucesso!');
-      }).catch(() => {
-        toast.error('Erro ao criar ordem de serviço');
-      }).finally(() => setSubmitting(false));
-    }
+    setStep(2);
   };
 
   if (!equipment) return null;
 
   const stepLabels = ['Marca', 'Serviço', 'Detalhes', 'Confirmação'];
+  // Gate: if visitor is not logged in, require login/register BEFORE collecting
+  // any form data (name, phone, defect, etc.). Once authenticated, the profile
+  // on the user record is used to populate the external OS payload, so asking
+  // before is both better UX and avoids losing input on redirect.
+  const needsAuth = !user && step < 3;
 
   return (
     <TooltipProvider>
       <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto p-0" data-testid="scheduling-modal">
+          {needsAuth ? (
+            <div className="p-6 sm:p-8 space-y-5 text-center" data-testid="modal-auth-gate">
+              <div className="mx-auto w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center">
+                <Lock className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <DialogTitle className="font-heading text-xl text-slate-900">Entre para agendar</DialogTitle>
+                <DialogDescription className="text-slate-500 text-sm mt-1.5 max-w-sm mx-auto">
+                  Para abrir sua ordem de serviço precisamos saber quem você é. Em poucos cliques você cria sua conta e já agenda a visita do técnico.
+                </DialogDescription>
+              </div>
+              <ul className="text-left text-[13px] text-slate-600 space-y-1.5 max-w-xs mx-auto">
+                <li className="flex gap-2"><Check className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" /> Acompanhe sua OS em tempo real</li>
+                <li className="flex gap-2"><Check className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" /> Histórico de atendimentos</li>
+                <li className="flex gap-2"><Check className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" /> Chat com a Mi 24/7</li>
+              </ul>
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                <Link to="/login" onClick={handleClose} className="flex-1" data-testid="auth-gate-login">
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10">
+                    <LogIn className="w-4 h-4 mr-1.5" /> Entrar
+                  </Button>
+                </Link>
+                <Link to="/cadastro" onClick={handleClose} className="flex-1" data-testid="auth-gate-register">
+                  <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50 h-10">
+                    <UserPlus className="w-4 h-4 mr-1.5" /> Criar conta
+                  </Button>
+                </Link>
+              </div>
+              <p className="text-[11px] text-slate-400">Leva menos de 1 minuto. Depois você volta pra cá.</p>
+            </div>
+          ) : (
+          <>
           <div className="px-6 pt-6 pb-4 border-b border-slate-100">
             <DialogHeader>
               <DialogTitle className="font-heading text-xl text-slate-900" data-testid="modal-title">
@@ -221,7 +259,28 @@ export default function SchedulingModal({ open, onClose, equipment }) {
             {step === 2 && (
               <div className="flex flex-col gap-4" data-testid="repair-form">
                 <div>
-                  <Label className="text-sm text-slate-700">Modelo</Label>
+                  <Label className="text-sm text-slate-700 flex items-center gap-1.5">
+                    Modelo <span className="text-red-500">*</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button type="button" className="w-4 h-4 flex items-center justify-center rounded-full bg-slate-100 hover:bg-blue-100 text-slate-500 hover:text-blue-600 transition-colors" aria-label="O que é Modelo?" data-testid="tooltip-model">
+                          <Info className="w-3 h-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                        <p className="font-semibold mb-1">O que é o modelo?</p>
+                        <p>Código que identifica a versão exata do produto (ex: <em>RF49A5202S9</em>).</p>
+                        <p className="mt-1.5 font-semibold">Onde encontrar:</p>
+                        <ul className="list-disc pl-4 space-y-0.5">
+                          <li>Geladeira/Freezer: etiqueta dentro do compartimento refrigerador (lateral ou teto)</li>
+                          <li>Lavadora/Lava e Seca: borda da porta ou traseira</li>
+                          <li>Ar-condicionado: etiqueta lateral da evaporadora e na condensadora</li>
+                          <li>VRF/Coifa: etiqueta frontal ou manual</li>
+                          <li>Também aparece no manual ou nota fiscal</li>
+                        </ul>
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <Input
                     placeholder="Ex: RF49A5202S9"
                     value={formData.model}
@@ -231,9 +290,31 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                   />
                 </div>
                 <div>
-                  <Label className="text-sm text-slate-700">Número de Serie</Label>
+                  <Label className="text-sm text-slate-700 flex items-center gap-1.5">
+                    Número de Série {formData.warranty_status === 'dentro_garantia' && <span className="text-red-500">*</span>}
+                    {formData.warranty_status !== 'dentro_garantia' && <span className="text-[11px] text-slate-400 font-normal">(opcional)</span>}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button type="button" className="w-4 h-4 flex items-center justify-center rounded-full bg-slate-100 hover:bg-blue-100 text-slate-500 hover:text-blue-600 transition-colors" aria-label="O que é Número de Série?" data-testid="tooltip-serial">
+                          <Info className="w-3 h-3" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                        <p className="font-semibold mb-1">O que é o número de série?</p>
+                        <p>Código único de cada unidade (não confundir com modelo). Geralmente começa com letras/números tipo <em>SN: A1B2C3</em>.</p>
+                        <p className="mt-1.5 font-semibold">Onde encontrar:</p>
+                        <ul className="list-disc pl-4 space-y-0.5">
+                          <li>Na mesma etiqueta do modelo, campo "Serial" ou "S/N"</li>
+                          <li>Geladeira: dentro do compartimento, na etiqueta prateada</li>
+                          <li>Ar-condicionado: etiqueta externa (condensadora) costuma ter bem visível</li>
+                          <li>Lavadoras/Coifa: atrás do produto ou no manual</li>
+                          <li>Também consta na nota fiscal</li>
+                        </ul>
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <Input
-                    placeholder="Número de serie do produto"
+                    placeholder="Ex: SN-A1B2C3D4"
                     value={formData.serial_number}
                     onChange={e => setFormData(p => ({ ...p, serial_number: e.target.value }))}
                     className="mt-1.5 border-slate-300"
@@ -241,7 +322,9 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                   />
                 </div>
                 <div>
-                  <Label className="text-sm text-slate-700 mb-2 block">Garantia</Label>
+                  <Label className="text-sm text-slate-700 mb-2 flex items-center gap-1.5">
+                    Garantia <span className="text-red-500">*</span>
+                  </Label>
                   <RadioGroup
                     value={formData.warranty_status}
                     onValueChange={v => setFormData(p => ({ ...p, warranty_status: v }))}
@@ -265,7 +348,9 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                       </TooltipTrigger>
                       {!isAuthorizedBrand && (
                         <TooltipContent>
-                          <p>Disponivel apenas para marcas autorizadas</p>
+                          <p>{WARRANTY_BLOCKED_BRANDS.has(brand)
+                            ? `${brand}: não aceitamos atendimentos em garantia para esta marca. Siga como "Fora da garantia".`
+                            : 'Disponível apenas para marcas autorizadas'}</p>
                         </TooltipContent>
                       )}
                     </Tooltip>
@@ -276,7 +361,9 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                   </RadioGroup>
                 </div>
                 <div>
-                  <Label className="text-sm text-slate-700">Defeito Relatado</Label>
+                  <Label className="text-sm text-slate-700 flex items-center gap-1.5">
+                    Defeito Relatado <span className="text-red-500">*</span>
+                  </Label>
                   <Textarea
                     placeholder="Descreva o problema que o produto apresenta..."
                     value={formData.defect_description}
@@ -296,7 +383,7 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                     className="flex-1 bg-slate-900 text-white hover:bg-slate-800 text-sm"
                     data-testid="submit-repair"
                   >
-                    {submitting ? 'Enviando...' : 'Solicitar Conserto'}
+                    {submitting ? 'Enviando...' : (serviceType === 'instalacao' ? 'Solicitar Instalação' : 'Solicitar Conserto')}
                     {!submitting && <ArrowRight className="w-4 h-4 ml-1" />}
                   </Button>
                 </div>
@@ -328,7 +415,7 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Status</span>
-                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 font-medium">Aguardando confirmação</span>
+                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 font-medium">Aguardando Análise A.T</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Taxa de Visita</span>
@@ -349,6 +436,8 @@ export default function SchedulingModal({ open, onClose, equipment }) {
               </div>
             )}
           </div>
+          </>
+          )}
         </DialogContent>
       </Dialog>
     </TooltipProvider>

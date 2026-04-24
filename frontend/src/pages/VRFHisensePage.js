@@ -116,13 +116,14 @@ export default function VRFHisensePage() {
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.15 }}>
                 A solução definitiva em climatizacao para seu negocio. Projeto, instalação e manutenção especializada.
               </motion.p>
-              <motion.div className="flex items-center gap-4"
+              <motion.div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4"
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.22 }}>
-                <Button onClick={() => setModalOpen(true)} className="bg-blue-600 text-white hover:bg-blue-700 px-7 py-3.5 text-sm font-semibold h-auto hover:scale-[1.01] transition-all" data-testid="vrf-hero-cta">
-                  Receba um projeto personalizado <ArrowRight className="w-4 h-4 ml-2" />
+                <Button onClick={() => setModalOpen(true)} className="bg-blue-600 text-white hover:bg-blue-700 px-4 sm:px-7 py-3.5 text-xs sm:text-sm font-semibold h-auto hover:scale-[1.01] transition-all w-full sm:w-auto justify-center" data-testid="vrf-hero-cta">
+                  Receba um projeto personalizado <ArrowRight className="w-4 h-4 ml-2 flex-shrink-0" />
                 </Button>
                 <a href="tel:+553134225293" className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition-colors">
-                  <Phone className="w-4 h-4" /> (31) 3422-5293
+                  <Phone className="w-4 h-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">(31) 3422-5293</span>
                 </a>
               </motion.div>
             </div>
@@ -283,11 +284,10 @@ export default function VRFHisensePage() {
       {/* ═══ STATS ═══ */}
       <section className="py-20 sm:py-24 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-3 gap-8">
             {[
               { num: "30+", label: "Anos de experiência" },
-              { num: "500+", label: "Projetos VRF" },
-              { num: "100%", label: "Pecas originais" },
+              { num: "100%", label: "Peças originais" },
               { num: "24h", label: "Suporte técnico" },
             ].map((s, i) => (
               <R key={s.label} delay={i * 0.08} className="text-center">

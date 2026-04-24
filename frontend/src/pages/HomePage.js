@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import DragScroller from '@/components/DragScroller';
+import BrandLogoItem from '@/components/BrandLogoItem';
 import Marquee from 'react-fast-marquee';
 import { Button } from '@/components/ui/button';
 import SchedulingModal from '@/components/SchedulingModal';
@@ -44,7 +46,7 @@ const ALL_EQUIPMENT = [
   { id: "lavadoras", name: "Lavadoras", icon: "Droplets", hasImage: false },
   { id: "ar-condicionado-split", name: "Ar Condicionado Split", icon: "Wind", hasImage: false },
   { id: "ar-condicionado-portátil", name: "Ar Condicionado Portátil", icon: "AirVent", hasImage: false },
-  { id: "vrf-hisense", name: "VRF Hisense", icon: "Server", hasImage: false },
+  { id: "vrf-hisense", name: "VRF Hisense", icon: "Server", hasImage: true, image: "/images/vrf/vrf-hero-product.png" },
   { id: "freezers", name: "Freezers", icon: "Thermometer", hasImage: false },
   { id: "coifas", name: "Coifas", icon: "Fan", hasImage: false },
 ];
@@ -215,10 +217,22 @@ function HeroCarousel() {
 /* ── Authorized Brands Carousel ── */
 function AuthorizedCarousel() {
   const scrollRef = useRef(null);
+  const userScrollTimerRef = useRef(null);
+
+  const markUserScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.setAttribute('data-user-scrolling', '1');
+    if (userScrollTimerRef.current) clearTimeout(userScrollTimerRef.current);
+    userScrollTimerRef.current = setTimeout(() => {
+      if (scrollRef.current) scrollRef.current.removeAttribute('data-user-scrolling');
+    }, 1200);
+  }, []);
 
   const scroll = (dir) => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: dir === 'right' ? 300 : -300, behavior: 'smooth' });
+      markUserScroll();
     }
   };
 
@@ -240,11 +254,15 @@ function AuthorizedCarousel() {
 
       {/* Scrollable cards */}
       <div ref={scrollRef}
-        className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+        className="auth-cards-scroll flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
+        onWheel={markUserScroll}
+        onPointerDown={markUserScroll}
+        onTouchStart={markUserScroll}
+      >
         {AUTHORIZED_BRANDS.map((brand) => (
           <div key={brand.name}
-            className="flex-shrink-0 w-[260px] sm:w-[280px] bg-white border border-slate-200 flex flex-col group hover:shadow-xl hover:border-blue-500/30 transition-all duration-300 snap-start"
+            className="auth-brand-card flex-shrink-0 w-[260px] sm:w-[280px] bg-white border border-slate-200 flex flex-col group hover:shadow-xl hover:border-blue-500/30 transition-all duration-300 snap-start"
             data-testid={`auth-brand-${brand.name.toLowerCase().replace(/\s+/g, '-')}`}>
             {/* Logo area */}
             <div className="px-6 pt-7 pb-5 flex items-center justify-center gap-4 border-b border-slate-100 min-h-[80px]">
@@ -405,13 +423,19 @@ export default function HomePage() {
       <section className="relative bg-white py-8 border-b border-slate-100" data-testid="brand-bar">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-[10px] text-center text-slate-400 uppercase tracking-[0.25em] font-semibold mb-5">Especialistas nas Melhores Marcas</p>
-          <Marquee gradient gradientColor="#ffffff" speed={25} pauseOnHover>
-            {BRAND_LOGOS.map(b => (
-              <div key={b.name} className="mx-8 sm:mx-10 flex items-center justify-center w-[140px] h-[56px] grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-default">
-                <img src={b.src} alt={b.name} className="max-h-[46px] max-w-[120px] object-contain" loading="lazy" />
-              </div>
+          <DragScroller
+            className="brand-drag-scroll"
+            style={{ gap: 0 }}
+            autoScroll
+            loop
+            autoScrollSpeed={0.55}
+            resumeDelay={2500}
+            data-testid="brand-scroller"
+          >
+            {[...BRAND_LOGOS, ...BRAND_LOGOS].map((b, i) => (
+              <BrandLogoItem key={`${b.name}-${i}`} src={b.src} alt={b.name} />
             ))}
-          </Marquee>
+          </DragScroller>
         </div>
       </section>
 
@@ -572,8 +596,21 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          {/* Chips grid — compact */}
-          <motion.div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+          {/* Mobile: 3 cols x 2 rows (6 cards in compact grid). Desktop keeps flex-wrap chips */}
+          <motion.div className="grid grid-cols-3 gap-2 sm:hidden" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} data-testid="differentials-mobile">
+            {DIFFERENTIALS.slice(0, 6).map((d) => (
+              <motion.div key={d.title} variants={fadeUp}
+                className="group flex flex-col items-center justify-center text-center gap-2 bg-white border border-slate-200 px-2 py-3 hover:border-blue-500/40 transition-all duration-300 min-h-[92px]">
+                <div className="w-8 h-8 bg-slate-50 group-hover:bg-blue-600 flex items-center justify-center shrink-0 transition-colors duration-300">
+                  <d.icon className="w-4 h-4 text-blue-600 group-hover:text-white transition-colors duration-300" />
+                </div>
+                <p className="font-heading font-semibold text-[11px] text-slate-900 leading-tight">{d.title}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Desktop/tablet: original chips */}
+          <motion.div className="hidden sm:flex flex-wrap justify-center gap-3 max-w-4xl mx-auto" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             {DIFFERENTIALS.map((d) => (
               <motion.div key={d.title} variants={fadeUp}
                 className="group flex items-center gap-3 bg-white border border-slate-200 px-5 py-3 hover:border-blue-500/40 hover:shadow-md transition-all duration-300">
@@ -608,8 +645,32 @@ export default function HomePage() {
             </div>
           </motion.div>
 
-          {/* Mind map layout — logo center, reviews around */}
-          <div className="relative">
+          {/* Mobile: horizontal drag carousel */}
+          <div className="sm:hidden -mx-4 px-4" data-testid="testimonials-mobile">
+            <DragScroller style={{ gap: '12px', paddingBottom: '12px' }}>
+              {TESTIMONIALS.map((t, i) => (
+                <div key={t.name} className="bg-white border border-slate-200 p-4 flex-shrink-0" style={{ width: 'min(85vw, 320px)' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: t.rating }).map((_, j) => <Star key={j} className="w-3 h-3 fill-yellow-400 text-yellow-400" />)}
+                    </div>
+                    <span className="text-[10px] text-slate-400">{t.time}</span>
+                  </div>
+                  <p className="text-[13px] text-slate-600 leading-relaxed mb-3 italic line-clamp-4">"{t.text}"</p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 bg-blue-600 flex items-center justify-center text-white font-heading font-semibold text-[10px] rounded-full">
+                      {t.name.charAt(0)}
+                    </div>
+                    <p className="font-heading font-semibold text-xs text-slate-900">{t.name}</p>
+                  </div>
+                </div>
+              ))}
+            </DragScroller>
+            <div className="text-center text-[10px] text-slate-400 mt-1">← arraste para ver mais →</div>
+          </div>
+
+          {/* Mind map layout — logo center, reviews around (desktop/tablet) */}
+          <div className="relative hidden sm:block">
           {/* Reviews grid — 3 columns */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {TESTIMONIALS.slice(0, 3).map((t, i) => (
