@@ -7,6 +7,7 @@ import API from '@/lib/api';
 import { toast } from 'sonner';
 import VoiceMode from '@/components/VoiceMode';
 import VoiceBarsIcon from '@/components/VoiceBarsIcon';
+import { savePendingSchedule, readPendingSchedule, clearPendingSchedule } from '@/lib/pendingSchedule';
 
 const STORAGE_KEY = 'mi_chat_messages_v1';
 import { BACKEND_URL } from '../lib/api';
@@ -58,6 +59,30 @@ export default function MiChatWidget() {
 
   // Persist to localStorage when messages change (for everyone)
   useEffect(() => { saveLocal(messages); }, [messages]);
+
+  // After login/register: if there's a pending scheduling intent originating
+  // from this chat, re-open the widget and restore equipment/brand/defect.
+  useEffect(() => {
+    if (!user) return;
+    const pending = readPendingSchedule();
+    if (pending?.source !== 'chat') return;
+    setOpen(true);
+    setMinimized(false);
+    setMessages(prev => [
+      ...prev,
+      {
+        id: uid(),
+        role: 'widget',
+        widget: pending.defectHint ? 'proactive' : 'schedule',
+        equipment: pending.equipment?.id || '',
+        brand: pending.brand || '',
+        defectHint: pending.defectHint || '',
+        proactive: !!pending.defectHint,
+        timestamp: new Date().toISOString(),
+      },
+    ]);
+    clearPendingSchedule();
+  }, [user]);
 
   // Create or reuse server session for logged-in users
   useEffect(() => {
@@ -461,6 +486,7 @@ export default function MiChatWidget() {
                     equipmentTypes={equipmentTypes}
                     brands={brands}
                     loggedIn={!!user}
+                    userProfile={user || null}
                     onSubmit={(data) => submitScheduleFromChat(m.id, data)}
                     onDismiss={() => dismissWidget(m.id)}
                   />
@@ -690,7 +716,7 @@ const WARRANTY_BLOCKED_BRANDS = new Set(["Bertazzoni", "Lofra", "Panasonic"]);
 const AUTHORIZED_BRANDS_ORDERED = ["HQ", "Franke", "Hisense", "Gorenje", "Bertazzoni", "Lofra", "Panasonic", "Liebherr"];
 const OTHER_BRANDS_PLACEHOLDER = '__other__';
 
-function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, onSubmit, onDismiss }) {
+function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, userProfile, onSubmit, onDismiss }) {
   const [equipment, setEquipment] = useState(widget.equipment || '');
   const [brand, setBrand] = useState(widget.brand || '');
   const [serviceType, setServiceType] = useState('conserto');
@@ -715,6 +741,18 @@ function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, onSubmit, onDi
   // logged in, the user profile is used to build the external OS payload,
   // so asking upfront is better UX and avoids losing data on redirect.
   if (!loggedIn && widget.widget !== 'done') {
+    // Persist the scheduling intent (equipment + brand + defect hint detected
+    // by Mi) so we can resume it right after auth. The equipment id needs to
+    // be resolved to the {id,name,icon} shape the modal expects.
+    const persistIntent = () => {
+      const eqObj = (equipmentTypes || []).find(e => e.id === (widget.equipment || equipment));
+      savePendingSchedule({
+        source: 'chat',
+        equipment: eqObj || null,
+        brand: widget.brand || brand || null,
+        defectHint: widget.defectHint || defect || null,
+      });
+    };
     return (
       <div className="flex justify-start mi-msg-enter" data-testid="mi-schedule-need-login">
         <div className="max-w-[92%] bg-amber-50 border border-amber-200 text-amber-900 text-sm px-4 py-3 space-y-2" style={{ borderRadius: '12px 12px 12px 2px' }}>
@@ -726,12 +764,38 @@ function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, onSubmit, onDi
           </div>
           <div className="text-[12px] text-amber-800/80">Entre ou cadastre-se rapidinho — leva menos de 1 minuto. Assim você acompanha tudo pelo portal.</div>
           <div className="flex gap-2 pt-1">
-            <a href="/login" className="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5 px-3 transition-colors" style={{ borderRadius: '8px' }} data-testid="widget-login">Entrar</a>
-            <a href="/cadastro" className="flex-1 text-center border border-blue-600 text-blue-600 hover:bg-blue-50 text-xs py-1.5 px-3 transition-colors bg-white" style={{ borderRadius: '8px' }} data-testid="widget-register">Criar conta</a>
+            <a href="/login" onClick={persistIntent} className="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5 px-3 transition-colors" style={{ borderRadius: '8px' }} data-testid="widget-login">Entrar</a>
+            <a href="/cadastro" onClick={persistIntent} className="flex-1 text-center border border-blue-600 text-blue-600 hover:bg-blue-50 text-xs py-1.5 px-3 transition-colors bg-white" style={{ borderRadius: '8px' }} data-testid="widget-register">Criar conta</a>
           </div>
         </div>
       </div>
     );
+  }
+
+  // Profile-completion gate: logged in, but phone/name missing. The external
+  // Mastermaq Systems API rejects payloads without phone1, so we must not
+  // let the user submit an OS that will silently fail to sync.
+  if (loggedIn && widget.widget !== 'done') {
+    const pDigits = ((userProfile?.phone || '').replace(/\D/g, ''));
+    const needsProfile = pDigits.length < 10 || !(userProfile?.name || '').trim();
+    if (needsProfile) {
+      return (
+        <div className="flex justify-start mi-msg-enter" data-testid="mi-schedule-need-profile">
+          <div className="max-w-[92%] bg-amber-50 border border-amber-200 text-amber-900 text-sm px-4 py-3 space-y-2" style={{ borderRadius: '12px 12px 12px 2px' }}>
+            <div className="flex items-center gap-2 font-medium">
+              <div className="w-6 h-6 rounded-full overflow-hidden bg-blue-600 flex-shrink-0">
+                <img src="/images/assets/mi-avatar.webp" alt="Mi" className="w-full h-full object-cover" draggable={false} />
+              </div>
+              Complete seu perfil primeiro
+            </div>
+            <div className="text-[12px] text-amber-800/80">Precisamos do seu nome e telefone com DDD para a equipe confirmar a visita. Leva menos de 30 segundos.</div>
+            <div className="flex gap-2 pt-1">
+              <a href="/minha-conta" className="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5 px-3 transition-colors" style={{ borderRadius: '8px' }} data-testid="widget-complete-profile">Completar perfil</a>
+            </div>
+          </div>
+        </div>
+      );
+    }
   }
 
   // Done state

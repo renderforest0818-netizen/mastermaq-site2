@@ -113,7 +113,80 @@
 - Backend curl E2E: login 200, POST OS retorna OS-... em <1s, webhook /external/webhook/status retorna matched+modified=1, GET /service-orders lista com status atualizado.
 - Frontend Playwright: visitante anônimo redirecionado pra /login ✅, card VRF com imagem, Split sem imagem ✅.
 
-## Credenciais: admin@mastermaq.com / mastermaq@2026
+## Iteracao 24 (2026-04-24): Estrategia hibrida + capture de equipamento + guia dev local
+
+### Reversao do AuthGate global
+- Removido AuthGate do App.js: site volta a ser 100% publico e indexavel.
+- Rotas continuam abertas: Home, Servicos, Blog, Sobre, Contato, VRF Hisense.
+
+### Gate no ponto de acao + pending schedule
+- `SchedulingModal`: visitante anonimo ve tela "Entre para agendar" ao clicar em equipamento (antes de preencher qualquer campo). Data-testid: modal-auth-gate, auth-gate-login, auth-gate-register.
+- `MiChatWidget ScheduleCard`: mesma logica, data-testid mi-schedule-need-login.
+- Novo `src/lib/pendingSchedule.js` com TTL 1h: `savePendingSchedule`, `readPendingSchedule`, `clearPendingSchedule`.
+- `SchedulingModal`: salva {source:"modal", equipment} ao clicar Entrar/Criar conta.
+- `MiChatWidget`: salva {source:"chat", equipment, brand, defectHint} e, apos login, reabre chat e re-emite widget pre-preenchido.
+- `HomePage`: useEffect observa `user` — quando logado e existe pending, abre modal automaticamente com equipment selecionado.
+- E2E Playwright: anonimo clica geladeiras -> gate -> Entrar -> salva pending -> login -> home -> modal "Agendar - Geladeiras" aberto automaticamente -> pending limpo.
+
+## Iteracao 25 (2026-04-24): Auto-update PWA robusto
+
+### Estrategia de atualizacao automatica apos deploy
+- `registerServiceWorker.js`: adicionado `updateViaCache:'none'` (browser sempre revalida /sw.js bypassando HTTP cache de 24h). Checagem imediata no load, periodica a cada 10min (era 30min), em visibilitychange + focus. Auto-ativacao via SKIP_WAITING + reload once em controllerchange.
+- `public/sw.js`: version bump `mm-v6 -> mm-v7` para forcar limpeza de caches antigos no activate.
+- `public/index.html`: meta `Cache-Control: no-cache, no-store, must-revalidate` no documento para impedir proxies/CDN de servir HTML obsoleto.
+
+### Validacao
+- Playwright em preview: SW scope=/, updateViaCache='none', active=True, VERSION='mm-v7' ✅
+- Tempo de propagacao esperado: aba ativa <= 10min (next visibilitychange/focus), aba background <= 10min apos retornar, PWA instalado na proxima abertura, navegacao SPA instantaneo.
+
+## Iteracao 26 (2026-04-24): Sync externo corrigido + resync batch + phone obrigatorio
+
+### Diagnostico: "sistema externo nao recebe OS"
+- Raiz: o payload para `EXTERNAL_OS_API_URL` (mastermaq-systems.emergent.host) exige `customer_name` + `phone1`. Admin/usuarios sem phone no perfil faziam o sync falhar com `missing_required`. OS ficava presa localmente com `external_sync_ok=False`.
+- Endpoint externo validado via curl: retorna 200 e `OS 27644 criada com sucesso`.
+
+### Fixes aplicados
+1. Backend `POST /auth/register` exige name (nao-vazio) + phone com >=10 digitos.
+2. Backend `POST /service-orders` tem gate: HTTP 400 "Complete seu perfil (nome e telefone)" se usuario logado sem phone valido.
+3. Seed de admin agora aceita `ADMIN_PHONE` (default `31999999999`) e atualiza phone vazio no startup.
+4. `_sync_order_to_external` com log explicito `[ext-sync] OK/FAIL` para facilitar diagnostico em producao.
+5. Novo endpoint `POST /api/admin/service-orders/resync?limit=N` (admin-only, max 500): reenfileira toda OS com `external_sync_ok=False/None` via BackgroundTasks. Fix no lookup de user_id (string vs ObjectId).
+6. Frontend `RegisterPage`: campo telefone marcado `required`, validacao de 10+ digitos, hint "Usamos para confirmar sua visita".
+7. `SchedulingModal`: novo gate secundario `needsProfile` quando usuario logado tem phone/name incompleto — CTA redireciona ao portal salvando pending schedule.
+8. `MiChatWidget ScheduleCard`: mesmo gate secundario `mi-schedule-need-profile` via prop `userProfile`.
+
+### Validacao E2E
+- OS criada com admin (phone completo): `ext_ok=True, ext_os=27644` ✅
+- Resync batch em 9 OS antigas: todas passaram, total 11/11 sincronizadas, 0 falhando ✅
+
+## Iteracao 27 (2026-05-07): Supervisor fix + diag OS prod + Voice Mode v2 (ChatGPT-Voice style)
+
+### 1. Supervisor / VS Code restored
+- supervisord.conf: command de backend ajustado para `/opt/plugins-venv/bin/uvicorn` (era `/usr/local/bin/uvicorn` que apontava para venv sem motor).
+- Instalado requirements.txt + emergentintegrations no `/opt/plugins-venv` (antes estavam em /usr/local/lib).
+- Backend RUNNING, health=200 ✅. Isso restaura tambem o VS Code do Emergent (estava FATAL).
+
+### 2. Diagnostico do "OS nao chega no externo"
+- Preview: criado OS local OS-20260507-7608 -> ext_ok=True, external_os_number=27664 (sync OK).
+- Producao: criado OS-20260507-9540 -> external_sync_error=`HTTP 404`. Endpoint externo correto retorna 200, ENTAO a env `EXTERNAL_OS_API_URL` em producao esta apontando para path errado.
+- Acao do usuario: atualizar env var em producao para `https://mastermaq-systems.emergent.host/api/external/service-orders` e rodar resync.
+- Endpoint admin `/api/admin/service-orders/resync?limit=N` ja deployado, retornou queued=5 com previous_error=HTTP 404.
+
+### 3. Voice Mode v2 (UX critica)
+- `VoiceMode.js` reescrito: streaming TTS por sentenca em vez de bloco unico.
+  - Detector de sentenca extraido pra modulo (`drainSentences`) usando regex `[.!?…]|\n\n` com minimo 12 chars.
+  - Enquanto LLM stream gera tokens, sentencas completas sao despachadas para `/api/chat/tts` em background (Promise.fire-and-forget).
+  - Cada blob TTS recebido entra em `playQueueRef.current` e e tocado sequencialmente sem gap.
+  - Latencia percebida: usuario ouve a primeira sentenca em ~1.5s (era ~7-14s aguardando done+TTS bloco unico).
+  - VAD mais responsivo: SILENCE_HANG_MS 850 -> 600ms, RMS_THRESHOLD 0.018 -> 0.016, BARGE_IN 250 -> 220ms.
+  - MediaRecorder.start(200) com timeslice para reduzir latencia do stop().
+  - turnTokenRef invalida TTS em-vôo no barge-in (impede que audio antigo apareca depois).
+- `MI_SYSTEM_PROMPT` reforcado:
+  - "IDIOMA OBRIGATORIO: SEMPRE responda em portugues do Brasil"
+  - Estilo conversacional para voz (frases curtas, sem markdown, sem listas longas, sem emojis).
+- TTS continua usando tts-1-hd + voz `nova` (pt-BR limpo, sem sotaque americano).
+
+## Credenciais: admin@mastermaq.com / mastermaq@2026 / phone 31999999999
 
 ## Backlog P2 (baixa prioridade)
 - SEO/Schema.org local BH/MG

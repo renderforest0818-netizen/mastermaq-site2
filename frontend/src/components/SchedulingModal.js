@@ -11,6 +11,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Wrench, Settings, Info, Check, Loc
 import { toast } from 'sonner';
 import API from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { savePendingSchedule, clearPendingSchedule } from '@/lib/pendingSchedule';
 
 const BRANDS = [
   { name: "HQ", logo: "/images/assets/hq-logo.png" },
@@ -105,6 +106,12 @@ export default function SchedulingModal({ open, onClose, equipment }) {
   // on the user record is used to populate the external OS payload, so asking
   // before is both better UX and avoids losing input on redirect.
   const needsAuth = !user && step < 3;
+  // Secondary gate: logged-in user but profile incomplete (no phone or no
+  // name). The external Mastermaq Systems API refuses payloads without
+  // phone1, so we must force profile completion before allowing the OS to
+  // be created.
+  const phoneDigits = user ? ((user.phone || '').replace(/\D/g, '')) : '';
+  const needsProfile = !!user && step < 3 && (phoneDigits.length < 10 || !(user.name || '').trim());
 
   return (
     <TooltipProvider>
@@ -127,18 +134,50 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                 <li className="flex gap-2"><Check className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" /> Chat com a Mi 24/7</li>
               </ul>
               <div className="flex flex-col sm:flex-row gap-2 pt-2">
-                <Link to="/login" onClick={handleClose} className="flex-1" data-testid="auth-gate-login">
+                <Link
+                  to="/login"
+                  onClick={() => { savePendingSchedule({ source: 'modal', equipment }); handleClose(); }}
+                  className="flex-1"
+                  data-testid="auth-gate-login"
+                >
                   <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10">
                     <LogIn className="w-4 h-4 mr-1.5" /> Entrar
                   </Button>
                 </Link>
-                <Link to="/cadastro" onClick={handleClose} className="flex-1" data-testid="auth-gate-register">
+                <Link
+                  to="/cadastro"
+                  onClick={() => { savePendingSchedule({ source: 'modal', equipment }); handleClose(); }}
+                  className="flex-1"
+                  data-testid="auth-gate-register"
+                >
                   <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50 h-10">
                     <UserPlus className="w-4 h-4 mr-1.5" /> Criar conta
                   </Button>
                 </Link>
               </div>
               <p className="text-[11px] text-slate-400">Leva menos de 1 minuto. Depois você volta pra cá.</p>
+            </div>
+          ) : needsProfile ? (
+            <div className="p-6 sm:p-8 space-y-5 text-center" data-testid="modal-needs-profile">
+              <div className="mx-auto w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center">
+                <Info className="w-6 h-6 text-amber-600" />
+              </div>
+              <div>
+                <DialogTitle className="font-heading text-xl text-slate-900">Complete seu perfil</DialogTitle>
+                <DialogDescription className="text-slate-500 text-sm mt-1.5 max-w-sm mx-auto">
+                  Para abrir sua ordem de serviço precisamos do seu <strong>nome completo</strong> e <strong>telefone com DDD</strong>. É como nosso atendente vai te chamar e como a equipe confirma a visita técnica.
+                </DialogDescription>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                <Button onClick={handleClose} variant="outline" className="flex-1 h-10" data-testid="profile-gate-cancel">
+                  Cancelar
+                </Button>
+                <Link to="/minha-conta" onClick={() => { savePendingSchedule({ source: 'modal', equipment }); handleClose(); }} className="flex-1" data-testid="profile-gate-complete">
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10">
+                    Completar perfil <ArrowRight className="w-4 h-4 ml-1.5" />
+                  </Button>
+                </Link>
+              </div>
             </div>
           ) : (
           <>

@@ -6,6 +6,8 @@ import BrandLogoItem from '@/components/BrandLogoItem';
 import Marquee from 'react-fast-marquee';
 import { Button } from '@/components/ui/button';
 import SchedulingModal from '@/components/SchedulingModal';
+import { useAuth } from '@/contexts/AuthContext';
+import { readPendingSchedule, clearPendingSchedule } from '@/lib/pendingSchedule';
 import {
   Shield, Award, Clock, Home, ArrowRight, Star, ChevronRight, ChevronLeft, Wrench,
   Snowflake, Cog, Shirt, Droplets, Wind, AirVent, Server, Thermometer, Fan,
@@ -289,10 +291,24 @@ function AuthorizedCarousel() {
 
 
 export default function HomePage() {
+  const { user } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState(null);
 
   const openModal = (eq) => { setSelectedEquipment(eq); setModalOpen(true); };
+
+  // When the visitor lands back on the home page right after logging in (or
+  // signing up) and had previously picked an equipment to schedule, resume
+  // that intent automatically so they don't have to click everything again.
+  useEffect(() => {
+    if (!user) return;
+    const pending = readPendingSchedule();
+    if (pending?.equipment) {
+      setSelectedEquipment(pending.equipment);
+      setModalOpen(true);
+      clearPendingSchedule();
+    }
+  }, [user]);
 
   return (
     <div data-testid="home-page">

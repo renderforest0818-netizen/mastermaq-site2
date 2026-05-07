@@ -4,19 +4,44 @@ import { X, Mic, Loader2 } from 'lucide-react';
 import { BACKEND_URL } from '../lib/api';
 const BACKEND = BACKEND_URL;
 
+// ─────────────────────────────────────────────────────────────────
+// Sentence detection helpers (defined outside the component so the
+// useCallback that uses them doesn't need them as a dependency).
+// ─────────────────────────────────────────────────────────────────
+const drainSentences = (buffer, minLen = 12) => {
+  // Returns { sentences: [...], rest: string }
+  const out = [];
+  const re = /([.!?…]|\n\n)/g;
+  let lastIdx = 0;
+  let m;
+  while ((m = re.exec(buffer)) !== null) {
+    const endIdx = m.index + m[0].length;
+    const candidate = buffer.slice(lastIdx, endIdx).trim();
+    if (candidate.length >= minLen) {
+      out.push(candidate);
+      lastIdx = endIdx;
+    }
+  }
+  return { sentences: out, rest: buffer.slice(lastIdx) };
+};
+
 /**
- * Continuous voice conversation overlay with VAD + STT + TTS + barge-in.
- * - Listens continuously when user is not speaking and model is not playing.
- * - Detects speech start/stop using RMS energy threshold.
- * - When user stops, sends captured audio to /api/chat/stt -> /api/chat/stream -> /api/chat/tts.
- * - Barge-in: if user speaks while TTS is playing, aborts audio + cancels in-flight stream.
+ * Continuous voice conversation overlay (ChatGPT-Voice style).
  *
- * Props:
- *   open: boolean
- *   onClose: () => void
- *   onTranscript: (userText, assistantText) => void — called once user+assistant finish
- *   buildPayloadMessages: () => Array<{role, content}>  — full history for stream API
- *   sessionId: string | null
+ * Latency strategy ("speak as soon as possible"):
+ *   1. VAD with aggressive silence threshold (600ms) closes turn fast.
+ *   2. Once user finishes speaking, audio goes to STT (Whisper).
+ *   3. LLM stream is read token-by-token. As soon as a complete SENTENCE is
+ *      formed (ends in . ! ? : … or two newlines, AND has at least 12 chars),
+ *      it is dispatched to TTS in the background — the user hears the first
+ *      sentence in ~1.5s while the rest of the answer is still being generated.
+ *   4. TTS audio chunks are queued and played sequentially with no gap.
+ *   5. Barge-in: any voice activity above threshold during 'speaking' aborts
+ *      the LLM stream + cancels pending TTS + flushes the audio queue.
+ *
+ * pt-BR quality: TTS uses tts-1-hd / nova; the system prompt at the API side
+ * already enforces pt-BR. Markdown / emojis are stripped on the backend
+ * (_sanitize_tts_text) before TTS so we never read literal "asterisco" etc.
  */
 export default function VoiceMode({ open, onClose, onTranscript, buildPayloadMessages, sessionId }) {
   const [state, setState] = useState('idle'); // idle | listening | thinking | speaking | error
@@ -24,28 +49,113 @@ export default function VoiceMode({ open, onClose, onTranscript, buildPayloadMes
   const [aiPreview, setAiPreview] = useState('');
   const [level, setLevel] = useState(0);
 
+  // Mic / VAD refs
   const streamRef = useRef(null);
   const audioCtxRef = useRef(null);
   const analyserRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const rafRef = useRef(null);
-
   const recordingRef = useRef(false);
   const speakingStartedAtRef = useRef(0);
   const lastSpeechAtRef = useRef(0);
+
+  // Playback queue for incremental TTS chunks
   const audioElRef = useRef(null);
-  const abortCtrlRef = useRef(null);
+  const playQueueRef = useRef([]); // [{ url, blob }]
+  const ttsAbortsRef = useRef([]); // AbortControllers for in-flight TTS calls
+  const turnTokenRef = useRef(0); // increments on barge-in / new turn to invalidate stale TTS
+
+  // LLM stream abort
+  const llmAbortRef = useRef(null);
   const stateRef = useRef('idle');
 
-  // Thresholds / timings
-  const RMS_THRESHOLD = 0.018; // voice presence
-  const SILENCE_HANG_MS = 850; // how long silence before end-of-turn
-  const MIN_SPEECH_MS = 400; // ignore very short blips
-  const BARGE_IN_MIN_MS = 250; // require ~250ms of voice to trigger barge-in
+  // VAD tuning
+  const RMS_THRESHOLD = 0.016;       // voice presence (slightly lower → catches softer speech)
+  const SILENCE_HANG_MS = 600;       // tighter end-of-turn (was 850ms)
+  const MIN_SPEECH_MS = 350;
+  const BARGE_IN_MIN_MS = 220;       // faster barge-in
 
   const setSt = useCallback((s) => { stateRef.current = s; setState(s); }, []);
 
+  // ─────────────────────────────────────────────────────────────────
+  // Audio queue helpers
+  // ─────────────────────────────────────────────────────────────────
+  const flushAudioQueue = useCallback(() => {
+    if (audioElRef.current) {
+      try { audioElRef.current.pause(); } catch { /* */ }
+      try { audioElRef.current.src = ''; } catch { /* */ }
+      audioElRef.current = null;
+    }
+    for (const item of playQueueRef.current) {
+      try { URL.revokeObjectURL(item.url); } catch { /* */ }
+    }
+    playQueueRef.current = [];
+  }, []);
+
+  const cancelPendingTTS = useCallback(() => {
+    for (const ctrl of ttsAbortsRef.current) {
+      try { ctrl.abort(); } catch { /* */ }
+    }
+    ttsAbortsRef.current = [];
+  }, []);
+
+  // Plays the next item in the queue, recursively. Resolves when queue empty.
+  const playQueueNow = useCallback(() => {
+    return new Promise((resolve) => {
+      const playNext = () => {
+        const item = playQueueRef.current.shift();
+        if (!item) { resolve(); return; }
+        const el = new Audio(item.url);
+        audioElRef.current = el;
+        el.onended = () => {
+          try { URL.revokeObjectURL(item.url); } catch { /* */ }
+          audioElRef.current = null;
+          playNext();
+        };
+        el.onerror = () => {
+          try { URL.revokeObjectURL(item.url); } catch { /* */ }
+          audioElRef.current = null;
+          playNext();
+        };
+        el.play().catch(() => playNext());
+      };
+      playNext();
+    });
+  }, []);
+
+  // Fetch TTS for a given sentence, push into the play queue.
+  // Token guards stale callbacks (e.g. from a turn we already barge-in'd).
+  const queueTTS = useCallback(async (text, token) => {
+    const sanitized = (text || '').trim();
+    if (sanitized.length < 2) return;
+    const ctrl = new AbortController();
+    ttsAbortsRef.current.push(ctrl);
+    try {
+      const res = await fetch(`${BACKEND}/api/chat/tts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: sanitized.slice(0, 1500), voice: 'nova', speed: 1.0 }),
+        credentials: 'include',
+        signal: ctrl.signal,
+      });
+      if (token !== turnTokenRef.current) return;
+      if (!res.ok) return;
+      const ab = await res.arrayBuffer();
+      if (token !== turnTokenRef.current) return;
+      const blob = new Blob([ab], { type: 'audio/mpeg' });
+      const url = URL.createObjectURL(blob);
+      playQueueRef.current.push({ url, blob });
+      // If nothing is currently playing, kick off playback immediately.
+      if (!audioElRef.current && stateRef.current !== 'listening') {
+        playQueueNow();
+      }
+    } catch { /* aborted or transient error */ }
+  }, [playQueueNow]);
+
+  // ─────────────────────────────────────────────────────────────────
+  // Cleanup / lifecycle
+  // ─────────────────────────────────────────────────────────────────
   const cleanup = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = null;
@@ -60,16 +170,13 @@ export default function VoiceMode({ open, onClose, onTranscript, buildPayloadMes
     try { audioCtxRef.current?.close(); } catch { /* */ }
     audioCtxRef.current = null;
     analyserRef.current = null;
-    if (audioElRef.current) {
-      try { audioElRef.current.pause(); } catch { /* */ }
-      audioElRef.current.src = '';
-      audioElRef.current = null;
+    flushAudioQueue();
+    cancelPendingTTS();
+    if (llmAbortRef.current) {
+      try { llmAbortRef.current.abort(); } catch { /* */ }
+      llmAbortRef.current = null;
     }
-    if (abortCtrlRef.current) {
-      try { abortCtrlRef.current.abort(); } catch { /* */ }
-      abortCtrlRef.current = null;
-    }
-  }, []);
+  }, [flushAudioQueue, cancelPendingTTS]);
 
   const closeAll = useCallback(() => {
     cleanup();
@@ -80,7 +187,9 @@ export default function VoiceMode({ open, onClose, onTranscript, buildPayloadMes
     onClose?.();
   }, [cleanup, onClose, setSt]);
 
-  // Start a new recording segment (MediaRecorder reset + fresh chunks)
+  // ─────────────────────────────────────────────────────────────────
+  // Recording segments
+  // ─────────────────────────────────────────────────────────────────
   const startNewSegment = useCallback(() => {
     if (!streamRef.current) return;
     try {
@@ -89,7 +198,7 @@ export default function VoiceMode({ open, onClose, onTranscript, buildPayloadMes
       const rec = mime ? new MediaRecorder(streamRef.current, { mimeType: mime }) : new MediaRecorder(streamRef.current);
       audioChunksRef.current = [];
       rec.ondataavailable = (ev) => { if (ev.data.size > 0) audioChunksRef.current.push(ev.data); };
-      rec.start();
+      rec.start(200); // 200ms timeslice → faster final stop()
       mediaRecorderRef.current = rec;
       recordingRef.current = true;
       speakingStartedAtRef.current = 0;
@@ -99,24 +208,32 @@ export default function VoiceMode({ open, onClose, onTranscript, buildPayloadMes
     }
   }, []);
 
-  // Send the captured audio through STT -> LLM stream -> TTS
+  // ─────────────────────────────────────────────────────────────────
+  // Sentence-aware streaming TTS while LLM is still generating
+  // ─────────────────────────────────────────────────────────────────
+  // Use the module-level drainSentences helper (defined above the component).
+
   const processTurn = useCallback(async () => {
     const rec = mediaRecorderRef.current;
     if (!rec) return;
     setSt('thinking');
+    // Bump token: any TTS started before this turn becomes invalid.
+    turnTokenRef.current += 1;
+    const myToken = turnTokenRef.current;
+
     try {
-      // Stop and await dataavailable
+      // Stop recorder, await dataavailable
       await new Promise((resolve) => {
         rec.onstop = resolve;
         try { rec.stop(); } catch { resolve(); }
       });
       const blob = new Blob(audioChunksRef.current, { type: rec.mimeType || 'audio/webm' });
       if (blob.size < 1500) {
-        // Too small; go back to listening
         setSt('listening');
         startNewSegment();
         return;
       }
+
       // 1) STT
       const sttForm = new FormData();
       sttForm.append('audio', blob, 'audio.webm');
@@ -124,6 +241,7 @@ export default function VoiceMode({ open, onClose, onTranscript, buildPayloadMes
       if (!sttRes.ok) throw new Error('STT falhou');
       const sttData = await sttRes.json();
       const userText = (sttData.text || '').trim();
+      if (myToken !== turnTokenRef.current) return; // barge-in already happened
       if (!userText) {
         setSt('listening');
         startNewSegment();
@@ -132,73 +250,88 @@ export default function VoiceMode({ open, onClose, onTranscript, buildPayloadMes
       setUserPreview(userText);
       setAiPreview('');
 
-      // 2) LLM stream (full response, simpler for TTS)
-      abortCtrlRef.current = new AbortController();
+      // 2) LLM stream + per-sentence TTS dispatch
+      llmAbortRef.current = new AbortController();
       const hist = (buildPayloadMessages?.() || []);
       hist.push({ role: 'user', content: userText });
+
       const sRes = await fetch(`${BACKEND}/api/chat/stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: hist, session_id: sessionId || null }),
         credentials: 'include',
-        signal: abortCtrlRef.current.signal,
+        signal: llmAbortRef.current.signal,
       });
       if (!sRes.ok || !sRes.body) throw new Error('stream falhou');
+
+      // Switch to 'speaking' as soon as the first sentence is queued so the
+      // VAD treats new voice activity as barge-in (not as new turn).
+      let switchedToSpeaking = false;
+
       const reader = sRes.body.getReader();
       const decoder = new TextDecoder('utf-8');
-      let buffer = '';
+      let raw = '';
       let full = '';
+      let pending = ''; // text not yet sent to TTS
+
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n\n');
-        buffer = lines.pop();
+        raw += decoder.decode(value, { stream: true });
+        const lines = raw.split('\n\n');
+        raw = lines.pop();
         for (const l of lines) {
           const t = l.trim();
           if (!t.startsWith('data:')) continue;
           try {
             const ev = JSON.parse(t.slice(5).trim());
-            if (ev.type === 'delta') { full += ev.content; setAiPreview(full); }
-            else if (ev.type === 'done') full = ev.content || full;
+            if (ev.type === 'delta') {
+              full += ev.content;
+              pending += ev.content;
+              setAiPreview(full);
+              const { sentences, rest } = drainSentences(pending);
+              if (sentences.length) {
+                for (const s of sentences) {
+                  if (myToken !== turnTokenRef.current) return;
+                  if (!switchedToSpeaking) { setSt('speaking'); switchedToSpeaking = true; }
+                  // Fire-and-forget TTS dispatch; queueTTS handles ordering.
+                  queueTTS(s, myToken);
+                }
+                pending = rest;
+              }
+            } else if (ev.type === 'done') {
+              full = ev.content || full;
+            }
           } catch { /* ignore */ }
         }
       }
+      // Flush remaining pending text (no terminator) as last sentence.
+      const tail = pending.trim();
+      if (tail.length >= 2 && myToken === turnTokenRef.current) {
+        if (!switchedToSpeaking) { setSt('speaking'); switchedToSpeaking = true; }
+        queueTTS(tail, myToken);
+      }
 
-      // 3) Deliver transcript back to parent (adds to chat log + persist)
+      // Deliver full transcript to parent
       onTranscript?.(userText, full);
 
-      // 4) TTS
-      setSt('speaking');
-      const ttsRes = await fetch(`${BACKEND}/api/chat/tts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: full.slice(0, 4000), voice: 'nova', speed: 1.0 }),
-        credentials: 'include',
-        signal: abortCtrlRef.current.signal,
-      });
-      if (!ttsRes.ok) throw new Error('TTS falhou');
-      const ab = await ttsRes.arrayBuffer();
-      const audioBlob = new Blob([ab], { type: 'audio/mpeg' });
-      const url = URL.createObjectURL(audioBlob);
-      const el = new Audio(url);
-      audioElRef.current = el;
-      await new Promise((resolve) => {
-        el.onended = resolve;
-        el.onerror = resolve;
-        el.play().catch(resolve);
-      });
-      try { URL.revokeObjectURL(url); } catch { /* */ }
-      audioElRef.current = null;
+      // Wait for the audio queue to fully drain before going back to listen.
+      // (queueTTS already triggers playback as soon as first chunk lands)
+      while (myToken === turnTokenRef.current && (audioElRef.current || playQueueRef.current.length > 0 || ttsAbortsRef.current.some(c => !c.signal.aborted))) {
+        if (!audioElRef.current && playQueueRef.current.length > 0) {
+          await playQueueNow();
+        } else {
+          await new Promise(r => setTimeout(r, 120));
+        }
+      }
+      if (myToken !== turnTokenRef.current) return;
 
-      // Back to listening
       setUserPreview('');
       setAiPreview('');
       setSt('listening');
       startNewSegment();
     } catch (e) {
       if (e.name === 'AbortError') {
-        // Barge-in: user spoke; just recycle to listening
         setSt('listening');
         setAiPreview('');
         startNewSegment();
@@ -208,32 +341,31 @@ export default function VoiceMode({ open, onClose, onTranscript, buildPayloadMes
         setTimeout(() => {
           setSt('listening');
           startNewSegment();
-        }, 1200);
+        }, 1000);
       }
     }
-  }, [buildPayloadMessages, sessionId, onTranscript, setSt, startNewSegment]);
+  }, [buildPayloadMessages, sessionId, onTranscript, queueTTS, playQueueNow, setSt, startNewSegment]);
 
-  // Barge-in: when user speaks while model is speaking, stop audio + abort stream.
+  // Barge-in: invalidate token, abort everything, restart listening.
   const bargeIn = useCallback(() => {
-    if (audioElRef.current) {
-      try { audioElRef.current.pause(); audioElRef.current.src = ''; } catch { /* */ }
-      audioElRef.current = null;
-    }
-    if (abortCtrlRef.current) {
-      try { abortCtrlRef.current.abort(); } catch { /* */ }
-      abortCtrlRef.current = null;
+    turnTokenRef.current += 1; // invalidate all in-flight TTS
+    flushAudioQueue();
+    cancelPendingTTS();
+    if (llmAbortRef.current) {
+      try { llmAbortRef.current.abort(); } catch { /* */ }
+      llmAbortRef.current = null;
     }
     setSt('listening');
+    setAiPreview('');
     startNewSegment();
-  }, [setSt, startNewSegment]);
+  }, [flushAudioQueue, cancelPendingTTS, setSt, startNewSegment]);
 
-  // RAF loop for VAD and barge-in detection
+  // RAF VAD loop
   const tick = useCallback(() => {
     const a = analyserRef.current;
     if (!a) { rafRef.current = requestAnimationFrame(tick); return; }
     const buf = new Uint8Array(a.fftSize);
     a.getByteTimeDomainData(buf);
-    // Compute RMS in [0..1]
     let sum = 0;
     for (let i = 0; i < buf.length; i++) {
       const v = (buf[i] - 128) / 128;
@@ -258,15 +390,12 @@ export default function VoiceMode({ open, onClose, onTranscript, buildPayloadMes
         if (!speakingStartedAtRef.current) speakingStartedAtRef.current = now;
         lastSpeechAtRef.current = now;
       } else if (speakingStartedAtRef.current) {
-        // silence after some voice
         if (now - lastSpeechAtRef.current > SILENCE_HANG_MS) {
           const duration = lastSpeechAtRef.current - speakingStartedAtRef.current;
           if (duration > MIN_SPEECH_MS) {
-            // Cut turn
             processTurn();
-            return; // stop tick; processTurn will restart recording and loop
+            return;
           } else {
-            // Reset
             speakingStartedAtRef.current = 0;
             lastSpeechAtRef.current = 0;
           }

@@ -3,9 +3,14 @@
  *  - Docs (HTML): Network-First with fallback to cache / offline
  *  - Static assets (js/css/images): Stale-While-Revalidate
  *  - API requests: bypass (always fresh from network)
+ *  - Service worker itself: bypass HTTP cache via updateViaCache:'none'
  *  - Version-based cache with skipWaiting + clients.claim for instant updates
+ *
+ * BUMP THIS VERSION every time you need to force all clients to refresh —
+ * the registration script polls for /sw.js on load / focus / every 10 min,
+ * so a version change here propagates to every device within ~10 min.
  */
-const VERSION = 'mm-v6';
+const VERSION = 'mm-v7';
 const RUNTIME = `mm-runtime-${VERSION}`;
 const OFFLINE_URL = '/';
 

@@ -76,6 +76,11 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
     if (!form.name) { setError('Preencha seu nome'); return; }
+    const phoneDigits = (form.phone || '').replace(/\D/g, '');
+    if (phoneDigits.length < 10) {
+      setError('Telefone é obrigatório (com DDD). Ex: (31) 9 9999-9999');
+      return;
+    }
     setLoading(true);
     try {
       await register({
@@ -161,8 +166,9 @@ export default function RegisterPage() {
                 <Input value={form.name} onChange={e => set('name', e.target.value)} className="mt-1 border-slate-300" placeholder="Seu nome completo" data-testid="register-name" />
               </div>
               <div>
-                <Label className="text-sm text-slate-700">Telefone</Label>
-                <Input value={form.phone} onChange={e => set('phone', formatPhone(e.target.value))} className="mt-1 border-slate-300" placeholder="(31) 9 9999-9999" data-testid="register-phone" />
+                <Label className="text-sm text-slate-700">Telefone *</Label>
+                <Input value={form.phone} onChange={e => set('phone', formatPhone(e.target.value))} className="mt-1 border-slate-300" placeholder="(31) 9 9999-9999" data-testid="register-phone" required />
+                <p className="text-[11px] text-slate-400 mt-1">Usamos para confirmar sua visita técnica.</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>

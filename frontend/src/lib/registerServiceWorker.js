@@ -1,24 +1,34 @@
 /**
- * Registers the Mastermaq service worker with automatic update flow.
- * - Checks for updates on page load + every 30 minutes
- * - When a new SW is installed and waiting, activates it via SKIP_WAITING
- * - On controller change -> one-shot reload (no loop)
+ * Registers the Mastermaq service worker with an aggressive auto-update flow.
+ *
+ * Strategy to guarantee that ALL clients pick up new deploys quickly:
+ *   1. `updateViaCache: 'none'` — the browser must always revalidate /sw.js
+ *      from the network (bypasses the default 24h HTTP cache on the SW itself).
+ *      This is the #1 fix for "users stuck on old version after deploy".
+ *   2. Immediate `reg.update()` on page load.
+ *   3. Periodic `reg.update()` every 10 minutes while the tab is open.
+ *   4. `reg.update()` whenever the tab regains focus.
+ *   5. When a new SW is installed and waiting, immediately activate it.
+ *   6. One-shot reload on `controllerchange` so the page reflects fresh assets.
  */
 export function registerServiceWorker() {
   if (typeof window === 'undefined') return;
   if (!('serviceWorker' in navigator)) return;
-  // Only register in production-like environments (https or localhost)
+  // Only register in secure contexts (https or localhost) — required by the spec.
   const isSecure = window.isSecureContext || window.location.hostname === 'localhost';
   if (!isSecure) return;
 
   window.addEventListener('load', async () => {
     try {
-      const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      const reg = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/',
+        updateViaCache: 'none',
+      });
 
-      // If a waiting SW exists at registration time -> activate now
+      // If a waiting SW exists at registration time -> activate now.
       if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
 
-      // When a new worker is found updating -> auto-activate once installed
+      // When a new worker is found updating -> auto-activate once installed.
       reg.addEventListener('updatefound', () => {
         const nw = reg.installing;
         if (!nw) return;
@@ -29,14 +39,15 @@ export function registerServiceWorker() {
         });
       });
 
-      // Check for updates periodically
-      setInterval(() => { reg.update().catch(() => {}); }, 30 * 60 * 1000);
-      // Also check when tab regains focus
+      // Eager update checks.
+      reg.update().catch(() => {});
+      setInterval(() => { reg.update().catch(() => {}); }, 10 * 60 * 1000);
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') reg.update().catch(() => {});
       });
-    } catch (e) {
-      // Silently fail — app continues to work without SW
+      window.addEventListener('focus', () => { reg.update().catch(() => {}); });
+    } catch (_e) {
+      // Silently fail — app continues to work without SW.
     }
 
     let reloaded = false;

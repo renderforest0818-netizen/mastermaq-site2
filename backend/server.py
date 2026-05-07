@@ -141,6 +141,14 @@ async def register(data: RegisterRequest, response: Response):
     email = data.email.lower().strip()
     if len(data.password) < 6:
         raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    # Phone is required because the external OS system (Mastermaq Systems)
+    # refuses payloads without phone1. Without this, every OS created by the
+    # user would silently fail to sync.
+    phone_digits = "".join(ch for ch in (data.phone or "") if ch.isdigit())
+    if len(phone_digits) < 10:
+        raise HTTPException(status_code=400, detail="Telefone é obrigatório (com DDD)")
+    if not (data.name or "").strip():
+        raise HTTPException(status_code=400, detail="Nome é obrigatório")
     existing = await db.users.find_one({"email": email})
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -342,6 +350,16 @@ async def _sync_order_to_external(os_number: str, order_doc: dict, user_doc: Opt
         external_os = None
         if ext.get("ok") and isinstance(ext.get("data"), dict):
             external_os = ext["data"].get("os_number") or ext["data"].get("id")
+        # Explicit log so we can diagnose sync issues in production from the
+        # backend logs alone (without having to dump Mongo).
+        if ext.get("ok"):
+            logger.info(f"[ext-sync] OK {os_number} -> external={external_os}")
+        else:
+            logger.warning(
+                f"[ext-sync] FAIL {os_number} error={ext.get('error')} "
+                f"status={ext.get('status_code')} payload_name={bool(ext.get('payload',{}).get('customer_name'))} "
+                f"payload_phone={bool(ext.get('payload',{}).get('phone1'))}"
+            )
         await db.service_orders.update_one(
             {"os_number": os_number},
             {"$set": {
@@ -370,6 +388,16 @@ async def create_service_order(data: ServiceOrderCreate, request: Request, backg
         user_doc = user
     except Exception:
         pass
+    # Gate: creating an OS requires a complete profile (name + phone) so the
+    # external Mastermaq Systems API can accept the payload. Without this,
+    # the OS is created locally but never reaches the partner system.
+    if user_doc:
+        phone_digits = "".join(ch for ch in (user_doc.get("phone") or "") if ch.isdigit())
+        if len(phone_digits) < 10 or not (user_doc.get("name") or "").strip():
+            raise HTTPException(
+                status_code=400,
+                detail="Complete seu perfil (nome e telefone) antes de abrir uma OS.",
+            )
     os_number = generate_os_number()
     order_doc = {
         "os_number": os_number,
@@ -409,6 +437,46 @@ async def list_service_orders(request: Request):
     user = await get_current_user(request)
     orders = await db.service_orders.find({"user_id": user["_id"]}, {"_id": 0}).sort("created_at", -1).to_list(100)
     return orders
+
+
+@api_router.post("/admin/service-orders/resync")
+async def admin_resync_failed_orders(request: Request, background_tasks: BackgroundTasks, limit: int = 100):
+    """Admin-only: re-queue every local OS that failed to sync with the
+    external Mastermaq Systems API. Returns a summary with counts and the
+    list of OS numbers scheduled for retry. Actual retry happens in the
+    background via BackgroundTasks."""
+    user = await get_current_user(request)
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Apenas admins")
+
+    query = {"$or": [{"external_sync_ok": False}, {"external_sync_ok": None}, {"external_os_number": None}]}
+    cursor = db.service_orders.find(query).sort("created_at", -1).limit(max(1, min(500, limit)))
+    to_retry = []
+    async for o in cursor:
+        owner = None
+        uid = o.get("user_id")
+        if uid:
+            # user_id is stored as string (ObjectId.__str__), so look up by that
+            # and fall back to a raw ObjectId match only if needed.
+            owner = await db.users.find_one({"_id": uid})
+            if not owner:
+                try:
+                    from bson import ObjectId as _OID
+                    owner = await db.users.find_one({"_id": _OID(uid)})
+                except Exception:
+                    owner = None
+            if owner:
+                owner.pop("password_hash", None)
+        snapshot = dict(o); snapshot.pop("_id", None)
+        if owner:
+            owner.pop("_id", None)
+        background_tasks.add_task(_sync_order_to_external, o["os_number"], snapshot, owner)
+        to_retry.append({
+            "os_number": o["os_number"],
+            "previous_error": o.get("external_sync_error"),
+            "created_at": o.get("created_at"),
+        })
+    return {"queued": len(to_retry), "orders": to_retry}
 
 @api_router.get("/service-orders/{os_number}")
 async def get_service_order(os_number: str):
@@ -485,6 +553,15 @@ from fastapi.responses import StreamingResponse
 import json as _json
 
 MI_SYSTEM_PROMPT = """Voce e a "Mi", assistente virtual oficial da Mastermaq Assistencia Tecnica, em Belo Horizonte/MG.
+
+IDIOMA OBRIGATORIO: SEMPRE responda em portugues do Brasil (pt-BR), com acentuacao correta. Nunca responda em ingles, espanhol ou qualquer outro idioma, mesmo que o usuario digite em outra lingua.
+
+ESTILO DE RESPOSTA PARA CONVERSA POR VOZ:
+- Use frases curtas (8-18 palavras, em media). Conversacional e natural, como se falasse pessoalmente.
+- Evite listas e marcadores quando a pergunta for de voz: prefira frases corridas conectadas com "e", "alem disso", "tambem".
+- NUNCA use **asteriscos**, _underscores_, # cabecalhos, links em markdown ou emojis nas respostas — eles atrapalham a leitura por voz.
+- Pontue corretamente (virgulas, pontos finais, interrogacoes) para o motor de TTS conseguir entoar bem.
+- Evite numeracoes longas. Quando precisar enumerar, fale "primeiro... depois... e por fim".
 
 IDENTIDADE DA EMPRESA:
 - Nome: Mastermaq Assistencia Tecnica
@@ -1042,20 +1119,28 @@ async def startup():
     # Seed admin
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@mastermaq.com")
     admin_password = os.environ.get("ADMIN_PASSWORD", "mastermaq@2026")
+    admin_phone = os.environ.get("ADMIN_PHONE", "31999999999")
     existing = await db.users.find_one({"email": admin_email})
     if not existing:
         await db.users.insert_one({
             "email": admin_email,
             "password_hash": hash_password(admin_password),
             "name": "Admin Mastermaq",
-            "phone": "",
+            "phone": admin_phone,
             "role": "admin",
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
         logger.info(f"Admin created: {admin_email}")
-    elif not verify_password(admin_password, existing["password_hash"]):
-        await db.users.update_one({"email": admin_email}, {"$set": {"password_hash": hash_password(admin_password)}})
-        logger.info("Admin password updated")
+    else:
+        # Ensure admin has a valid phone (required for external OS sync).
+        updates = {}
+        if not existing.get("phone"):
+            updates["phone"] = admin_phone
+        if not verify_password(admin_password, existing["password_hash"]):
+            updates["password_hash"] = hash_password(admin_password)
+        if updates:
+            await db.users.update_one({"email": admin_email}, {"$set": updates})
+            logger.info(f"Admin updated: {list(updates.keys())}")
 
     # Seed blog articles
     count = await db.blog_articles.count_documents({})
