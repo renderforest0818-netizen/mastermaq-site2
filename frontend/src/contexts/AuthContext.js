@@ -32,6 +32,15 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  // Sign in with Google: receives the id_token returned by Google Identity
+  // Services (front-end) and exchanges it for our JWT cookie pair.
+  // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+  const googleLogin = async (credential) => {
+    const { data } = await API.post('/auth/google', { credential });
+    setUser(data);
+    return data;
+  };
+
   const logout = async () => {
     await API.post('/auth/logout');
     setUser(false);
@@ -44,7 +53,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, checkAuth }}>
+    <AuthContext.Provider value={{ user, loading, login, register, googleLogin, logout, updateProfile, checkAuth }}>
       {children}
     </AuthContext.Provider>
   );

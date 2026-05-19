@@ -19,9 +19,21 @@ export default function Header() {
   const { user, logout } = useAuth();
   const location = useLocation();
 
+  // Hysteresis: collapse the top info bar at >80px, only expand again under <8px.
+  // Prevents the flicker / toggle loop when the user scrolls right at the
+  // threshold (collapsing the bar shifts page content and re-crosses the line).
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener('scroll', handleScroll);
+    let ticking = false;
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        setScrolled((prev) => (prev ? y > 8 : y > 80));
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 

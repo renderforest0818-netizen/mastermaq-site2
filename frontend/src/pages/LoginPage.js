@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { GoogleLogin } from '@react-oauth/google';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,7 +17,7 @@ export default function LoginPage() {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -37,6 +38,23 @@ export default function LoginPage() {
     }
   };
 
+  // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+  const handleGoogle = async (credentialResponse) => {
+    if (!credentialResponse?.credential) {
+      toast.error('Não recebemos o token do Google. Tente novamente.');
+      return;
+    }
+    try {
+      await googleLogin(credentialResponse.credential);
+      toast.success('Login com Google realizado!');
+      navigate('/minha-conta');
+    } catch (err) {
+      const msg = formatApiError(err.response?.data?.detail) || 'Falha ao entrar com Google';
+      setError(msg);
+      toast.error(msg);
+    }
+  };
+
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-16 px-4" data-testid="login-page">
       <motion.div initial="hidden" animate="visible" variants={fadeUp} className="w-full max-w-md">
@@ -50,6 +68,26 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="bg-white border border-slate-200 p-8 space-y-5" data-testid="login-form">
           {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm p-3" data-testid="login-error">{error}</div>}
+
+          <div className="flex justify-center" data-testid="google-login-container">
+            <GoogleLogin
+              onSuccess={handleGoogle}
+              onError={() => toast.error('Falha ao entrar com Google')}
+              theme="outline"
+              size="large"
+              shape="rectangular"
+              text="signin_with"
+              locale="pt-BR"
+              width="320"
+            />
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-slate-200" />
+            <span className="text-[11px] uppercase tracking-widest text-slate-400">ou com e-mail</span>
+            <div className="flex-1 h-px bg-slate-200" />
+          </div>
+
           <div>
             <Label className="text-sm text-slate-700">E-mail</Label>
             <Input type="email" value={email} onChange={e => setEmail(e.target.value)} className="mt-1 border-slate-300" placeholder="seu@email.com" data-testid="login-email" />
@@ -66,6 +104,7 @@ export default function LoginPage() {
           <Button type="submit" disabled={loading} className="w-full bg-blue-600 text-white hover:bg-blue-700 py-3 h-auto" data-testid="login-submit">
             {loading ? 'Entrando...' : 'Entrar'}
           </Button>
+
           <p className="text-center text-sm text-slate-500">
             Não tem conta? <Link to="/cadastro" className="text-blue-600 hover:text-blue-800 font-medium" data-testid="register-link">Cadastre-se</Link>
           </p>

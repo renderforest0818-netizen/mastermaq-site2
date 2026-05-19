@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -93,6 +93,32 @@ export default function SchedulingModal({ open, onClose, equipment }) {
     }
   };
 
+  // After the OS is created locally, the external Mastermaq Systems API is
+  // pushed in a background task. Poll the OS detail endpoint for up to ~20s
+  // so the confirmation screen can replace our internal "OS-2026..." number
+  // with the external system number (e.g. "27677") as soon as it arrives.
+  useEffect(() => {
+    if (step !== 3 || !osData?.os_number) return;
+    if (osData.external_os_number) return;
+    let cancelled = false;
+    let attempts = 0;
+    const maxAttempts = 10; // 10 * 2s = 20s
+    const tick = async () => {
+      if (cancelled) return;
+      attempts += 1;
+      try {
+        const { data } = await API.get(`/service-orders/${osData.os_number}`);
+        if (!cancelled && data?.external_os_number) {
+          setOsData(data);
+          return;
+        }
+      } catch {}
+      if (!cancelled && attempts < maxAttempts) setTimeout(tick, 2000);
+    };
+    const id = setTimeout(tick, 2000);
+    return () => { cancelled = true; clearTimeout(id); };
+  }, [step, osData?.os_number, osData?.external_os_number]);
+
   const selectService = (type) => {
     setServiceType(type);
     setStep(2);
@@ -119,13 +145,13 @@ export default function SchedulingModal({ open, onClose, equipment }) {
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto p-0" data-testid="scheduling-modal">
           {needsAuth ? (
             <div className="p-6 sm:p-8 space-y-5 text-center" data-testid="modal-auth-gate">
-              <div className="mx-auto w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center">
-                <Lock className="w-6 h-6 text-blue-600" />
+              <div className="mx-auto w-16 h-16 rounded-full overflow-hidden ring-4 ring-blue-50 shadow-md">
+                <img src="/images/assets/mi-avatar.webp" alt="Mi" className="w-full h-full object-cover" draggable={false} />
               </div>
               <div>
-                <DialogTitle className="font-heading text-xl text-slate-900">Entre para agendar</DialogTitle>
+                <DialogTitle className="font-heading text-xl text-slate-900">Entre para solicitar</DialogTitle>
                 <DialogDescription className="text-slate-500 text-sm mt-1.5 max-w-sm mx-auto">
-                  Para abrir sua ordem de serviço precisamos saber quem você é. Em poucos cliques você cria sua conta e já agenda a visita do técnico.
+                  Para registrar sua solicitação precisamos saber quem você é. Você também pode falar com a Central pelo WhatsApp — mas pelo site é mais rápido e simples, e <strong>solicitações abertas por aqui têm prioridade no atendimento</strong>.
                 </DialogDescription>
               </div>
               <ul className="text-left text-[13px] text-slate-600 space-y-1.5 max-w-xs mx-auto">
@@ -184,7 +210,7 @@ export default function SchedulingModal({ open, onClose, equipment }) {
           <div className="px-6 pt-6 pb-4 border-b border-slate-100">
             <DialogHeader>
               <DialogTitle className="font-heading text-xl text-slate-900" data-testid="modal-title">
-                {step === 3 ? 'Solicitacao Confirmada' : `Agendar - ${equipment.name}`}
+                {step === 3 ? 'Solicitação Confirmada' : `Solicitar - ${equipment.name}`}
               </DialogTitle>
               <DialogDescription className="text-slate-500 text-sm mt-1">
                 {step === 0 && 'Selecione a marca do produto'}
@@ -435,14 +461,20 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle2 className="w-8 h-8 text-green-600" />
                 </div>
-                <p className="font-heading font-semibold text-lg text-slate-900 mb-1">Solicitacao Recebida!</p>
-                <p className="text-sm text-slate-500 mb-2">Sua ordem de serviço foi criada com sucesso.</p>
-                <p className="text-xs text-slate-400 mb-6">Em breve, um atendente entrara em contato para confirmar a visita do técnico.</p>
+                <p className="font-heading font-semibold text-lg text-slate-900 mb-1">Sua solicitação foi enviada com sucesso!</p>
+                <p className="text-sm text-slate-600 mb-3 leading-relaxed">
+                  Nossa Central de Atendimento vai analisar sua Ordem de Serviço e entrar em contato para confirmar o atendimento e verificar a disponibilidade do técnico conforme a região e a agenda operacional.
+                </p>
+                {(formData.warranty_status || '').toLowerCase().startsWith('fora') && (
+                  <p className="text-[12px] text-amber-800 bg-amber-50 border border-amber-200 px-3 py-2 mb-5 text-left rounded-sm" data-testid="warranty-fee-info">
+                    Como seu produto está <strong>fora da garantia</strong>, será cobrada uma <strong>taxa de deslocamento e diagnóstico técnico</strong>. Fique tranquilo: esse valor é <strong>abatido do orçamento total</strong> caso o serviço seja aprovado e autorizado.
+                  </p>
+                )}
 
                 <div className="bg-slate-50 border border-slate-200 p-4 text-left space-y-2.5 mb-5">
                   <div className="flex justify-between">
                     <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Número da OS</span>
-                    <span className="font-mono font-semibold text-blue-600" data-testid="os-number">{osData.os_number}</span>
+                    <span className="font-mono font-semibold text-blue-600" data-testid="os-number">{osData.external_os_number || osData.os_number}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Produto</span>
@@ -456,19 +488,15 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                     <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Status</span>
                     <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 font-medium">Aguardando Análise A.T</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Taxa de Visita</span>
-                    <span className="text-sm text-slate-700">{osData.visit_fee}</span>
-                  </div>
                 </div>
 
                 <div className="flex gap-3">
                   <Button onClick={handleClose} variant="outline" className="flex-1 border-slate-200 text-sm" data-testid="close-confirmation">
-                    Fechar
+                    Voltar para o início
                   </Button>
                   <a href="/minha-conta" className="flex-1">
-                    <Button className="w-full bg-blue-600 text-white hover:bg-blue-700 text-sm">
-                      Acompanhar OS
+                    <Button className="w-full bg-blue-600 text-white hover:bg-blue-700 text-sm" data-testid="track-os-btn">
+                      Acompanhar solicitação
                     </Button>
                   </a>
                 </div>

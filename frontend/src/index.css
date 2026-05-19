@@ -19,6 +19,14 @@ code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
+/* Surgena font is registered via /public/fonts.css (linked from index.html)
+   so webpack does not try to bundle the absolute /fonts/* paths. */
+
+.font-surgena {
+    font-family: 'Surgena', system-ui, sans-serif;
+    letter-spacing: -0.01em;
+}
+
 /* iOS: prevent input zoom by forcing >= 16px font on all form fields (mobile only) */
 @media (max-width: 768px) {
     input, textarea, select {

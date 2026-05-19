@@ -17,7 +17,19 @@ export function resolveBackendUrl() {
   if (typeof window !== 'undefined' && window.location) {
     const host = window.location.hostname;
     const isLocal = host === 'localhost' || host === '127.0.0.1';
-    if (!isLocal) return window.location.origin;
+    if (!isLocal) {
+      // Defensive redirect: the legacy domain `mastermaqassistencia.com`
+      // (without `.br`) no longer resolves in DNS. Any client that still
+      // reaches it (bookmark, stale cache, etc.) is redirected to the
+      // canonical `.com.br` once, preserving path + query + hash.
+      if (host === 'mastermaqassistencia.com' || host === 'www.mastermaqassistencia.com') {
+        try {
+          const target = 'https://mastermaqassistencia.com.br' + window.location.pathname + window.location.search + window.location.hash;
+          window.location.replace(target);
+        } catch { /* */ }
+      }
+      return window.location.origin;
+    }
   }
   return process.env.REACT_APP_BACKEND_URL || '';
 }

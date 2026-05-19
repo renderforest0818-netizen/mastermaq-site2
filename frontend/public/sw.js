@@ -10,7 +10,7 @@
  * the registration script polls for /sw.js on load / focus / every 10 min,
  * so a version change here propagates to every device within ~10 min.
  */
-const VERSION = 'mm-v7';
+const VERSION = 'mm-v9';
 const RUNTIME = `mm-runtime-${VERSION}`;
 const OFFLINE_URL = '/';
 

@@ -39,18 +39,115 @@ const PRODUCT_CATEGORIES = [
       { brand: "Franke", image: "/images/trituradores/franke.png", logo: "/images/assets/franke-logo.png" },
     ]
   },
+  {
+    id: "lava-e-seca", name: "Lava e Seca", icon: "Shirt",
+    products: [
+      { brand: "Bosch", image: "/images/lava-e-seca/bosch.png", logo: "/images/assets/Bosch-Logo.png" },
+      { brand: "Brastemp", image: "/images/lava-e-seca/brastemp.png", logo: "/images/assets/brastemp-logo.png" },
+      { brand: "Electrolux", image: "/images/lava-e-seca/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+      { brand: "Hisense", image: "/images/lava-e-seca/hisense.png", logo: "/images/assets/hisense-logo.png" },
+      { brand: "LG", image: "/images/lava-e-seca/lg.png", logo: "/images/assets/LG-logo.png" },
+      { brand: "Philco", image: "/images/lava-e-seca/philco.png", logo: "/images/assets/Philco-logo.png" },
+      { brand: "Samsung", image: "/images/lava-e-seca/samsung.png", logo: "/images/assets/samsung-logo.png" },
+    ]
+  },
+  {
+    id: "lavadoras", name: "Lavadoras", icon: "Droplets",
+    products: [
+      { brand: "Brastemp", image: "/images/lavadoras/brastemp.png", logo: "/images/assets/brastemp-logo.png" },
+      { brand: "Electrolux", image: "/images/lavadoras/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+      { brand: "Gorenje", image: "/images/lavadoras/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+      { brand: "Hisense", image: "/images/lavadoras/hisense.png", logo: "/images/assets/hisense-logo.png" },
+      { brand: "LG", image: "/images/lavadoras/lg.png", logo: "/images/assets/LG-logo.png" },
+      { brand: "Panasonic", image: "/images/lavadoras/panasonic.png", logo: "/images/assets/panasonic-logo.png" },
+      { brand: "Samsung", image: "/images/lavadoras/samsung.png", logo: "/images/assets/samsung-logo.png" },
+    ]
+  },
+  {
+    id: "ar-condicionado-split", name: "Ar Condicionado Split", icon: "Wind",
+    products: [
+      { brand: "Bosch", image: "/images/ar-condicionado-split/bosch.png", logo: "/images/assets/Bosch-Logo.png" },
+      { brand: "Brastemp", image: "/images/ar-condicionado-split/brastemp.png", logo: "/images/assets/brastemp-logo.png" },
+      { brand: "Consul", image: "/images/ar-condicionado-split/consul.png", logo: "/images/assets/consul-logo.png" },
+      { brand: "Electrolux", image: "/images/ar-condicionado-split/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+      { brand: "Hisense", image: "/images/ar-condicionado-split/hisense.png", logo: "/images/assets/hisense-logo.png" },
+      { brand: "HQ", image: "/images/ar-condicionado-split/hq.png", logo: "/images/assets/hq-logo.png" },
+      { brand: "LG", image: "/images/ar-condicionado-split/lg.png", logo: "/images/assets/LG-logo.png" },
+      { brand: "Panasonic", image: "/images/ar-condicionado-split/panasonic.png", logo: "/images/assets/panasonic-logo.png" },
+      { brand: "Samsung", image: "/images/ar-condicionado-split/samsung.png", logo: "/images/assets/samsung-logo.png" },
+    ]
+  },
+  {
+    id: "ar-condicionado-portatil", name: "Ar Condicionado Portátil", icon: "AirVent",
+    products: [
+      { brand: "Consul", image: "/images/ar-condicionado-portatil/consul.png", logo: "/images/assets/consul-logo.png" },
+      { brand: "Electrolux", image: "/images/ar-condicionado-portatil/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+      { brand: "Hisense", image: "/images/ar-condicionado-portatil/hisense.png", logo: "/images/assets/hisense-logo.png" },
+      { brand: "HQ", image: "/images/ar-condicionado-portatil/hq.png", logo: "/images/assets/hq-logo.png" },
+      { brand: "LG", image: "/images/ar-condicionado-portatil/lg.png", logo: "/images/assets/LG-logo.png" },
+      { brand: "Philco", image: "/images/ar-condicionado-portatil/philco.png", logo: "/images/assets/Philco-logo.png" },
+    ]
+  },
+  {
+    id: "freezers", name: "Freezers", icon: "Thermometer",
+    products: [
+      { brand: "Brastemp", image: "/images/freezers/brastemp.png", logo: "/images/assets/brastemp-logo.png" },
+      { brand: "Electrolux", image: "/images/freezers/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+      { brand: "Gorenje", image: "/images/freezers/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+      { brand: "Hisense", image: "/images/freezers/hisense.png", logo: "/images/assets/hisense-logo.png" },
+      { brand: "HQ", image: "/images/freezers/hq.png", logo: "/images/assets/hq-logo.png" },
+      { brand: "LG", image: "/images/freezers/lg.png", logo: "/images/assets/LG-logo.png" },
+      { brand: "Panasonic", image: "/images/freezers/panasonic.png", logo: "/images/assets/panasonic-logo.png" },
+      { brand: "Philco", image: "/images/freezers/philco.png", logo: "/images/assets/Philco-logo.png" },
+      { brand: "Samsung", image: "/images/freezers/samsung.png", logo: "/images/assets/samsung-logo.png" },
+    ]
+  },
+  {
+    id: "coifas", name: "Coifas", icon: "Fan",
+    products: [
+      { brand: "Bertazzoni", image: "/images/coifas/bertazzoni.png", logo: "/images/assets/bertazzoni-logo.png" },
+      { brand: "Bosch", image: "/images/coifas/bosch.png", logo: "/images/assets/Bosch-Logo.png" },
+      { brand: "Brastemp", image: "/images/coifas/brastemp.png", logo: "/images/assets/brastemp-logo.png" },
+      { brand: "Consul", image: "/images/coifas/consul.png", logo: "/images/assets/consul-logo.png" },
+      { brand: "Electrolux", image: "/images/coifas/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+      { brand: "Franke", image: "/images/coifas/franke.png", logo: "/images/assets/franke-logo.png" },
+      { brand: "Gorenje", image: "/images/coifas/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+      { brand: "Lofra", image: "/images/coifas/lofra.png", logo: "/images/assets/lofra-logo.png" },
+      { brand: "Samsung", image: "/images/coifas/samsung.png", logo: "/images/assets/samsung-logo.png" },
+      { brand: "Tecno", image: "/images/coifas/tecno.png", logo: "/images/assets/tecno-logo.png" },
+      { brand: "Viking", image: "/images/coifas/viking.png", logo: "/images/assets/viking-logo.png" },
+    ]
+  },
+  {
+    id: "cooktops", name: "Cooktops", icon: "Flame",
+    products: [
+      { brand: "Bertazzoni", image: "/images/cooktops/bertazzoni.png", logo: "/images/assets/bertazzoni-logo.png" },
+      { brand: "Bosch", image: "/images/cooktops/bosch.png", logo: "/images/assets/Bosch-Logo.png" },
+      { brand: "Brastemp", image: "/images/cooktops/brastemp.png", logo: "/images/assets/brastemp-logo.png" },
+      { brand: "Consul", image: "/images/cooktops/consul.png", logo: "/images/assets/consul-logo.png" },
+      { brand: "Electrolux", image: "/images/cooktops/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+      { brand: "Franke", image: "/images/cooktops/franke.png", logo: "/images/assets/franke-logo.png" },
+      { brand: "Gorenje", image: "/images/cooktops/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+      { brand: "LG", image: "/images/cooktops/lg.png", logo: "/images/assets/LG-logo.png" },
+      { brand: "Lofra", image: "/images/cooktops/lofra.png", logo: "/images/assets/lofra-logo.png" },
+      { brand: "Samsung", image: "/images/cooktops/samsung.png", logo: "/images/assets/samsung-logo.png" },
+      { brand: "Tecno", image: "/images/cooktops/tecno.png", logo: "/images/assets/tecno-logo.png" },
+      { brand: "Viking", image: "/images/cooktops/viking.png", logo: "/images/assets/viking-logo.png" },
+    ]
+  },
 ];
 
 const ALL_EQUIPMENT = [
   { id: "geladeiras", name: "Geladeiras", icon: "Snowflake", hasImage: true, image: "/images/geladeiras/samsung.png" },
   { id: "trituradores", name: "Trituradores", icon: "Cog", hasImage: true, image: "/images/trituradores/franke.png" },
-  { id: "lava-e-seca", name: "Lava e Seca", icon: "Shirt", hasImage: false },
-  { id: "lavadoras", name: "Lavadoras", icon: "Droplets", hasImage: false },
-  { id: "ar-condicionado-split", name: "Ar Condicionado Split", icon: "Wind", hasImage: false },
-  { id: "ar-condicionado-portátil", name: "Ar Condicionado Portátil", icon: "AirVent", hasImage: false },
+  { id: "lava-e-seca", name: "Lava e Seca", icon: "Shirt", hasImage: true, image: "/images/lava-e-seca/lg.png" },
+  { id: "lavadoras", name: "Lavadoras", icon: "Droplets", hasImage: true, image: "/images/lavadoras/samsung.png" },
+  { id: "ar-condicionado-split", name: "Ar Condicionado Split", icon: "Wind", hasImage: true, image: "/images/ar-condicionado-split/samsung.png" },
+  { id: "ar-condicionado-portatil", name: "Ar Condicionado Portátil", icon: "AirVent", hasImage: true, image: "/images/ar-condicionado-portatil/electrolux.png" },
   { id: "vrf-hisense", name: "VRF Hisense", icon: "Server", hasImage: true, image: "/images/vrf/vrf-hero-product.png" },
-  { id: "freezers", name: "Freezers", icon: "Thermometer", hasImage: false },
-  { id: "coifas", name: "Coifas", icon: "Fan", hasImage: false },
+  { id: "freezers", name: "Freezers", icon: "Thermometer", hasImage: true, image: "/images/freezers/electrolux.png" },
+  { id: "coifas", name: "Coifas", icon: "Fan", hasImage: true, image: "/images/coifas/franke.png" },
+  { id: "cooktops", name: "Cooktops", icon: "Flame", hasImage: true, image: "/images/cooktops/bertazzoni.png" },
 ];
 
 const BRAND_LOGOS = [
@@ -126,7 +223,7 @@ const DIFFERENTIALS = [
   { icon: Clock, title: "Garantia de 90 Dias", desc: "Todos os serviços com garantia. Sua tranquilidade é nossa prioridade absoluta." },
   { icon: Home, title: "Atendimento Domiciliar", desc: "Diagnostico preciso e reparo no conforto do seu lar, sem complicações." },
   { icon: Phone, title: "Suporte Dedicado", desc: "Canal direto via WhatsApp para acompanhamento em tempo real do seu atendimento." },
-  { icon: CheckCircle2, title: "Portal do Cliente", desc: "Acompanhe ordens de serviço, histórico e agende novos atendimentos pelo portal exclusivo." },
+  { icon: CheckCircle2, title: "Portal do Cliente", desc: "Acompanhe ordens de serviço, histórico e solicite novos atendimentos pelo portal exclusivo." },
 ];
 
 const TESTIMONIALS = [
@@ -385,7 +482,7 @@ export default function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>
                 Assistência Técnica{' '}
-                <span className="text-blue-500">Autorizada em BH</span>
+                <span className="text-blue-500 font-surgena tracking-normal">Autorizada em BH</span>
               </motion.h1>
               <motion.p
                 className="text-base text-slate-400 leading-relaxed mb-7 max-w-xl"
@@ -403,7 +500,7 @@ export default function HomePage() {
                   onClick={() => document.getElementById('scheduling-section')?.scrollIntoView({ behavior: 'smooth' })}
                   className="bg-red-600 text-white hover:bg-red-700 px-8 py-4 text-sm font-semibold h-auto hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-red-600/20"
                   data-testid="hero-cta">
-                  Agendar Visita Técnica <ArrowRight className="w-4 h-4 ml-2" />
+                  Solicitar Orçamento <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
                 <a href="https://wa.me/553134225293" target="_blank" rel="noopener noreferrer">
                   <Button variant="outline" className="border border-white/15 text-white hover:bg-white/5 hover:border-white/30 px-8 py-4 text-sm h-auto bg-transparent w-full sm:w-auto transition-all duration-200" data-testid="hero-whatsapp-btn">
@@ -540,7 +637,7 @@ export default function HomePage() {
                       )}
                       <span className="font-heading font-medium text-sm text-slate-800 text-center">{eq.name}</span>
                       <span className="text-xs text-blue-600 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-medium">
-                        Agendar <ArrowRight className="w-3 h-3" />
+                        Solicitar <ArrowRight className="w-3 h-3" />
                       </span>
                     </motion.button>
                   );
@@ -576,7 +673,7 @@ export default function HomePage() {
             <div className="hidden md:block absolute top-12 left-[calc(16.66%+12px)] right-[calc(16.66%+12px)] h-px bg-gradient-to-r from-blue-600/50 via-blue-400/30 to-blue-600/50" />
 
             {[
-              { num: "01", title: "Agende Online", desc: "Selecione seu produto, escolha a marca e descreva o problema. Uma OS é gerada automaticamente." },
+              { num: "01", title: "Solicite Online", desc: "Selecione seu produto, escolha a marca e descreva o problema. Sua OS é gerada e analisada pela equipe." },
               { num: "02", title: "Receba o Técnico", desc: "O técnico especializado irá até você no horário combinado." },
               { num: "03", title: "Problema Resolvido", desc: "Reparo com pecas originais e garantia de 90 dias. Acompanhe tudo pelo portal." },
             ].map((s, i) => (
@@ -793,7 +890,7 @@ export default function HomePage() {
                 Não deixe seu produto parado
               </h2>
               <p className="text-sm text-slate-400 max-w-lg mb-6 leading-relaxed">
-                Agende uma visita técnica e tenha seu produto funcionando perfeitamente.
+                Solicite uma visita técnica e tenha seu produto funcionando perfeitamente.
               </p>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <Button

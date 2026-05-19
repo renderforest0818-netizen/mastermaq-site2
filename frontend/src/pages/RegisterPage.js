@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { GoogleLogin } from '@react-oauth/google';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,8 +22,25 @@ export default function RegisterPage() {
     email: '', password: '', confirmPassword: '',
     name: '', phone: '', cep: '', address: '', number: '', neighborhood: '', city: '', state: '',
   });
-  const { register } = useAuth();
+  const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
+
+  // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+  const handleGoogle = async (credentialResponse) => {
+    if (!credentialResponse?.credential) {
+      toast.error('Não recebemos o token do Google. Tente novamente.');
+      return;
+    }
+    try {
+      await googleLogin(credentialResponse.credential);
+      toast.success('Conta criada com Google!');
+      navigate('/minha-conta');
+    } catch (err) {
+      const msg = formatApiError(err.response?.data?.detail) || 'Falha ao continuar com Google';
+      setError(msg);
+      toast.error(msg);
+    }
+  };
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
@@ -135,6 +153,23 @@ export default function RegisterPage() {
 
           {step === 1 ? (
             <div className="space-y-5">
+              <div className="flex justify-center pb-1" data-testid="google-register-container">
+                <GoogleLogin
+                  onSuccess={handleGoogle}
+                  onError={() => toast.error('Falha ao continuar com Google')}
+                  theme="outline"
+                  size="large"
+                  shape="rectangular"
+                  text="continue_with"
+                  locale="pt-BR"
+                  width="320"
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-slate-200" />
+                <span className="text-[11px] uppercase tracking-widest text-slate-400">ou com e-mail</span>
+                <div className="flex-1 h-px bg-slate-200" />
+              </div>
               <div>
                 <Label className="text-sm text-slate-700">E-mail</Label>
                 <Input type="email" value={form.email} onChange={e => set('email', e.target.value)} className="mt-1 border-slate-300" placeholder="seu@email.com" data-testid="register-email" />

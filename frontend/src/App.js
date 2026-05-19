@@ -1,6 +1,7 @@
 import "@/App.css";
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { Toaster } from "sonner";
 import Header from "@/components/Header";
@@ -49,21 +50,25 @@ function AppRoutes() {
 }
 
 function App() {
+  // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+  const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <ScrollToTop />
-        <div className="min-h-screen flex flex-col">
-          <Header />
-          <main className="flex-1">
-            <AppRoutes />
-          </main>
-          <Footer />
-          <MiChatWidget />
-        </div>
-        <Toaster position="top-right" richColors />
-      </AuthProvider>
-    </BrowserRouter>
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <BrowserRouter>
+        <AuthProvider>
+          <ScrollToTop />
+          <div className="min-h-screen flex flex-col">
+            <Header />
+            <main className="flex-1">
+              <AppRoutes />
+            </main>
+            <Footer />
+            <MiChatWidget />
+          </div>
+          <Toaster position="top-right" richColors />
+        </AuthProvider>
+      </BrowserRouter>
+    </GoogleOAuthProvider>
   );
 }
 

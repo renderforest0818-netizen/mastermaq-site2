@@ -1,0 +1,10 @@
+/* Static font loader served from /public so webpack does not try to bundle
+   the absolute URLs. Linked from public/index.html with rel="stylesheet". */
+@font-face {
+    font-family: 'Surgena';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('/fonts/surgena-bold.otf') format('opentype'),
+         url('/fonts/surgena-bold.ttf') format('truetype');
+}

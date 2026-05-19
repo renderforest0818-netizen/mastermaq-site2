@@ -16,7 +16,7 @@ const BACKEND = BACKEND_URL;
 const DEFAULT_GREETING = {
   id: 'greeting',
   role: 'assistant',
-  content: 'Oi! Eu sou a **Mi**, assistente virtual da Mastermaq. Posso te ajudar com agendamento de visita técnica, marcas atendidas, horários ou tirar dúvidas sobre nossos serviços. Como posso te ajudar?',
+  content: 'Oi! Eu sou a **Mi**, assistente virtual da Mastermaq. Posso te ajudar a solicitar um atendimento técnico, tirar dúvidas sobre marcas atendidas, horários ou explicar como funciona nosso processo. Como posso te ajudar?',
   timestamp: new Date().toISOString(),
 };
 
@@ -351,13 +351,16 @@ export default function MiChatWidget() {
         warranty_status: data.warranty_status || 'fora_garantia',
         defect_description: data.defect_description || '',
       });
-      // Replace the widget with a "done" state and append a success bubble from Mi
+      // Replace the widget with a "done" state and append a success bubble from Mi.
+      // Use the external system OS number when already synced; the user portal
+      // will pick up the external number on its next poll otherwise.
+      const displayOs = os.external_os_number || os.os_number;
       setMessages(prev => prev
-        .map(m => m.id === widgetId ? { ...m, widget: 'done', os: os.os_number } : m)
+        .map(m => m.id === widgetId ? { ...m, widget: 'done', os: displayOs, warranty: payload.warranty_status } : m)
         .concat([{
           id: uid(),
           role: 'assistant',
-          content: `Pronto! Criei sua OS **${os.os_number}** com status **${os.status || 'aguardando confirmação'}**. Nossa equipe vai entrar em contato pelo telefone cadastrado. Você pode acompanhar pelo [seu portal](/minha-conta).`,
+          content: `Pronto! Criei sua OS **${displayOs}** com status **${os.status || 'aguardando confirmação'}**. Nossa equipe vai entrar em contato pelo telefone cadastrado. Você pode acompanhar pelo [seu portal](/minha-conta).`,
           timestamp: new Date().toISOString(),
         }])
       );
@@ -610,7 +613,7 @@ export default function MiChatWidget() {
               )}
             </div>
             <div className="text-[10px] text-slate-400 mt-1.5 px-1">
-              Mi pode cometer erros. Para agendar, use o botão "Agendar Visita Técnica".
+              Mi pode cometer erros. Para solicitar atendimento, use o botão "Solicitar Orçamento".
             </div>
           </div>
         </div>
@@ -798,14 +801,26 @@ function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, userProfile, o
     }
   }
 
-  // Done state
+  // Done state — full confirmation message (mirrors SchedulingModal)
   if (widget.widget === 'done') {
+    const isOutOfWarranty = (widget.warranty || '').toLowerCase().startsWith('fora');
     return (
-      <div className="flex justify-start mi-msg-enter">
-        <div className="max-w-[92%] bg-green-50 border border-green-200 text-green-900 text-sm px-4 py-3" style={{ borderRadius: '12px 12px 12px 2px' }}>
-          <div className="flex items-center gap-2 font-medium">
-            <Check className="w-4 h-4 text-green-600" />
-            OS <span className="font-mono font-semibold">{widget.os}</span> criada
+      <div className="flex justify-start mi-msg-enter" data-testid="mi-os-confirmation">
+        <div className="max-w-[92%] bg-green-50 border border-green-200 text-green-900 text-sm px-4 py-3 space-y-2" style={{ borderRadius: '12px 12px 12px 2px' }}>
+          <div className="flex items-center gap-2 font-semibold">
+            <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+            Sua solicitação foi enviada com sucesso!
+          </div>
+          <div className="text-[12.5px] text-green-900/85 leading-relaxed">
+            OS <span className="font-mono font-semibold">{widget.os}</span> registrada. Nossa Central de Atendimento vai analisar sua Ordem de Serviço e entrar em contato para confirmar o atendimento e verificar a disponibilidade do técnico conforme a região e a agenda operacional.
+          </div>
+          {isOutOfWarranty && (
+            <div className="text-[12px] bg-amber-50 border border-amber-200 text-amber-900 px-2.5 py-2" style={{ borderRadius: '6px' }}>
+              Como seu produto está <strong>fora da garantia</strong>, há uma <strong>taxa de deslocamento e diagnóstico</strong>. Esse valor é <strong>abatido do orçamento total</strong> caso o serviço seja aprovado.
+            </div>
+          )}
+          <div className="flex gap-2 pt-1">
+            <a href="/minha-conta" className="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5 px-3 transition-colors" style={{ borderRadius: '8px' }} data-testid="widget-track-os">Acompanhar solicitação</a>
           </div>
         </div>
       </div>
@@ -859,7 +874,7 @@ function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, userProfile, o
             <img src="/images/assets/mi-avatar.webp" alt="Mi" className="w-full h-full object-cover" draggable={false} />
           </div>
           <div className="font-heading font-semibold text-sm text-slate-900 leading-tight">
-            {widget.proactive ? 'Vamos abrir a OS?' : 'Pré-agendamento rápido'}
+            {widget.proactive ? 'Vamos abrir sua OS?' : 'Solicitação rápida'}
           </div>
         </div>
         <p className="text-[12px] text-slate-500 leading-snug">

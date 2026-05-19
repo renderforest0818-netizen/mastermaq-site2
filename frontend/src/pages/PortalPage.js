@@ -38,10 +38,14 @@ function StatusBadge({ status }) {
 }
 
 function OrderCard({ order }) {
+  // Display the external system OS number (e.g. "27677") as soon as the
+  // background sync persists it. Fall back to our internal OS-2026... while
+  // the external push is still pending.
+  const displayOs = order.external_os_number || order.os_number;
   return (
     <div className="bg-white border border-slate-200 p-5 hover:shadow-md transition-shadow" data-testid={`order-${order.os_number}`}>
       <div className="flex items-center justify-between mb-3">
-        <span className="font-mono text-sm font-semibold text-blue-600">{order.os_number}</span>
+        <span className="font-mono text-sm font-semibold text-blue-600">{displayOs}</span>
         <StatusBadge status={order.status} />
       </div>
       <div className="grid grid-cols-2 gap-2 text-sm">
@@ -179,7 +183,7 @@ export default function PortalPage() {
                 className="bg-red-600 text-white hover:bg-red-700 text-sm hidden sm:flex"
                 data-testid="new-order-btn"
               >
-                <Plus className="w-4 h-4 mr-1.5" /> Novo Agendamento
+                <Plus className="w-4 h-4 mr-1.5" /> Solicitar Atendimento
               </Button>
               <Button
                 variant="outline"
@@ -216,7 +220,7 @@ export default function PortalPage() {
                   <ClipboardList className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                   <p className="text-slate-500 text-sm">Nenhuma ordem de serviço ativa.</p>
                   <Button onClick={() => setModalOpen(true)} className="mt-4 bg-blue-600 text-white hover:bg-blue-700 text-sm" data-testid="create-first-order">
-                    Agendar Agora
+                    Solicitar Atendimento
                   </Button>
                 </div>
               ) : (

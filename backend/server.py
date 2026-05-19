@@ -212,6 +212,92 @@ async def logout(response: Response):
     response.delete_cookie("refresh_token", path="/")
     return {"message": "Logged out"}
 
+
+# ── Google OAuth (One-Tap / Sign-in with Google id_token verification) ─────
+class GoogleAuthRequest(BaseModel):
+    credential: str  # JWT id_token returned by Google Identity Services
+
+
+@api_router.post("/auth/google")
+async def google_auth(data: GoogleAuthRequest, response: Response):
+    """Verifies a Google ID token returned by the front-end "Sign in with
+    Google" button and emits the same httpOnly cookie pair as email/password
+    login. First-time logins create a new user; subsequent logins update the
+    Google profile fields.
+
+    REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+    """
+    google_client_id = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
+    if not google_client_id:
+        raise HTTPException(status_code=500, detail="Google OAuth não configurado")
+    try:
+        from google.oauth2 import id_token as _id_token
+        from google.auth.transport import requests as _g_requests
+        idinfo = _id_token.verify_oauth2_token(
+            data.credential,
+            _g_requests.Request(),
+            google_client_id,
+        )
+    except ValueError as e:
+        logger.warning(f"[google-auth] invalid token: {e}")
+        raise HTTPException(status_code=401, detail="Token Google inválido")
+    except Exception as e:
+        logger.error(f"[google-auth] verify err: {e}")
+        raise HTTPException(status_code=500, detail="Falha ao validar token Google")
+
+    email = (idinfo.get("email") or "").lower().strip()
+    if not email or not idinfo.get("email_verified"):
+        raise HTTPException(status_code=401, detail="Email Google não verificado")
+
+    google_sub = idinfo.get("sub")
+    name = idinfo.get("name") or ""
+    picture = idinfo.get("picture") or ""
+
+    existing = await db.users.find_one({"email": email})
+    if existing:
+        # Link the Google identity to the existing email account.
+        await db.users.update_one(
+            {"_id": existing["_id"]},
+            {"$set": {
+                "google_sub": google_sub,
+                "google_picture": picture,
+                "name": existing.get("name") or name,
+                "auth_provider": existing.get("auth_provider") or "google",
+            }}
+        )
+        user_id = str(existing["_id"])
+    else:
+        # First-time Google sign-in: create a new customer record. Password is
+        # left empty — the user can only sign in via Google until they set a
+        # password through password reset.
+        doc = {
+            "email": email,
+            "password_hash": "",
+            "name": name,
+            "phone": "",
+            "cep": "",
+            "address": "",
+            "number": "",
+            "neighborhood": "",
+            "city": "",
+            "state": "",
+            "role": "customer",
+            "auth_provider": "google",
+            "google_sub": google_sub,
+            "google_picture": picture,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+        result = await db.users.insert_one(doc)
+        user_id = str(result.inserted_id)
+
+    access_token = create_access_token(user_id, email)
+    refresh_token = create_refresh_token(user_id)
+    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=True, samesite="none", max_age=3600, path="/")
+    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=True, samesite="none", max_age=2592000, path="/")
+    full = await db.users.find_one({"_id": ObjectId(user_id)}, {"password_hash": 0})
+    full["_id"] = str(full["_id"])
+    return full
+
 @api_router.get("/auth/me")
 async def get_me(request: Request):
     return await get_current_user(request)
@@ -263,15 +349,31 @@ async def get_rules():
     return {"installation_disabled": INSTALLATION_DISABLED}
 
 # ── Service Orders ───────────────────────────────────────────────────
-def _service_type_external_label(st: str) -> str:
-    """Map internal service_type to external API expected labels."""
+def _service_type_external_label(st: str, warranty_status: str = "") -> str:
+    """Map internal service to the external API expected labels.
+
+    Per business rules (May 2026):
+      - Inside warranty  -> "Garantia"
+      - Outside warranty -> "Orçamento"
+    The concrete operation (conserto/instalação/manutenção) goes to
+    observations, NOT to service_type. We default to "Orçamento" when
+    warranty status is missing.
+    """
+    w = (warranty_status or "").lower().strip()
+    if w in ("dentro", "dentro_garantia", "garantia", "em_garantia"):
+        return "Garantia"
+    return "Orçamento"
+
+
+def _service_operation_label(st: str) -> str:
+    """Human label for the operation: used in observations only."""
     m = {
         "conserto": "Conserto",
         "orcamento": "Orçamento",
         "instalacao": "Instalação",
         "manutencao": "Manutenção",
     }
-    return m.get((st or "").lower(), st or "Orçamento")
+    return m.get((st or "").lower(), (st or "").capitalize() or "Conserto")
 
 
 def _equipment_name(eq_id: str) -> str:
@@ -291,11 +393,27 @@ async def _push_to_external_system(order_doc: dict, user_doc: Optional[dict]) ->
 
     def _digits(v): return "".join(ch for ch in (v or "") if ch.isdigit())
 
-    # Build payload from both order and user profile
+    # Build payload from both order and user profile. Per business rules:
+    #   - `service_type` carries warranty kind only: "Garantia" | "Orçamento".
+    #   - The actual operation (Conserto / Instalação) goes to `observations`.
     user = user_doc or {}
+    operation = _service_operation_label(order_doc.get("service_type", ""))
+    warranty_label = "Dentro da garantia" if (order_doc.get("warranty_status", "") or "").lower().startswith("dentro") else "Fora da garantia"
+    defect_text = (order_doc.get("defect_description") or "").strip()
+    observation_parts = [
+        f"Tipo de serviço: {operation}",
+        f"Garantia: {warranty_label}",
+        f"OS interna: {order_doc.get('os_number', '')}",
+        "Origem: site Mastermaq",
+    ]
+    if defect_text:
+        observation_parts.append(f"Defeito relatado: {defect_text}")
+
+    phone_digits = _digits(user.get("phone") or order_doc.get("user_phone") or "")
     payload = {
         "customer_name": order_doc.get("user_name") or user.get("name") or "Cliente Site",
-        "phone1": _digits(user.get("phone") or ""),
+        "phone1": phone_digits,
+        "phone2": phone_digits,
         "address": user.get("address") or "",
         "number": user.get("number") or "",
         "neighborhood": user.get("neighborhood") or "",
@@ -307,9 +425,12 @@ async def _push_to_external_system(order_doc: dict, user_doc: Optional[dict]) ->
         "brand": order_doc.get("brand") or "",
         "model": order_doc.get("model") or "",
         "serial_number": order_doc.get("serial_number") or "",
-        "reported_defect": order_doc.get("defect_description") or "",
-        "observations": f"OS interna: {order_doc.get('os_number','')} | Origem: site Mastermaq",
-        "service_type": _service_type_external_label(order_doc.get("service_type", "")),
+        "reported_defect": defect_text,
+        "observations": " | ".join(observation_parts),
+        "service_type": _service_type_external_label(
+            order_doc.get("service_type", ""),
+            order_doc.get("warranty_status", ""),
+        ),
         "reference_point": "",
         "complement": "",
     }
@@ -582,27 +703,48 @@ INSTALACAO NAO DISPONIVEL para: Geladeiras, Ar Condicionado Portatil, Lava e Sec
 
 COMO VOCE DEVE AGIR:
 1. Seja cordial, objetiva e use linguagem brasileira natural com acentuacao correta.
-2. Ajude com: informacoes da empresa, marcas atendidas, horarios, agendamento, status de OS, duvidas gerais sobre o servico.
+2. Ajude com: informacoes da empresa, marcas atendidas, horarios, solicitacao de atendimento, status de OS, duvidas gerais sobre o servico.
 3. NUNCA forneca diagnostico tecnico de problema em eletrodomestico. Se o cliente descrever um defeito (ex: "geladeira nao gela", "lavadora vaza agua"), voce deve:
    - Reconhecer o problema com empatia (1 linha).
    - Explicar que diagnostico preciso so pode ser feito presencialmente por tecnico habilitado, por seguranca e eficacia.
-   - Recomendar abertura de Ordem de Servico (OS) para visita tecnica.
-   - Sugerir clicar em "Agendar Visita Tecnica" no site, ou ligar (31) 3422-5293, ou se logado, usar o portal "Minha Conta" > "Novo Agendamento".
-4. Quando o cliente pedir agendamento, colete (se ele ainda nao informou): tipo de equipamento, marca, modelo, breve descricao do problema, e oriente a finalizar pelo modal de agendamento.
+   - Recomendar abrir uma Ordem de Servico (OS) para que a Central de Atendimento avalie e organize a visita do tecnico.
+   - Sugerir clicar em "Solicitar Orcamento" no site, ou ligar (31) 3422-5293, ou se logado, usar o portal "Minha Conta".
+
+FLUXO CORRETO DE ATENDIMENTO (REGRA OBRIGATORIA):
+A Mastermaq NAO oferece agendamento imediato pelo site ou pelo chat. O fluxo correto e:
+   - O cliente abre uma Ordem de Servico (OS) pelo site, chat ou telefone (e uma SOLICITACAO de atendimento).
+   - A Central de Atendimento da Mastermaq analisa a OS, valida os dados e cruza com o roteiro logistico e a agenda dos tecnicos.
+   - A equipe entra em contato com o cliente em ate 1 dia util para confirmar a OS e combinar a melhor data e horario para a visita.
+
+LINGUAGEM OBRIGATORIA:
+- NUNCA diga "agendamento imediato", "agendar agora", "agende sua visita", "marcar horario na hora", "agendar visita tecnica" ou expressoes equivalentes que sugiram garantia de data/horario.
+- SEMPRE prefira: "solicitar orcamento", "solicitar atendimento", "abrir uma OS", "abrir uma solicitacao de atendimento", "gerar a OS", "registrar sua solicitacao".
+- Use frases como "Apos sua solicitacao, nossa equipe entra em contato para combinar a melhor data e horario".
+
+4. Quando o cliente pedir uma visita tecnica, colete (se ele ainda nao informou): tipo de equipamento, marca, modelo, breve descricao do problema, e oriente a finalizar a SOLICITACAO pelo modal/formulario do site.
+
 5. Quando o cliente pedir atendimento para um dia/data especifica (ex.: "amanha", "sexta-feira", "dia 28", "essa semana"):
    - Confirme a preferencia com gentileza, mas SEMPRE explique, em linguagem natural, que:
-     a) Apos a abertura da OS, nossa equipe ira verificar a disponibilidade dos tecnicos e organizar conforme o roteiro logistico do dia.
-     b) O horario/data efetivos podem variar conforme a localizacao do atendimento e a agenda dos tecnicos.
-     c) Voce vai receber um contato da nossa equipe para confirmar o melhor horario assim que a OS for analisada.
-   - Nunca prometa data/horario garantidos. Use frases naturais, nao robotizadas (ex.: "Anotei sua preferencia para sexta. Assim que a OS for aberta, nossa equipe vai cruzar com o roteiro dos tecnicos e te confirmar o melhor horario — pode variar um pouco dependendo da regiao.").
-6. Responda em markdown quando fizer sentido (listas, negrito), mas seja sucinta (3-6 linhas de media).
-7. Se perguntarem sobre assuntos fora do escopo (politica, entretenimento, codigo, etc), redirecione gentilmente: "Posso te ajudar com assuntos da Mastermaq - agendamento, marcas, horarios ou duvidas sobre nossos servicos."
-8. Use emojis com parcimonia (no maximo 1 por resposta) e apenas quando realmente agregarem.
+     a) Apos a abertura da OS, a Central de Atendimento ira analisar a solicitacao e verificar a disponibilidade dos tecnicos conforme o roteiro logistico do dia.
+     b) O horario/data efetivos podem variar conforme a regiao e a agenda dos tecnicos.
+     c) O cliente vai receber um contato da equipe para confirmar a OS e combinar o melhor horario assim que a solicitacao for analisada.
+   - Nunca prometa data/horario garantidos. Use frases naturais, nao robotizadas (ex.: "Anotei sua preferencia para sexta. Assim que a OS for analisada, nossa Central de Atendimento entra em contato para confirmar e combinar o melhor horario com voce — pode variar um pouco dependendo da regiao.").
+
+6. SOBRE PRODUTOS FORA DA GARANTIA (regra obrigatoria — SEMPRE informe quando o cliente disser que esta fora da garantia ou que e particular):
+   - Para produtos fora da garantia, e cobrada uma TAXA DE DESLOCAMENTO e DIAGNOSTICO TECNICO.
+   - Essa taxa nao se perde: ela e ABATIDA do valor total do orcamento caso o servico seja aprovado e autorizado pelo cliente.
+   - Explique isso de forma transparente, ex.: "Como o produto esta fora da garantia, ha uma taxa de deslocamento e diagnostico que o tecnico cobra na visita. Mas fique tranquilo: se voce aprovar o orcamento e autorizar o servico, esse valor e abatido do total do conserto."
+   - Se for dentro da garantia (marca autorizada), nao cite essa taxa.
+
+7. Responda em markdown quando fizer sentido (listas, negrito), mas seja sucinta (3-6 linhas de media).
+8. Se perguntarem sobre assuntos fora do escopo (politica, entretenimento, codigo, etc), redirecione gentilmente: "Posso te ajudar com assuntos da Mastermaq - solicitacao de atendimento, marcas, horarios ou duvidas sobre nossos servicos."
+9. Use emojis com parcimonia (no maximo 1 por resposta) e apenas quando realmente agregarem.
 
 NUNCA:
 - Nunca invente precos, prazos exatos ou garanta resultado de conserto.
 - Nunca forneca passo-a-passo tecnico para o cliente consertar sozinho.
 - Nunca cite concorrentes.
+- Nunca prometa horario/data de visita: a Central de Atendimento e quem confirma.
 """
 
 
@@ -955,13 +1097,20 @@ async def external_status_webhook(body: ExternalStatusUpdate, request: Request):
     if not key or recv != key:
         raise HTTPException(status_code=401, detail="API key invalida")
 
-    query = None
+    # Build a lookup query that is robust to the external system sending the
+    # external OS number under the `os_number` key (common case: external API
+    # uses its own numeric id like "27677" which corresponds to our
+    # `external_os_number`, while our internal id has the "OS-..." prefix).
+    candidates = []
     if body.os_number:
-        query = {"os_number": body.os_number}
-    elif body.external_os_number:
-        query = {"external_os_number": body.external_os_number}
-    if not query:
+        candidates.append({"os_number": body.os_number})
+        candidates.append({"external_os_number": body.os_number})
+    if body.external_os_number:
+        candidates.append({"external_os_number": body.external_os_number})
+        candidates.append({"os_number": body.external_os_number})
+    if not candidates:
         raise HTTPException(status_code=400, detail="os_number ou external_os_number e obrigatorio")
+    query = candidates[0] if len(candidates) == 1 else {"$or": candidates}
 
     update = {
         "status": body.status,
@@ -975,16 +1124,22 @@ async def external_status_webhook(body: ExternalStatusUpdate, request: Request):
     if res.matched_count == 0:
         raise HTTPException(status_code=404, detail="OS nao encontrada")
 
-    # Log event for audit + polling
-    await db.service_order_events.insert_one({
-        **query,
+    # Log event for audit + polling. Use the matched OS number explicitly so
+    # the event row always carries `os_number` (the external system may have
+    # sent only `external_os_number`).
+    matched_doc = await db.service_orders.find_one(query, {"os_number": 1, "external_os_number": 1, "_id": 0})
+    event_doc = {
+        "os_number": (matched_doc or {}).get("os_number"),
+        "external_os_number": (matched_doc or {}).get("external_os_number"),
         "event_type": body.event_type or "status_update",
         "status": body.status,
         "technician": body.technician,
         "scheduled_for": body.scheduled_for,
         "notes": body.notes,
         "created_at": datetime.now(timezone.utc).isoformat(),
-    })
+    }
+    await db.service_order_events.insert_one(event_doc)
+    logger.info(f"[webhook-status] OS={(matched_doc or {}).get('os_number')} status={body.status} ev={body.event_type}")
     return {"ok": True, "matched": res.matched_count, "modified": res.modified_count}
 
 
