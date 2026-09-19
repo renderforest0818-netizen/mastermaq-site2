@@ -41,6 +41,8 @@ export default function SchedulingModal({ open, onClose, equipment }) {
   const { user } = useAuth();
   const [step, setStep] = useState(0);
   const [brand, setBrand] = useState('');
+  const [otherBrandMode, setOtherBrandMode] = useState(false);
+  const [otherBrandInput, setOtherBrandInput] = useState('');
   const [serviceType, setServiceType] = useState('');
   const [formData, setFormData] = useState({ model: '', serial_number: '', warranty_status: 'fora_garantia', defect_description: '' });
   const [osData, setOsData] = useState(null);
@@ -52,12 +54,22 @@ export default function SchedulingModal({ open, onClose, equipment }) {
   const reset = useCallback(() => {
     setStep(0);
     setBrand('');
+    setOtherBrandMode(false);
+    setOtherBrandInput('');
     setServiceType('');
     setFormData({ model: '', serial_number: '', warranty_status: '', defect_description: '' });
     setOsData(null);
   }, []);
 
   const handleClose = () => { reset(); onClose(); };
+
+  const confirmOtherBrand = () => {
+    const value = otherBrandInput.trim();
+    if (value.length < 2) { toast.error('Informe o nome da marca'); return; }
+    setBrand(value);
+    setOtherBrandMode(false);
+    setStep(1);
+  };
 
   const handleSubmit = async () => {
     // Validation: required fields
@@ -241,7 +253,7 @@ export default function SchedulingModal({ open, onClose, equipment }) {
 
           <div className="px-6 pb-6 pt-4">
             {/* Step 0: Brand Selection */}
-            {step === 0 && (
+            {step === 0 && !otherBrandMode && (
               <div className="grid grid-cols-3 gap-3" data-testid="brand-selection">
                 {BRANDS.map(b => (
                   <button
@@ -263,6 +275,57 @@ export default function SchedulingModal({ open, onClose, equipment }) {
                     <span className="text-[10px] font-medium text-slate-500 group-hover:text-slate-700">{b.name}</span>
                   </button>
                 ))}
+                {/* "Outras marcas" — opens free-text input */}
+                <button
+                  onClick={() => { setOtherBrandMode(true); setOtherBrandInput(''); }}
+                  className="relative p-4 border border-dashed border-slate-300 flex flex-col items-center justify-center gap-2 transition-all duration-200 hover:border-blue-600 hover:bg-blue-50/30 col-span-3 sm:col-span-1"
+                  data-testid="brand-other"
+                >
+                  <div className="h-10 flex items-center justify-center">
+                    <span className="text-[18px] text-slate-400">+</span>
+                  </div>
+                  <span className="text-[10px] font-medium text-slate-600">Outras marcas</span>
+                </button>
+              </div>
+            )}
+
+            {/* Step 0b: Custom brand input */}
+            {step === 0 && otherBrandMode && (
+              <div className="space-y-4" data-testid="brand-other-input">
+                <div className="bg-blue-50 border border-blue-100 p-3 text-[12px] text-blue-800 leading-relaxed">
+                  <Info className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
+                  Não encontrou sua marca? Digite o nome aqui. A análise técnica vai validar a viabilidade do atendimento.
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="other-brand">Nome da marca</Label>
+                  <Input
+                    id="other-brand"
+                    value={otherBrandInput}
+                    onChange={(e) => setOtherBrandInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); confirmOtherBrand(); } }}
+                    placeholder="Ex.: Fischer, Continental, Esmaltec…"
+                    autoFocus
+                    data-testid="brand-other-input-field"
+                  />
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <Button
+                    variant="outline"
+                    onClick={() => { setOtherBrandMode(false); setOtherBrandInput(''); }}
+                    className="flex-1 text-sm"
+                    data-testid="brand-other-cancel"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5 mr-1.5" /> Voltar
+                  </Button>
+                  <Button
+                    onClick={confirmOtherBrand}
+                    disabled={otherBrandInput.trim().length < 2}
+                    className="flex-1 bg-slate-900 text-white hover:bg-slate-800 text-sm"
+                    data-testid="brand-other-confirm"
+                  >
+                    Continuar <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                  </Button>
+                </div>
               </div>
             )}
 

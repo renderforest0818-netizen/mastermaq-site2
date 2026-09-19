@@ -4,9 +4,12 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import SchedulingModal from '@/components/SchedulingModal';
 import VRFHisensePage from '@/pages/VRFHisensePage';
-import { ArrowRight, Snowflake, Wind, Shirt, Droplets, Cog, AirVent, Server, Thermometer, Fan, Flame, ChevronRight, ChevronLeft } from 'lucide-react';
+import { ArrowRight, Snowflake, Wind, Shirt, Droplets, Cog, AirVent, Server, Thermometer, Fan, Flame, ChevronRight, ChevronLeft, Utensils, ChefHat, Microwave, Refrigerator, IceCream, Beer } from 'lucide-react';
 
-const ICON_MAP = { Snowflake, Cog, Shirt, Droplets, Wind, AirVent, Server, Thermometer, Fan, Flame };
+const ICON_MAP = {
+  Snowflake, Cog, Shirt, Droplets, Wind, AirVent, Server, Thermometer, Fan, Flame,
+  Utensils, ChefHat, Microwave, Refrigerator, IceCream, Beer
+};
 
 const PRODUCT_GALLERY = {
   geladeiras: [
@@ -24,6 +27,78 @@ const PRODUCT_GALLERY = {
   ],
   trituradores: [
     { brand: "Franke", image: "/images/trituradores/franke.png", logo: "/images/assets/franke-logo.png" },
+  ],
+  "lava-loucas": [
+    { brand: "Bertazzoni", image: "/images/lava-loucas/bertazzoni.png", logo: "/images/assets/bertazzoni-logo.png" },
+    { brand: "Brastemp", image: "/images/lava-loucas/brastemp.png", logo: "/images/assets/brastemp-logo.png" },
+    { brand: "Consul", image: "/images/lava-loucas/consul.png", logo: "/images/assets/consul-logo.png" },
+    { brand: "Electrolux", image: "/images/lava-loucas/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+    { brand: "Franke", image: "/images/lava-loucas/franke.png", logo: "/images/assets/franke-logo.png" },
+    { brand: "Gorenje", image: "/images/lava-loucas/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+    { brand: "Hisense", image: "/images/lava-loucas/hisense.png", logo: "/images/assets/hisense-logo.png" },
+    { brand: "HQ", image: "/images/lava-loucas/hq.png", logo: "/images/assets/hq-logo.png" },
+    { brand: "LG", image: "/images/lava-loucas/lg.png", logo: "/images/assets/LG-logo.png" },
+    { brand: "Panasonic", image: "/images/lava-loucas/panasonic.png", logo: "/images/assets/panasonic-logo.png" },
+    { brand: "Samsung", image: "/images/lava-loucas/samsung.png", logo: "/images/assets/samsung-logo.png" },
+    { brand: "Tecno", image: "/images/lava-loucas/tecno.png", logo: "/images/assets/tecno-logo.png" },
+    { brand: "Viking", image: "/images/lava-loucas/viking.png", logo: "/images/assets/viking-logo.png" },
+  ],
+  "forno-eletrico": [
+    { brand: "Bertazzoni", image: "/images/forno-eletrico/bertazzoni.png", logo: "/images/assets/bertazzoni-logo.png" },
+    { brand: "Brastemp", image: "/images/forno-eletrico/brastemp.png", logo: "/images/assets/brastemp-logo.png" },
+    { brand: "Consul", image: "/images/forno-eletrico/consul.png", logo: "/images/assets/consul-logo.png" },
+    { brand: "Electrolux", image: "/images/forno-eletrico/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+    { brand: "Franke", image: "/images/forno-eletrico/franke.png", logo: "/images/assets/franke-logo.png" },
+    { brand: "Gorenje", image: "/images/forno-eletrico/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+    { brand: "Hisense", image: "/images/forno-eletrico/hisense.png", logo: "/images/assets/hisense-logo.png" },
+    { brand: "LG", image: "/images/forno-eletrico/lg.png", logo: "/images/assets/LG-logo.png" },
+    { brand: "Panasonic", image: "/images/forno-eletrico/panasonic.png", logo: "/images/assets/panasonic-logo.png" },
+    { brand: "Samsung", image: "/images/forno-eletrico/samsung.png", logo: "/images/assets/samsung-logo.png" },
+    { brand: "Tecno", image: "/images/forno-eletrico/tecno.png", logo: "/images/assets/tecno-logo.png" },
+    { brand: "Viking", image: "/images/forno-eletrico/viking.png", logo: "/images/assets/viking-logo.png" },
+  ],
+  "microondas": [
+    { brand: "Bertazzoni", image: "/images/microondas/bertazzoni.png", logo: "/images/assets/bertazzoni-logo.png" },
+    { brand: "Brastemp", image: "/images/microondas/brastemp.png", logo: "/images/assets/brastemp-logo.png" },
+    { brand: "Consul", image: "/images/microondas/consul.png", logo: "/images/assets/consul-logo.png" },
+    { brand: "Electrolux", image: "/images/microondas/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+    { brand: "Franke", image: "/images/microondas/franke.png", logo: "/images/assets/franke-logo.png" },
+    { brand: "Gorenje", image: "/images/microondas/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+    { brand: "Hisense", image: "/images/microondas/hisense.png", logo: "/images/assets/hisense-logo.png" },
+    { brand: "LG", image: "/images/microondas/lg.png", logo: "/images/assets/LG-logo.png" },
+    { brand: "Panasonic", image: "/images/microondas/panasonic.png", logo: "/images/assets/panasonic-logo.png" },
+    { brand: "Samsung", image: "/images/microondas/samsung.png", logo: "/images/assets/samsung-logo.png" },
+    { brand: "Tecno", image: "/images/microondas/tecno.png", logo: "/images/assets/tecno-logo.png" },
+    { brand: "Viking", image: "/images/microondas/viking.png", logo: "/images/assets/viking-logo.png" },
+  ],
+  "frigobar": [
+    { brand: "Brastemp", image: "/images/frigobar/brastemp.png", logo: "/images/assets/brastemp-logo.png" },
+    { brand: "Consul", image: "/images/frigobar/consul.png", logo: "/images/assets/consul-logo.png" },
+    { brand: "Electrolux", image: "/images/frigobar/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+    { brand: "Gorenje", image: "/images/frigobar/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+    { brand: "Hisense", image: "/images/frigobar/hisense.png", logo: "/images/assets/hisense-logo.png" },
+    { brand: "HQ", image: "/images/frigobar/hq.png", logo: "/images/assets/hq-logo.png" },
+    { brand: "LG", image: "/images/frigobar/lg.png", logo: "/images/assets/LG-logo.png" },
+    { brand: "Liebherr", image: "/images/frigobar/liebherr.png", logo: "/images/assets/liebherr-logo.png" },
+    { brand: "Tecno", image: "/images/frigobar/tecno.png", logo: "/images/assets/tecno-logo.png" },
+    { brand: "Viking", image: "/images/frigobar/viking.png", logo: "/images/assets/viking-logo.png" },
+  ],
+  "maquina-de-gelo": [
+    { brand: "Electrolux", image: "/images/maquina-de-gelo/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+    { brand: "Gorenje", image: "/images/maquina-de-gelo/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+    { brand: "Hisense", image: "/images/maquina-de-gelo/hisense.png", logo: "/images/assets/hisense-logo.png" },
+    { brand: "HQ", image: "/images/maquina-de-gelo/hq.png", logo: "/images/assets/hq-logo.png" },
+    { brand: "Tecno", image: "/images/maquina-de-gelo/tecno.png", logo: "/images/assets/tecno-logo.png" },
+    { brand: "Viking", image: "/images/maquina-de-gelo/viking.png", logo: "/images/assets/viking-logo.png" },
+  ],
+  "cervejeira": [
+    { brand: "Consul", image: "/images/cervejeira/consul.png", logo: "/images/assets/consul-logo.png" },
+    { brand: "Electrolux", image: "/images/cervejeira/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+    { brand: "Franke", image: "/images/cervejeira/franke.png", logo: "/images/assets/franke-logo.png" },
+    { brand: "Gorenje", image: "/images/cervejeira/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+    { brand: "Hisense", image: "/images/cervejeira/hisense.png", logo: "/images/assets/hisense-logo.png" },
+    { brand: "HQ", image: "/images/cervejeira/hq.png", logo: "/images/assets/hq-logo.png" },
+    { brand: "Tecno", image: "/images/cervejeira/tecno.png", logo: "/images/assets/tecno-logo.png" },
   ],
   "lava-e-seca": [
     { brand: "Bosch", image: "/images/lava-e-seca/bosch.png", logo: "/images/assets/Bosch-Logo.png" },
@@ -107,12 +182,18 @@ const SERVICES = [
   { slug: "ar-condicionado-split", name: "Ar Condicionado Split", icon: "Wind", image: "/images/ar-condicionado-split/samsung.png", desc: "Instalação, manutenção e conserto de ar condicionado split. Limpeza, troca de filtro e recarga de gas.", problems: ["Não liga", "Não resfria", "Vazamento de água", "Ruído excessivo", "Mau cheiro"] },
   { slug: "lava-e-seca", name: "Lava e Seca", icon: "Shirt", image: "/images/lava-e-seca/lg.png", desc: "Reparo especializado em lava e seca. Problemas elétricos, mecânicos e de programacão.", problems: ["Não centrifuga", "Não seca", "Vazamento", "Ruídos estranhos", "Erro no painel"] },
   { slug: "lavadoras", name: "Lavadoras", icon: "Droplets", image: "/images/lavadoras/samsung.png", desc: "Manutencão e conserto de lavadoras. Atendemos todas as marcas com técnicos especializados.", problems: ["No enche água", "Não drena", "Vibra demais"] },
+  { slug: "lava-loucas", name: "Lava Louças", icon: "Utensils", image: "/images/lava-loucas/brastemp.png", desc: "Conserto e manutenção de lava-louças de embutir e de bancada. Atendemos todas as marcas.", problems: ["Não lava direito", "Não enche água", "Não drena", "Vazamento", "Erro no painel"] },
   { slug: "ar-condicionado-portátil", name: "Ar Condicionado Portátil", icon: "AirVent", image: "/images/ar-condicionado-portatil/electrolux.png", desc: "Conserto de ar condicionado portátil de todas as marcas.", problems: ["Não resfria", "Barulho alto", "Vazamento", "Desliga sozinho"] },
   { slug: "trituradores", name: "Trituradores", icon: "Cog", image: "/images/trituradores/franke.png", desc: "Reparo e instalação de trituradores de alimentos. Serviço rápido e garantido.", problems: ["Não tritura", "Entupido", "Faz barulho", "Não liga"] },
   { slug: "vrf-hisense", name: "VRF Hisense", icon: "Server", image: "/images/vrf/vrf-hero-product.png", desc: "Serviço autorizado Hisense para sistemas VRF. Instalação e manutenção especializada.", problems: ["Falha no sistema", "Não refrigera"] },
   { slug: "freezers", name: "Freezers", icon: "Thermometer", image: "/images/freezers/electrolux.png", desc: "Conserto de freezers verticais e horizontais. Todas as marcas e capacidades.", problems: ["Não congela", "Forma gelo excessivo", "Motor não desliga", "Barulho excessivo"] },
   { slug: "coifas", name: "Coifas", icon: "Fan", image: "/images/coifas/franke.png", desc: "Manutenção, instalação e conserto de coifas de ilha e parede de todas as marcas.", problems: ["Não aspira", "Iluminação não funciona", "Barulho", "Não liga"] },
   { slug: "cooktops", name: "Cooktops", icon: "Flame", image: "/images/cooktops/bertazzoni.png", desc: "Conserto e instalação de cooktops a gás, indução e elétricos. Todas as marcas.", problems: ["Boca não acende", "Indução não esquenta", "Erro no painel", "Vazamento de gás"] },
+  { slug: "forno-eletrico", name: "Forno Elétrico", icon: "ChefHat", image: "/images/forno-eletrico/bertazzoni.png", desc: "Conserto e manutenção de fornos elétricos de embutir e bancada. Atendemos todas as marcas.", problems: ["Não esquenta", "Não liga", "Resistência queimada", "Termostato com defeito", "Erro no painel"] },
+  { slug: "microondas", name: "Microondas", icon: "Microwave", image: "/images/microondas/panasonic.png", desc: "Conserto de fornos micro-ondas de embutir e bancada. Atendemos todas as marcas.", problems: ["Não esquenta", "Faísca por dentro", "Prato não gira", "Painel não responde", "Não liga"] },
+  { slug: "frigobar", name: "Frigobar", icon: "Refrigerator", image: "/images/frigobar/electrolux.png", desc: "Manutenção e conserto de frigobares para hotéis, escritórios e residências. Atendemos todas as marcas.", problems: ["Não gela", "Faz barulho", "Vazamento", "Forma gelo excessivo", "Não liga"] },
+  { slug: "maquina-de-gelo", name: "Máquina de Gelo", icon: "IceCream", image: "/images/maquina-de-gelo/hisense.png", desc: "Conserto e manutenção de máquinas de gelo residenciais e comerciais. Atendemos todas as marcas.", problems: ["Não produz gelo", "Gelo com gosto ruim", "Vazamento", "Ruído excessivo", "Não desliga"] },
+  { slug: "cervejeira", name: "Cervejeira", icon: "Beer", image: "/images/cervejeira/hisense.png", desc: "Conserto e manutenção de cervejeiras (beer-coolers) de todas as marcas. Mantenha sua cerveja sempre na temperatura ideal.", problems: ["Não gela", "Faz barulho", "Forma gelo excessivo", "Display com defeito", "Vazamento"] },
 ];
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } };

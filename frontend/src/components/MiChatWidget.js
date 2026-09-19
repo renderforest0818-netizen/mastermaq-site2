@@ -729,10 +729,8 @@ function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, userProfile, o
   const [defect, setDefect] = useState(widget.defectHint || '');
   const [submitting, setSubmitting] = useState(false);
 
-  // Brands not in the authorized list get grouped under the "Outras Marcas" option.
-  const otherBrands = (brands || []).filter(b => !AUTHORIZED_BRANDS_SET.has(b));
-  // If the current brand selection is one of the "other" brands (e.g. detected
-  // automatically from the conversation), keep it but show as "Outras Marcas".
+  // Whether the current brand is outside the authorized list (Mi will treat
+  // any free-typed brand as "out of warranty", same rule as the SchedulingModal).
   const isBrandOther = brand && !AUTHORIZED_BRANDS_SET.has(brand);
 
   const NO_INSTALL = new Set(['geladeiras', 'ar-condicionado-portatil', 'lava-e-seca', 'lavadoras']);
@@ -904,9 +902,9 @@ function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, userProfile, o
               onChange={(e) => {
                 const v = e.target.value;
                 if (v === OTHER_BRANDS_PLACEHOLDER) {
-                  // When the user picks "Outras Marcas", default to the first
-                  // non-authorized brand we know of so the OS can be created.
-                  setBrand(otherBrands[0] || '');
+                  // Switching to "Outras Marcas" clears the brand so the
+                  // free-text input below becomes the source of truth.
+                  setBrand('');
                 } else {
                   setBrand(v);
                 }
@@ -919,12 +917,21 @@ function ScheduleCard({ widget, equipmentTypes, brands, loggedIn, userProfile, o
               {AUTHORIZED_BRANDS_ORDERED.filter(b => (brands || []).includes(b)).map(b => (
                 <option key={b} value={b}>{b}</option>
               ))}
-              {otherBrands.length > 0 && (
-                <option value={OTHER_BRANDS_PLACEHOLDER}>Outras Marcas</option>
-              )}
+              <option value={OTHER_BRANDS_PLACEHOLDER}>Outras Marcas</option>
             </select>
             {isBrandOther && (
-              <p className="mt-1 text-[11px] text-slate-500">Sua marca será registrada como <span className="font-medium text-slate-700">{brand}</span> (atendimento apenas fora da garantia).</p>
+              <div className="mt-1.5 space-y-1">
+                <input
+                  type="text"
+                  value={brand}
+                  onChange={(e) => setBrand(e.target.value)}
+                  placeholder="Digite o nome da marca"
+                  className="w-full border border-slate-300 focus:border-blue-500 outline-none text-sm py-1.5 px-2 bg-white"
+                  style={{ borderRadius: '6px' }}
+                  data-testid="widget-brand-other-input"
+                />
+                <p className="text-[11px] text-slate-500">Atendimento apenas <span className="font-medium">fora da garantia</span>.</p>
+              </div>
             )}
           </div>
           <div className="grid grid-cols-2 gap-2">

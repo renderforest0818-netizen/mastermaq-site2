@@ -11,10 +11,14 @@ import { readPendingSchedule, clearPendingSchedule } from '@/lib/pendingSchedule
 import {
   Shield, Award, Clock, Home, ArrowRight, Star, ChevronRight, ChevronLeft, Wrench,
   Snowflake, Cog, Shirt, Droplets, Wind, AirVent, Server, Thermometer, Fan,
-  Phone, CheckCircle2, Quote
+  Phone, CheckCircle2, Quote, Flame,
+  Utensils, ChefHat, Microwave, Refrigerator, IceCream, Beer
 } from 'lucide-react';
 
-const ICON_MAP = { Snowflake, Cog, Shirt, Droplets, Wind, AirVent, Server, Thermometer, Fan };
+const ICON_MAP = {
+  Snowflake, Cog, Shirt, Droplets, Wind, AirVent, Server, Thermometer, Fan, Flame,
+  Utensils, ChefHat, Microwave, Refrigerator, IceCream, Beer
+};
 
 const PRODUCT_CATEGORIES = [
   {
@@ -61,6 +65,96 @@ const PRODUCT_CATEGORIES = [
       { brand: "LG", image: "/images/lavadoras/lg.png", logo: "/images/assets/LG-logo.png" },
       { brand: "Panasonic", image: "/images/lavadoras/panasonic.png", logo: "/images/assets/panasonic-logo.png" },
       { brand: "Samsung", image: "/images/lavadoras/samsung.png", logo: "/images/assets/samsung-logo.png" },
+    ]
+  },
+  {
+    id: "lava-loucas", name: "Lava Louças", icon: "Utensils",
+    products: [
+      { brand: "Bertazzoni", image: "/images/lava-loucas/bertazzoni.png", logo: "/images/assets/bertazzoni-logo.png" },
+      { brand: "Brastemp", image: "/images/lava-loucas/brastemp.png", logo: "/images/assets/brastemp-logo.png" },
+      { brand: "Consul", image: "/images/lava-loucas/consul.png", logo: "/images/assets/consul-logo.png" },
+      { brand: "Electrolux", image: "/images/lava-loucas/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+      { brand: "Franke", image: "/images/lava-loucas/franke.png", logo: "/images/assets/franke-logo.png" },
+      { brand: "Gorenje", image: "/images/lava-loucas/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+      { brand: "Hisense", image: "/images/lava-loucas/hisense.png", logo: "/images/assets/hisense-logo.png" },
+      { brand: "HQ", image: "/images/lava-loucas/hq.png", logo: "/images/assets/hq-logo.png" },
+      { brand: "LG", image: "/images/lava-loucas/lg.png", logo: "/images/assets/LG-logo.png" },
+      { brand: "Panasonic", image: "/images/lava-loucas/panasonic.png", logo: "/images/assets/panasonic-logo.png" },
+      { brand: "Samsung", image: "/images/lava-loucas/samsung.png", logo: "/images/assets/samsung-logo.png" },
+      { brand: "Tecno", image: "/images/lava-loucas/tecno.png", logo: "/images/assets/tecno-logo.png" },
+      { brand: "Viking", image: "/images/lava-loucas/viking.png", logo: "/images/assets/viking-logo.png" },
+    ]
+  },
+  {
+    id: "forno-eletrico", name: "Forno Elétrico", icon: "ChefHat",
+    products: [
+      { brand: "Bertazzoni", image: "/images/forno-eletrico/bertazzoni.png", logo: "/images/assets/bertazzoni-logo.png" },
+      { brand: "Brastemp", image: "/images/forno-eletrico/brastemp.png", logo: "/images/assets/brastemp-logo.png" },
+      { brand: "Consul", image: "/images/forno-eletrico/consul.png", logo: "/images/assets/consul-logo.png" },
+      { brand: "Electrolux", image: "/images/forno-eletrico/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+      { brand: "Franke", image: "/images/forno-eletrico/franke.png", logo: "/images/assets/franke-logo.png" },
+      { brand: "Gorenje", image: "/images/forno-eletrico/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+      { brand: "Hisense", image: "/images/forno-eletrico/hisense.png", logo: "/images/assets/hisense-logo.png" },
+      { brand: "LG", image: "/images/forno-eletrico/lg.png", logo: "/images/assets/LG-logo.png" },
+      { brand: "Panasonic", image: "/images/forno-eletrico/panasonic.png", logo: "/images/assets/panasonic-logo.png" },
+      { brand: "Samsung", image: "/images/forno-eletrico/samsung.png", logo: "/images/assets/samsung-logo.png" },
+      { brand: "Tecno", image: "/images/forno-eletrico/tecno.png", logo: "/images/assets/tecno-logo.png" },
+      { brand: "Viking", image: "/images/forno-eletrico/viking.png", logo: "/images/assets/viking-logo.png" },
+    ]
+  },
+  {
+    id: "microondas", name: "Microondas", icon: "Microwave",
+    products: [
+      { brand: "Bertazzoni", image: "/images/microondas/bertazzoni.png", logo: "/images/assets/bertazzoni-logo.png" },
+      { brand: "Brastemp", image: "/images/microondas/brastemp.png", logo: "/images/assets/brastemp-logo.png" },
+      { brand: "Consul", image: "/images/microondas/consul.png", logo: "/images/assets/consul-logo.png" },
+      { brand: "Electrolux", image: "/images/microondas/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+      { brand: "Franke", image: "/images/microondas/franke.png", logo: "/images/assets/franke-logo.png" },
+      { brand: "Gorenje", image: "/images/microondas/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+      { brand: "Hisense", image: "/images/microondas/hisense.png", logo: "/images/assets/hisense-logo.png" },
+      { brand: "LG", image: "/images/microondas/lg.png", logo: "/images/assets/LG-logo.png" },
+      { brand: "Panasonic", image: "/images/microondas/panasonic.png", logo: "/images/assets/panasonic-logo.png" },
+      { brand: "Samsung", image: "/images/microondas/samsung.png", logo: "/images/assets/samsung-logo.png" },
+      { brand: "Tecno", image: "/images/microondas/tecno.png", logo: "/images/assets/tecno-logo.png" },
+      { brand: "Viking", image: "/images/microondas/viking.png", logo: "/images/assets/viking-logo.png" },
+    ]
+  },
+  {
+    id: "frigobar", name: "Frigobar", icon: "Refrigerator",
+    products: [
+      { brand: "Brastemp", image: "/images/frigobar/brastemp.png", logo: "/images/assets/brastemp-logo.png" },
+      { brand: "Consul", image: "/images/frigobar/consul.png", logo: "/images/assets/consul-logo.png" },
+      { brand: "Electrolux", image: "/images/frigobar/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+      { brand: "Gorenje", image: "/images/frigobar/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+      { brand: "Hisense", image: "/images/frigobar/hisense.png", logo: "/images/assets/hisense-logo.png" },
+      { brand: "HQ", image: "/images/frigobar/hq.png", logo: "/images/assets/hq-logo.png" },
+      { brand: "LG", image: "/images/frigobar/lg.png", logo: "/images/assets/LG-logo.png" },
+      { brand: "Liebherr", image: "/images/frigobar/liebherr.png", logo: "/images/assets/liebherr-logo.png" },
+      { brand: "Tecno", image: "/images/frigobar/tecno.png", logo: "/images/assets/tecno-logo.png" },
+      { brand: "Viking", image: "/images/frigobar/viking.png", logo: "/images/assets/viking-logo.png" },
+    ]
+  },
+  {
+    id: "maquina-de-gelo", name: "Máquina de Gelo", icon: "IceCream",
+    products: [
+      { brand: "Electrolux", image: "/images/maquina-de-gelo/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+      { brand: "Gorenje", image: "/images/maquina-de-gelo/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+      { brand: "Hisense", image: "/images/maquina-de-gelo/hisense.png", logo: "/images/assets/hisense-logo.png" },
+      { brand: "HQ", image: "/images/maquina-de-gelo/hq.png", logo: "/images/assets/hq-logo.png" },
+      { brand: "Tecno", image: "/images/maquina-de-gelo/tecno.png", logo: "/images/assets/tecno-logo.png" },
+      { brand: "Viking", image: "/images/maquina-de-gelo/viking.png", logo: "/images/assets/viking-logo.png" },
+    ]
+  },
+  {
+    id: "cervejeira", name: "Cervejeira", icon: "Beer",
+    products: [
+      { brand: "Consul", image: "/images/cervejeira/consul.png", logo: "/images/assets/consul-logo.png" },
+      { brand: "Electrolux", image: "/images/cervejeira/electrolux.png", logo: "/images/assets/electrolux-logo.png" },
+      { brand: "Franke", image: "/images/cervejeira/franke.png", logo: "/images/assets/franke-logo.png" },
+      { brand: "Gorenje", image: "/images/cervejeira/gorenje.png", logo: "/images/assets/gorenje-logo.png" },
+      { brand: "Hisense", image: "/images/cervejeira/hisense.png", logo: "/images/assets/hisense-logo.png" },
+      { brand: "HQ", image: "/images/cervejeira/hq.png", logo: "/images/assets/hq-logo.png" },
+      { brand: "Tecno", image: "/images/cervejeira/tecno.png", logo: "/images/assets/tecno-logo.png" },
     ]
   },
   {
@@ -142,12 +236,18 @@ const ALL_EQUIPMENT = [
   { id: "trituradores", name: "Trituradores", icon: "Cog", hasImage: true, image: "/images/trituradores/franke.png" },
   { id: "lava-e-seca", name: "Lava e Seca", icon: "Shirt", hasImage: true, image: "/images/lava-e-seca/lg.png" },
   { id: "lavadoras", name: "Lavadoras", icon: "Droplets", hasImage: true, image: "/images/lavadoras/samsung.png" },
+  { id: "lava-loucas", name: "Lava Louças", icon: "Utensils", hasImage: true, image: "/images/lava-loucas/brastemp.png" },
   { id: "ar-condicionado-split", name: "Ar Condicionado Split", icon: "Wind", hasImage: true, image: "/images/ar-condicionado-split/samsung.png" },
   { id: "ar-condicionado-portatil", name: "Ar Condicionado Portátil", icon: "AirVent", hasImage: true, image: "/images/ar-condicionado-portatil/electrolux.png" },
   { id: "vrf-hisense", name: "VRF Hisense", icon: "Server", hasImage: true, image: "/images/vrf/vrf-hero-product.png" },
   { id: "freezers", name: "Freezers", icon: "Thermometer", hasImage: true, image: "/images/freezers/electrolux.png" },
   { id: "coifas", name: "Coifas", icon: "Fan", hasImage: true, image: "/images/coifas/franke.png" },
   { id: "cooktops", name: "Cooktops", icon: "Flame", hasImage: true, image: "/images/cooktops/bertazzoni.png" },
+  { id: "forno-eletrico", name: "Forno Elétrico", icon: "ChefHat", hasImage: true, image: "/images/forno-eletrico/bertazzoni.png" },
+  { id: "microondas", name: "Microondas", icon: "Microwave", hasImage: true, image: "/images/microondas/panasonic.png" },
+  { id: "frigobar", name: "Frigobar", icon: "Refrigerator", hasImage: true, image: "/images/frigobar/electrolux.png" },
+  { id: "maquina-de-gelo", name: "Máquina de Gelo", icon: "IceCream", hasImage: true, image: "/images/maquina-de-gelo/hisense.png" },
+  { id: "cervejeira", name: "Cervejeira", icon: "Beer", hasImage: true, image: "/images/cervejeira/hisense.png" },
 ];
 
 const BRAND_LOGOS = [
@@ -425,7 +525,7 @@ export default function HomePage() {
 
         {/* Background photo */}
         <div className="absolute inset-0 z-0">
-          <img src="/images/hero-bg.png" alt="" className="w-full h-full object-cover opacity-[0.06]" />
+          <img src="/images/hero-bg.png" alt="" className="w-full h-full object-cover opacity-[0.30]" />
         </div>
 
         {/* === LUZ DIRECIONAL — gradientes puros, sem beams retos === */}

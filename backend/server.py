@@ -124,11 +124,17 @@ EQUIPMENT_TYPES = [
     {"id": "trituradores", "name": "Trituradores", "icon": "Cog"},
     {"id": "lava-e-seca", "name": "Lava e Seca", "icon": "Shirt"},
     {"id": "lavadoras", "name": "Lavadoras", "icon": "Droplets"},
+    {"id": "lava-loucas", "name": "Lava Louças", "icon": "Utensils"},
     {"id": "ar-condicionado-split", "name": "Ar Condicionado Split", "icon": "Wind"},
     {"id": "ar-condicionado-portatil", "name": "Ar Condicionado Portatil", "icon": "AirVent"},
     {"id": "vrf-hisense", "name": "VRF Hisense", "icon": "Server"},
     {"id": "freezers", "name": "Freezers", "icon": "Thermometer"},
     {"id": "coifas", "name": "Coifas", "icon": "Fan"},
+    {"id": "forno-eletrico", "name": "Forno Elétrico", "icon": "ChefHat"},
+    {"id": "microondas", "name": "Microondas", "icon": "Microwave"},
+    {"id": "frigobar", "name": "Frigobar", "icon": "Refrigerator"},
+    {"id": "maquina-de-gelo", "name": "Máquina de Gelo", "icon": "IceCream"},
+    {"id": "cervejeira", "name": "Cervejeira", "icon": "Beer"},
 ]
 
 BRANDS = ["Panasonic", "Liebherr", "Bertazzoni", "Hisense", "Samsung", "LG", "Brastemp", "Electrolux", "Bosch", "Consul", "Midea", "Philco"]
